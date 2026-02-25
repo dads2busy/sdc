@@ -1,0 +1,13 @@
+[project]
+name = "sdc"
+version = "0.1.0"
+description = "Social Data Commons - Unified data pipeline monorepo"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["sdc-core"]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+sdc-core = { workspace = true }

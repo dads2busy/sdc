@@ -1,0 +1,113 @@
+---
+title: "Untitled"
+author: "cm"
+date: "10/17/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+rm( list = ls())
+```
+
+
+#libraries
+```{r}
+library(dplyr)
+library(readr)
+library(readxl)
+library(reshape2)
+library(tidyr)
+```
+
+#data
+```{r}
+
+#USA 2019
+fara_2019 <- read_excel("~/git/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/original/FoodAccessResearchAtlasData2019.xlsx", 
+sheet = "Food Access Research Atlas")
+
+#VA 2019
+fara_2019_va <- fara_2019 %>% filter(State == "Virginia") %>% select(CensusTract, State, County, Urban, Pop2010, lalowi1, lalowi1share, lalowi10share, lalowihalfshare, lalowi20share) 
+
+# %>% 
+#   mutate(year = 2019, 
+#          ratio = as.numeric(LAPOP1_10)/ Pop2010, 
+#          food_access_init =  ifelse( !is.na(as.numeric(LALOWI1_10) ), as.numeric(LALOWI1_10)/Pop2010, as.numeric(LALOWI05_10)/Pop2010  ) 
+#          ) %>% 
+#            as.data.frame()
+
+# arlt<- fara_2019_va %>% filter()
+# 
+# #example with Fairfax county
+# fara_2019_va_51059 <- fara_2019_va %>% filter(County == "Fairfax County") %>% as.data.frame()
+
+
+################################
+
+#USA 2015
+fara_2015 <- read_excel("~/git/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/original/FoodAccessResearchAtlasData2015.xlsx", 
+    sheet = "Food Access Research Atlas")
+
+#VA 2015
+fara_2015_va <- fara_2015 %>% filter(State == "Virginia") 
+
+#variables fara
+fara_2015_va <- fara_2015_va %>% select(CensusTract, State, County, Urban, Pop2010 = POP2010, LILATracts_1And10, LILATracts_halfAnd10, LILATracts_1And20, LILATracts_Vehicle) %>% mutate(year = 2015) %>% as.data.frame()
+
+#joined df for 2 years
+#fara_original_2015_2019_va <- rbind(fara_2019_va, fara_2015_va)
+
+```
+
+
+```{r}
+#select lalowi1share.  if null, select lalowihalfshare
+
+fara_2019_va <- fara_2019_va %>% mutate(food_access_prop = case_when( !is.na(as.numeric(lalowi1share)) ~  as.numeric(lalowi1share), 
+                                                                      is.na(as.numeric(lalowi1share)) ~ as.numeric(lalowihalfshare)
+                                                                        ))
+
+
+```
+
+# Crosswalk function
+```{r}
+#tract conversions: 2010 --> 2020
+source("~/git/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/code/working/tract_conversions.R")
+
+```
+
+#data from vdh - validation
+```{r}
+
+#conversion LILATracts_1And10
+fara_2019_va_updated <- convert_2010_to_2020_tracts(fara_2019_va, 
+                                                      geoid_col = 'CensusTract', 
+                                                      val_col = 'food_access_prop' ) %>% rename( LILATracts_1And10 = value) #%>% mutate(LILATracts_1And10 = round(LILATracts_1And10, 0) )
+
+
+
+
+#data
+HOI_V3_14_Variables_Raw_Scores <- read_excel("Food Access/Food Accessibility Indicator (HOI)/data/original/HOI V3_14 Variables_Raw Scores.xlsx")
+
+
+
+#validation match
+validation_dat <- fara_2019_va %>% left_join(HOI_V3_14_Variables_Raw_Scores %>% select(CT2, `Food Access*` ) , by = c( "CensusTract" = "CT2" ) )
+
+#corr plot
+plot(validation_dat$food_access_prop, validation_dat$`Food Access*`)
+
+#corr
+cor.test(validation_dat$food_access_prop, validation_dat$`Food Access*`)
+
+
+```
+
+

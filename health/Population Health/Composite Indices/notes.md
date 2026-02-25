@@ -1,0 +1,1 @@
+All of the composite indices stored here. Each one predicted with 2020 incarceration and new access to care data. Note: for some reason, the 2015 consumer data is particularly different from the rest.

@@ -1,0 +1,3 @@
+-Original data file was large - 63MB
+-Deleted so as to not push to GitHub
+-code exists for downloading original file

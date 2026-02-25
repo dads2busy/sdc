@@ -1,0 +1,110 @@
+---
+title: "Media and Presentations"
+output:
+  html_document
+---
+
+<style type="text/css">
+  p {
+  font-size: 20px;
+}
+</style>
+
+<h3 style=color:#F84C1E;> Media coverage </h3>
+
+<div width="600px" style="float: right;">
+
+[![As NOVA Booms, UVA Biocomplexity Institute Works to Support Community's Well-being, 2022 article published in UVA Today](img/media-uvatoday.png)](https://news.virginia.edu/content/nova-booms-uva-biocomplexity-institute-works-support-communitys-well-being)
+
+</div>
+
+
+<br>
+<br>
+<br>
+<br>
+
+<div style="clear: both">
+
+![](img/media-ffxlogo.png){width="200px" style="float: right;"}
+
+The Social Impact Data Commons was featured in a presentation to the **Fairfax County Board of Supervisors Information Technology Committee** on 14 June 2022. The topic of discussion was Digital Equity/Broadband in the county. 
+
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<h3 style=color:#F84C1E;> Conference presentations </h3>
+
+<div style="clear: both">
+
+![](img/media-apdulogo.png){width="300px" style="float: right;"}
+
+**"The Social Impact Data Commons: A New Sustainable Architecture and Stakeholder Approach to Collect, Create, Validate and Distribute Sub-County-Level Datasets and Metrics to Support Regional Data-Driven Decision-Making"**, presented at the 2022 Association of Public Data Users (APDU) conference by Kathryn Linehan
+
+</div>
+
+<br>
+<br>
+
+<div style="clear: both">
+
+![](img/media-masnlogo.png){width="375px" style="float: left;"}
+
+**“Data Re-Use in Action: Social Impact Data Commons”**, presented at the 2022 Mid-Atlantic Statistics Network (MASN) by Aaron Schroeder.
+
+</div>
+
+<br>
+<br>
+
+<div style="clear: both">
+
+![](img/media-jsmlogo.png){width="200px" style="float: right;"}
+
+**"Lessons Learned in Coordinating Large-Scale Data Science Initiatives"**, presented at the 2022 Joint Statistical Meetings by Joel Thurston
+
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<div style="clear: both">
+
+![](img/media-nacchologo.png){width="250px" style="float: left;"}
+
+**"The Virginia’s New Rural Health Data Commons, Featuring New Health-related Datasets and New Metrics for Visualizing Health Services Access"**, presented at the 2022 National Association of County and City Health Officials (NACCHO) annual conference by Aaron Schroeder and Cesar Montalvo
+
+</div>
+
+<br>
+<br>
+
+<div style="clear: both">
+
+![](img/media-fcsmlogo.jpeg){width="300px" style="float: right;"}
+
+**"Building the Social Impact Data Commons Data Discovery and Acquisition Lessons Learned"**, presented at the 2022 Federal Committee on Statistical Methodology (FCSM) Research and Policy Conference by Joanna Schroeder
+
+</div>
+
+<br>
+<br>
+
+<div style="clear: both">
+
+![](img/media-ichpslogo.png){width="300px" style="float: left;"}
+
+**"Virginia’s New Rural Health Data Commons: Informing Health Policy through Featuring Health Related Metrics for Visualizing Health Services Access"**, presented at the 2023 International Conference on Health Policy Statistics (ICHPS) by Cesar Montalvo and Joanna Schroeder
+
+</div>
+
+<br>
+<br>
+
+`r htmltools::includeHTML("./footer.html")`

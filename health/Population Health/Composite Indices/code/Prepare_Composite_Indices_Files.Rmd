@@ -1,0 +1,444 @@
+---
+title: "Predict Composite Indices"
+author: "Michael Vaden"
+date: "2024-06-02"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+```
+
+## Load in Data
+
+```{r}
+data_matrix <- read.csv("/Users/michaelvaden/Downloads/normalized_indicators_2020.csv") %>% dplyr::select(-c(X)) # there is an X saved in the data for some reason
+normalized_df <- read.csv("/Users/michaelvaden/Downloads/normalized_indicators_and_metadata_2020.csv") %>% dplyr::select(-c(X)) %>% mutate(CT2 = as.character(CT2))
+X1 <- read.csv("/Users/michaelvaden/Downloads/2020_Raw_Indicators_HOI_LE.csv") %>% dplyr::select(-c(X))
+
+HOI_results <- read_excel("/Users/michaelvaden/Downloads/HOI V3_4 Components_PCA weights.xlsx")
+
+indicators_2015 <- read.csv("/Users/michaelvaden/Downloads/indicators_used_for_LE/indicators_2015.csv")
+indicators_2016 <- read.csv("/Users/michaelvaden/Downloads/indicators_used_for_LE/indicators_2016.csv")
+indicators_2017 <- read.csv("/Users/michaelvaden/Downloads/indicators_used_for_LE/indicators_2017.csv")
+indicators_2018 <- read.csv("/Users/michaelvaden/Downloads/indicators_used_for_LE/indicators_2018.csv")
+indicators_2019 <- read.csv("/Users/michaelvaden/Downloads/indicators_used_for_LE/indicators_2019.csv")
+indicators_2021 <- read.csv("/Users/michaelvaden/Downloads/indicators_used_for_LE/indicators_2021.csv")
+```
+
+## Train Model with 2020 Data
+
+```{r}
+composite_indices = HOI_results[,1:5] %>% rename(CT2 = CT)
+
+composite_indices_data = normalized_df[,c(1, 5:18)] %>% full_join(composite_indices, by="CT2")
+
+names(composite_indices_data) <- gsub("\\*", "", names(composite_indices_data))
+
+built_environment_regression = lm(`Built Environment Profile SI`~., data=composite_indices_data[,c(2:15, 16)])
+
+#summary(built_environment_regression)
+
+economic_regression = lm(`Economic Profile SI`~., data=composite_indices_data[,c(2:15, 17)])
+#summary(economic_regression)
+
+social_impact_regression = lm(`Social Impact Profile SI`~., data=composite_indices_data[,c(2:15, 18)])
+#summary(social_impact_regression)
+
+consumer_regression = lm(`Consumer Profile SI`~., data=composite_indices_data[,c(2:15, 19)])
+#summary(consumer_regression)
+```
+
+## Predict, Quantize, and Save for each year
+
+```{r}
+built_environment_predicted_2015 <- predict(built_environment_regression, indicators_2015 %>% mutate(Incarceration = data_matrix$Incarceration))
+built_environment_predicted_2015 = scale_numeric(built_environment_predicted_2015)
+cor(built_environment_predicted_2015, composite_indices_data$`Built Environment Profile SI`)
+range(built_environment_predicted_2015)
+
+economic_predicted_2015 <- predict(economic_regression, indicators_2015 %>% mutate(Incarceration = data_matrix$Incarceration))
+economic_predicted_2015 = scale_numeric(economic_predicted_2015)
+cor(economic_predicted_2015, composite_indices_data$`Economic Profile SI`)
+range(economic_predicted_2015)
+
+social_impact_predicted_2015 <- predict(social_impact_regression, indicators_2015 %>% mutate(Incarceration = data_matrix$Incarceration))
+social_impact_predicted_2015 = scale_numeric(social_impact_predicted_2015)
+cor(social_impact_predicted_2015, composite_indices_data$`Social Impact Profile SI`)
+range(social_impact_predicted_2015)
+
+consumer_predicted_2015 <- predict(consumer_regression, indicators_2015 %>% mutate(Incarceration = data_matrix$Incarceration))
+consumer_predicted_2015 = scale_numeric(consumer_predicted_2015)
+cor(consumer_predicted_2015, composite_indices_data$`Consumer Profile SI`)
+range(consumer_predicted_2015)
+
+# do we want to re-normalize? YES
+
+# use 2020 incarceration? -> slightly better results with 2020 incarceration
+
+# need scaled into quantiles as well
+
+built_environment_data_2015 = indicators_2015 %>% select(geoid) %>% mutate(year = 2015) %>% mutate(measure = "community_environment_indicator") %>% mutate(value = built_environment_predicted_2015) %>% mutate(moe = NA)
+
+be_percentiles <- quantile(built_environment_data_2015$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+built_environment_data_2015_quintile = built_environment_data_2015 %>% mutate(value= as.numeric(cut(built_environment_data_2015$value, breaks = be_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+economic_data_2015 = indicators_2015 %>% select(geoid) %>% mutate(year = 2015) %>% mutate(measure = "economic_opportunity_indicator") %>% mutate(value = economic_predicted_2015) %>% mutate(moe = NA)
+
+e_percentiles <- quantile(economic_data_2015$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+economic_data_2015_quintile = economic_data_2015 %>% mutate(value= as.numeric(cut(economic_data_2015$value, breaks = e_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+social_impact_data_2015 = indicators_2015 %>% select(geoid) %>% mutate(year = 2015) %>% mutate(measure = "wellness_disparity_indicator") %>% mutate(value = social_impact_predicted_2015) %>% mutate(moe = NA)
+
+si_percentiles <- quantile(social_impact_data_2015$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+social_impact_data_2015_quintile = social_impact_data_2015 %>% mutate(value= as.numeric(cut(social_impact_data_2015$value, breaks = si_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+consumer_data_2015 = indicators_2015 %>% select(geoid) %>% mutate(year = 2015) %>% mutate(measure = "consumer_opportunity_indicator") %>% mutate(value = consumer_predicted_2015) %>% mutate(moe = NA)
+
+c_percentiles <- quantile(consumer_data_2015$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+consumer_data_2015_quintile = consumer_data_2015 %>% mutate(value= as.numeric(cut(consumer_data_2015$value, breaks = c_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+# need to write to files
+
+setwd("composite_indices/2015")
+# write.csv(built_environment_data_2015, "community_environment_indicator_2015.csv")
+# write.csv(built_environment_data_2015_quintile, "community_environment_indicator_2015_quintile.csv")
+# write.csv(economic_data_2015, "economic_opportunity_indicator_2015.csv")
+# write.csv(economic_data_2015_quintile, "economic_opportunity_indicator_2015_quintile.csv")
+# write.csv(social_impact_data_2015, "wellness_disparity_indicator_2015.csv")
+# write.csv(social_impact_data_2015_quintile, "wellness_disparity_indicator_2015_quintile.csv")
+# write.csv(consumer_data_2015, "consumer_opportunity_indicator_2015.csv")
+# write.csv(consumer_data_2015_quintile, "consumer_opportunity_indicator_2015_quintile.csv")
+setwd("/Users/michaelvaden/Downloads")
+```
+
+```{r}
+built_environment_predicted_2016 <- predict(built_environment_regression, indicators_2016 %>% mutate(Incarceration = data_matrix$Incarceration))
+built_environment_predicted_2016 = scale_numeric(built_environment_predicted_2016)
+cor(built_environment_predicted_2016, composite_indices_data$`Built Environment Profile SI`)
+range(built_environment_predicted_2016)
+
+economic_predicted_2016 <- predict(economic_regression, indicators_2016 %>% mutate(Incarceration = data_matrix$Incarceration))
+economic_predicted_2016 = scale_numeric(economic_predicted_2016)
+cor(economic_predicted_2016, composite_indices_data$`Economic Profile SI`)
+range(economic_predicted_2016)
+
+social_impact_predicted_2016 <- predict(social_impact_regression, indicators_2016 %>% mutate(Incarceration = data_matrix$Incarceration))
+social_impact_predicted_2016 = scale_numeric(social_impact_predicted_2016)
+cor(social_impact_predicted_2016, composite_indices_data$`Social Impact Profile SI`)
+range(social_impact_predicted_2016)
+
+consumer_predicted_2016 <- predict(consumer_regression, indicators_2016 %>% mutate(Incarceration = data_matrix$Incarceration))
+consumer_predicted_2016 = scale_numeric(consumer_predicted_2016)
+cor(consumer_predicted_2016, composite_indices_data$`Consumer Profile SI`)
+range(consumer_predicted_2016)
+
+# do we want to re-normalize? YES
+
+# use 2020 incarceration? -> slightly better results with 2020 incarceration
+
+# need scaled into quantiles as well
+
+built_environment_data_2016 = indicators_2016 %>% select(geoid) %>% mutate(year = 2016) %>% mutate(measure = "community_environment_indicator") %>% mutate(value = built_environment_predicted_2016) %>% mutate(moe = NA)
+
+be_percentiles <- quantile(built_environment_data_2016$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+built_environment_data_2016_quintile = built_environment_data_2016 %>% mutate(value= as.numeric(cut(built_environment_data_2016$value, breaks = be_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+economic_data_2016 = indicators_2016 %>% select(geoid) %>% mutate(year = 2016) %>% mutate(measure = "economic_opportunity_indicator") %>% mutate(value = economic_predicted_2016) %>% mutate(moe = NA)
+
+e_percentiles <- quantile(economic_data_2016$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+economic_data_2016_quintile = economic_data_2016 %>% mutate(value= as.numeric(cut(economic_data_2016$value, breaks = e_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+social_impact_data_2016 = indicators_2016 %>% select(geoid) %>% mutate(year = 2016) %>% mutate(measure = "wellness_disparity_indicator") %>% mutate(value = social_impact_predicted_2016) %>% mutate(moe = NA)
+
+si_percentiles <- quantile(social_impact_data_2016$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+social_impact_data_2016_quintile = social_impact_data_2016 %>% mutate(value= as.numeric(cut(social_impact_data_2016$value, breaks = si_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+consumer_data_2016 = indicators_2016 %>% select(geoid) %>% mutate(year = 2016) %>% mutate(measure = "consumer_opportunity_indicator") %>% mutate(value = consumer_predicted_2016) %>% mutate(moe = NA)
+
+c_percentiles <- quantile(consumer_data_2016$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+consumer_data_2016_quintile = consumer_data_2016 %>% mutate(value= as.numeric(cut(consumer_data_2016$value, breaks = c_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+# need to write to files
+
+setwd("composite_indices/2016")
+# write.csv(built_environment_data_2016, "community_environment_indicator_2016.csv")
+# write.csv(built_environment_data_2016_quintile, "community_environment_indicator_2016_quintile.csv")
+# write.csv(economic_data_2016, "economic_opportunity_indicator_2016.csv")
+# write.csv(economic_data_2016_quintile, "economic_opportunity_indicator_2016_quintile.csv")
+# write.csv(social_impact_data_2016, "wellness_disparity_indicator_2016.csv")
+# write.csv(social_impact_data_2016_quintile, "wellness_disparity_indicator_2016_quintile.csv")
+# write.csv(consumer_data_2016, "consumer_opportunity_indicator_2016.csv")
+# write.csv(consumer_data_2016_quintile, "consumer_opportunity_indicator_2016_quintile.csv")
+setwd("/Users/michaelvaden/Downloads")
+```
+
+```{r}
+built_environment_predicted_2017 <- predict(built_environment_regression, indicators_2017 %>% mutate(Incarceration = data_matrix$Incarceration))
+built_environment_predicted_2017 = scale_numeric(built_environment_predicted_2017)
+cor(built_environment_predicted_2017, composite_indices_data$`Built Environment Profile SI`)
+range(built_environment_predicted_2017)
+
+economic_predicted_2017 <- predict(economic_regression, indicators_2017 %>% mutate(Incarceration = data_matrix$Incarceration))
+economic_predicted_2017 = scale_numeric(economic_predicted_2017)
+cor(economic_predicted_2017, composite_indices_data$`Economic Profile SI`)
+range(economic_predicted_2017)
+
+social_impact_predicted_2017 <- predict(social_impact_regression, indicators_2017 %>% mutate(Incarceration = data_matrix$Incarceration))
+social_impact_predicted_2017 = scale_numeric(social_impact_predicted_2017)
+cor(social_impact_predicted_2017, composite_indices_data$`Social Impact Profile SI`)
+range(social_impact_predicted_2017)
+
+consumer_predicted_2017 <- predict(consumer_regression, indicators_2017 %>% mutate(Incarceration = data_matrix$Incarceration))
+consumer_predicted_2017 = scale_numeric(consumer_predicted_2017)
+cor(consumer_predicted_2017, composite_indices_data$`Consumer Profile SI`)
+range(consumer_predicted_2017)
+
+# do we want to re-normalize? YES
+
+# use 2020 incarceration? -> slightly better results with 2020 incarceration
+
+# need scaled into quantiles as well
+
+built_environment_data_2017 = indicators_2017 %>% select(geoid) %>% mutate(year = 2017) %>% mutate(measure = "community_environment_indicator") %>% mutate(value = built_environment_predicted_2017) %>% mutate(moe = NA)
+
+be_percentiles <- quantile(built_environment_data_2017$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+built_environment_data_2017_quintile = built_environment_data_2017 %>% mutate(value= as.numeric(cut(built_environment_data_2017$value, breaks = be_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+economic_data_2017 = indicators_2017 %>% select(geoid) %>% mutate(year = 2017) %>% mutate(measure = "economic_opportunity_indicator") %>% mutate(value = economic_predicted_2017) %>% mutate(moe = NA)
+
+e_percentiles <- quantile(economic_data_2017$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+economic_data_2017_quintile = economic_data_2017 %>% mutate(value= as.numeric(cut(economic_data_2017$value, breaks = e_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+social_impact_data_2017 = indicators_2017 %>% select(geoid) %>% mutate(year = 2017) %>% mutate(measure = "wellness_disparity_indicator") %>% mutate(value = social_impact_predicted_2017) %>% mutate(moe = NA)
+
+si_percentiles <- quantile(social_impact_data_2017$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+social_impact_data_2017_quintile = social_impact_data_2017 %>% mutate(value= as.numeric(cut(social_impact_data_2017$value, breaks = si_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+consumer_data_2017 = indicators_2017 %>% select(geoid) %>% mutate(year = 2017) %>% mutate(measure = "consumer_opportunity_indicator") %>% mutate(value = consumer_predicted_2017) %>% mutate(moe = NA)
+
+c_percentiles <- quantile(consumer_data_2017$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+consumer_data_2017_quintile = consumer_data_2017 %>% mutate(value= as.numeric(cut(consumer_data_2017$value, breaks = c_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+# need to write to files
+
+setwd("composite_indices/2017")
+# write.csv(built_environment_data_2017, "community_environment_indicator_2017.csv")
+# write.csv(built_environment_data_2017_quintile, "community_environment_indicator_2017_quintile.csv")
+# write.csv(economic_data_2017, "economic_opportunity_indicator_2017.csv")
+# write.csv(economic_data_2017_quintile, "economic_opportunity_indicator_2017_quintile.csv")
+# write.csv(social_impact_data_2017, "wellness_disparity_indicator_2017.csv")
+# write.csv(social_impact_data_2017_quintile, "wellness_disparity_indicator_2017_quintile.csv")
+# write.csv(consumer_data_2017, "consumer_opportunity_indicator_2017.csv")
+# write.csv(consumer_data_2017_quintile, "consumer_opportunity_indicator_2017_quintile.csv")
+setwd("/Users/michaelvaden/Downloads")
+```
+
+```{r}
+built_environment_predicted_2018 <- predict(built_environment_regression, indicators_2018 %>% mutate(Incarceration = data_matrix$Incarceration))
+built_environment_predicted_2018 = scale_numeric(built_environment_predicted_2018)
+cor(built_environment_predicted_2018, composite_indices_data$`Built Environment Profile SI`)
+range(built_environment_predicted_2018)
+
+economic_predicted_2018 <- predict(economic_regression, indicators_2018 %>% mutate(Incarceration = data_matrix$Incarceration))
+economic_predicted_2018 = scale_numeric(economic_predicted_2018)
+cor(economic_predicted_2018, composite_indices_data$`Economic Profile SI`)
+range(economic_predicted_2018)
+
+social_impact_predicted_2018 <- predict(social_impact_regression, indicators_2018 %>% mutate(Incarceration = data_matrix$Incarceration))
+social_impact_predicted_2018 = scale_numeric(social_impact_predicted_2018)
+cor(social_impact_predicted_2018, composite_indices_data$`Social Impact Profile SI`)
+range(social_impact_predicted_2018)
+
+consumer_predicted_2018 <- predict(consumer_regression, indicators_2018 %>% mutate(Incarceration = data_matrix$Incarceration))
+consumer_predicted_2018 = scale_numeric(consumer_predicted_2018)
+cor(consumer_predicted_2018, composite_indices_data$`Consumer Profile SI`)
+range(consumer_predicted_2018)
+
+# do we want to re-normalize? YES
+
+# use 2020 incarceration? -> slightly better results with 2020 incarceration
+
+# need scaled into quantiles as well
+
+built_environment_data_2018 = indicators_2018 %>% select(geoid) %>% mutate(year = 2018) %>% mutate(measure = "community_environment_indicator") %>% mutate(value = built_environment_predicted_2018) %>% mutate(moe = NA)
+
+be_percentiles <- quantile(built_environment_data_2018$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+built_environment_data_2018_quintile = built_environment_data_2018 %>% mutate(value= as.numeric(cut(built_environment_data_2018$value, breaks = be_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+economic_data_2018 = indicators_2018 %>% select(geoid) %>% mutate(year = 2018) %>% mutate(measure = "economic_opportunity_indicator") %>% mutate(value = economic_predicted_2018) %>% mutate(moe = NA)
+
+e_percentiles <- quantile(economic_data_2018$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+economic_data_2018_quintile = economic_data_2018 %>% mutate(value= as.numeric(cut(economic_data_2018$value, breaks = e_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+social_impact_data_2018 = indicators_2018 %>% select(geoid) %>% mutate(year = 2018) %>% mutate(measure = "wellness_disparity_indicator") %>% mutate(value = social_impact_predicted_2018) %>% mutate(moe = NA)
+
+si_percentiles <- quantile(social_impact_data_2018$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+social_impact_data_2018_quintile = social_impact_data_2018 %>% mutate(value= as.numeric(cut(social_impact_data_2018$value, breaks = si_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+consumer_data_2018 = indicators_2018 %>% select(geoid) %>% mutate(year = 2018) %>% mutate(measure = "consumer_opportunity_indicator") %>% mutate(value = consumer_predicted_2018) %>% mutate(moe = NA)
+
+c_percentiles <- quantile(consumer_data_2018$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+consumer_data_2018_quintile = consumer_data_2018 %>% mutate(value= as.numeric(cut(consumer_data_2018$value, breaks = c_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+# need to write to files
+
+setwd("composite_indices/2018")
+# write.csv(built_environment_data_2018, "community_environment_indicator_2018.csv")
+# write.csv(built_environment_data_2018_quintile, "community_environment_indicator_2018_quintile.csv")
+# write.csv(economic_data_2018, "economic_opportunity_indicator_2018.csv")
+# write.csv(economic_data_2018_quintile, "economic_opportunity_indicator_2018_quintile.csv")
+# write.csv(social_impact_data_2018, "wellness_disparity_indicator_2018.csv")
+# write.csv(social_impact_data_2018_quintile, "wellness_disparity_indicator_2018_quintile.csv")
+# write.csv(consumer_data_2018, "consumer_opportunity_indicator_2018.csv")
+# write.csv(consumer_data_2018_quintile, "consumer_opportunity_indicator_2018_quintile.csv")
+setwd("/Users/michaelvaden/Downloads")
+```
+
+```{r}
+built_environment_predicted_2019 <- predict(built_environment_regression, indicators_2019 %>% mutate(Incarceration = data_matrix$Incarceration))
+built_environment_predicted_2019 = scale_numeric(built_environment_predicted_2019)
+cor(built_environment_predicted_2019, composite_indices_data$`Built Environment Profile SI`)
+range(built_environment_predicted_2019)
+
+economic_predicted_2019 <- predict(economic_regression, indicators_2019 %>% mutate(Incarceration = data_matrix$Incarceration))
+economic_predicted_2019 = scale_numeric(economic_predicted_2019)
+cor(economic_predicted_2019, composite_indices_data$`Economic Profile SI`)
+range(economic_predicted_2019)
+
+social_impact_predicted_2019 <- predict(social_impact_regression, indicators_2019 %>% mutate(Incarceration = data_matrix$Incarceration))
+social_impact_predicted_2019 = scale_numeric(social_impact_predicted_2019)
+cor(social_impact_predicted_2019, composite_indices_data$`Social Impact Profile SI`)
+range(social_impact_predicted_2019)
+
+consumer_predicted_2019 <- predict(consumer_regression, indicators_2019 %>% mutate(Incarceration = data_matrix$Incarceration))
+consumer_predicted_2019 = scale_numeric(consumer_predicted_2019)
+cor(consumer_predicted_2019, composite_indices_data$`Consumer Profile SI`)
+range(consumer_predicted_2019)
+
+# do we want to re-normalize? YES
+
+# use 2020 incarceration? -> slightly better results with 2020 incarceration
+
+# need scaled into quantiles as well
+
+built_environment_data_2019 = indicators_2019 %>% select(geoid) %>% mutate(year = 2019) %>% mutate(measure = "community_environment_indicator") %>% mutate(value = built_environment_predicted_2019) %>% mutate(moe = NA)
+
+be_percentiles <- quantile(built_environment_data_2019$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+built_environment_data_2019_quintile = built_environment_data_2019 %>% mutate(value= as.numeric(cut(built_environment_data_2019$value, breaks = be_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+economic_data_2019 = indicators_2019 %>% select(geoid) %>% mutate(year = 2019) %>% mutate(measure = "economic_opportunity_indicator") %>% mutate(value = economic_predicted_2019) %>% mutate(moe = NA)
+
+e_percentiles <- quantile(economic_data_2019$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+economic_data_2019_quintile = economic_data_2019 %>% mutate(value= as.numeric(cut(economic_data_2019$value, breaks = e_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+social_impact_data_2019 = indicators_2019 %>% select(geoid) %>% mutate(year = 2019) %>% mutate(measure = "wellness_disparity_indicator") %>% mutate(value = social_impact_predicted_2019) %>% mutate(moe = NA)
+
+si_percentiles <- quantile(social_impact_data_2019$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+social_impact_data_2019_quintile = social_impact_data_2019 %>% mutate(value= as.numeric(cut(social_impact_data_2019$value, breaks = si_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+consumer_data_2019 = indicators_2019 %>% select(geoid) %>% mutate(year = 2019) %>% mutate(measure = "consumer_opportunity_indicator") %>% mutate(value = consumer_predicted_2019) %>% mutate(moe = NA)
+
+c_percentiles <- quantile(consumer_data_2019$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+consumer_data_2019_quintile = consumer_data_2019 %>% mutate(value= as.numeric(cut(consumer_data_2019$value, breaks = c_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+# need to write to files
+
+setwd("composite_indices/2019")
+# write.csv(built_environment_data_2019, "community_environment_indicator_2019.csv")
+# write.csv(built_environment_data_2019_quintile, "community_environment_indicator_2019_quintile.csv")
+# write.csv(economic_data_2019, "economic_opportunity_indicator_2019.csv")
+# write.csv(economic_data_2019_quintile, "economic_opportunity_indicator_2019_quintile.csv")
+# write.csv(social_impact_data_2019, "wellness_disparity_indicator_2019.csv")
+# write.csv(social_impact_data_2019_quintile, "wellness_disparity_indicator_2019_quintile.csv")
+# write.csv(consumer_data_2019, "consumer_opportunity_indicator_2019.csv")
+# write.csv(consumer_data_2019_quintile, "consumer_opportunity_indicator_2019_quintile.csv")
+setwd("/Users/michaelvaden/Downloads")
+```
+
+```{r}
+built_environment_predicted_2021 <- predict(built_environment_regression, indicators_2021 %>% mutate(Incarceration = data_matrix$Incarceration))
+built_environment_predicted_2021 = scale_numeric(built_environment_predicted_2021)
+cor(built_environment_predicted_2021, composite_indices_data$`Built Environment Profile SI`)
+range(built_environment_predicted_2021)
+
+economic_predicted_2021 <- predict(economic_regression, indicators_2021 %>% mutate(Incarceration = data_matrix$Incarceration))
+economic_predicted_2021 = scale_numeric(economic_predicted_2021)
+cor(economic_predicted_2021, composite_indices_data$`Economic Profile SI`)
+range(economic_predicted_2021)
+
+social_impact_predicted_2021 <- predict(social_impact_regression, indicators_2021 %>% mutate(Incarceration = data_matrix$Incarceration))
+social_impact_predicted_2021 = scale_numeric(social_impact_predicted_2021)
+cor(social_impact_predicted_2021, composite_indices_data$`Social Impact Profile SI`)
+range(social_impact_predicted_2021)
+
+consumer_predicted_2021 <- predict(consumer_regression, indicators_2021 %>% mutate(Incarceration = data_matrix$Incarceration))
+consumer_predicted_2021 = scale_numeric(consumer_predicted_2021)
+cor(consumer_predicted_2021, composite_indices_data$`Consumer Profile SI`)
+range(consumer_predicted_2021)
+
+# do we want to re-normalize? YES
+
+# use 2020 incarceration? -> slightly better results with 2020 incarceration
+
+# need scaled into quantiles as well
+
+built_environment_data_2021 = indicators_2021 %>% select(geoid) %>% mutate(year = 2021) %>% mutate(measure = "community_environment_indicator") %>% mutate(value = built_environment_predicted_2021) %>% mutate(moe = NA)
+
+be_percentiles <- quantile(built_environment_data_2021$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+built_environment_data_2021_quintile = built_environment_data_2021 %>% mutate(value= as.numeric(cut(built_environment_data_2021$value, breaks = be_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+economic_data_2021 = indicators_2021 %>% select(geoid) %>% mutate(year = 2021) %>% mutate(measure = "economic_opportunity_indicator") %>% mutate(value = economic_predicted_2021) %>% mutate(moe = NA)
+
+e_percentiles <- quantile(economic_data_2021$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+economic_data_2021_quintile = economic_data_2021 %>% mutate(value= as.numeric(cut(economic_data_2021$value, breaks = e_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+social_impact_data_2021 = indicators_2021 %>% select(geoid) %>% mutate(year = 2021) %>% mutate(measure = "wellness_disparity_indicator") %>% mutate(value = social_impact_predicted_2021) %>% mutate(moe = NA)
+
+si_percentiles <- quantile(social_impact_data_2021$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+social_impact_data_2021_quintile = social_impact_data_2021 %>% mutate(value= as.numeric(cut(social_impact_data_2021$value, breaks = si_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+consumer_data_2021 = indicators_2021 %>% select(geoid) %>% mutate(year = 2021) %>% mutate(measure = "consumer_opportunity_indicator") %>% mutate(value = consumer_predicted_2021) %>% mutate(moe = NA)
+
+c_percentiles <- quantile(consumer_data_2021$value, probs = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+consumer_data_2021_quintile = consumer_data_2021 %>% mutate(value= as.numeric(cut(consumer_data_2021$value, breaks = c_percentiles, labels = FALSE, include.lowest = TRUE)))
+
+
+# need to write to files
+
+setwd("composite_indices/2021")
+# write.csv(built_environment_data_2021, "community_environment_indicator_2021.csv")
+# write.csv(built_environment_data_2021_quintile, "community_environment_indicator_2021_quintile.csv")
+# write.csv(economic_data_2021, "economic_opportunity_indicator_2021.csv")
+# write.csv(economic_data_2021_quintile, "economic_opportunity_indicator_2021_quintile.csv")
+# write.csv(social_impact_data_2021, "wellness_disparity_indicator_2021.csv")
+# write.csv(social_impact_data_2021_quintile, "wellness_disparity_indicator_2021_quintile.csv")
+# write.csv(consumer_data_2021, "consumer_opportunity_indicator_2021.csv")
+# write.csv(consumer_data_2021_quintile, "consumer_opportunity_indicator_2021_quintile.csv")
+setwd("/Users/michaelvaden/Downloads")
+```
+

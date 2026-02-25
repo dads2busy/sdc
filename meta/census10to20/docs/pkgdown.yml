@@ -1,0 +1,9 @@
+pandoc: '3.2'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  census10to20: census10to20.html
+last_built: 2025-05-06T13:53Z
+urls:
+  reference: https://uva-bi-sdad.github.io/sdc.censes10to20/reference
+  article: https://uva-bi-sdad.github.io/sdc.censes10to20/articles

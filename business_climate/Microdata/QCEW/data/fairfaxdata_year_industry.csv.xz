@@ -1,0 +1,253 @@
+"","area_fips","area_title","year","industry_code","industry_title","total_employment"
+"1","51059","Fairfax County, Virginia",2010,"11","Agriculture, forestry, fishing and hunting",134
+"2","51059","Fairfax County, Virginia",2010,"21","Mining, quarrying, and oil and gas extraction",212
+"3","51059","Fairfax County, Virginia",2010,"22","Utilities",0
+"4","51059","Fairfax County, Virginia",2010,"23","Construction",24553
+"5","51059","Fairfax County, Virginia",2010,"31-33","Manufacturing",9666
+"6","51059","Fairfax County, Virginia",2010,"42","Wholesale trade",14449
+"7","51059","Fairfax County, Virginia",2010,"44-45","Retail trade",51364
+"8","51059","Fairfax County, Virginia",2010,"48-49","Transportation and warehousing",2605
+"9","51059","Fairfax County, Virginia",2010,"51","Information",23252
+"10","51059","Fairfax County, Virginia",2010,"52","Finance and insurance",22666
+"11","51059","Fairfax County, Virginia",2010,"53","Real estate and rental and leasing",8974
+"12","51059","Fairfax County, Virginia",2010,"54","Professional and technical services",158677
+"13","51059","Fairfax County, Virginia",2010,"55","Management of companies and enterprises",19325
+"14","51059","Fairfax County, Virginia",2010,"56","Administrative and waste services",36496
+"15","51059","Fairfax County, Virginia",2010,"61","Educational services",9330
+"16","51059","Fairfax County, Virginia",2010,"62","Health care and social assistance",47200
+"17","51059","Fairfax County, Virginia",2010,"71","Arts, entertainment, and recreation",10748
+"18","51059","Fairfax County, Virginia",2010,"72","Accommodation and food services",37574
+"19","51059","Fairfax County, Virginia",2010,"81","Other services, except public administration",19876
+"20","51059","Fairfax County, Virginia",2010,"92","Public administration",25777
+"21","51059","Fairfax County, Virginia",2010,"99","Unclassified",4
+"22","51059","Fairfax County, Virginia",2011,"11","Agriculture, forestry, fishing and hunting",55
+"23","51059","Fairfax County, Virginia",2011,"21","Mining, quarrying, and oil and gas extraction",200
+"24","51059","Fairfax County, Virginia",2011,"22","Utilities",936
+"25","51059","Fairfax County, Virginia",2011,"23","Construction",24761
+"26","51059","Fairfax County, Virginia",2011,"31-33","Manufacturing",9220
+"27","51059","Fairfax County, Virginia",2011,"42","Wholesale trade",14530
+"28","51059","Fairfax County, Virginia",2011,"44-45","Retail trade",52640
+"29","51059","Fairfax County, Virginia",2011,"48-49","Transportation and warehousing",8606
+"30","51059","Fairfax County, Virginia",2011,"51","Information",22341
+"31","51059","Fairfax County, Virginia",2011,"52","Finance and insurance",23045
+"32","51059","Fairfax County, Virginia",2011,"53","Real estate and rental and leasing",8893
+"33","51059","Fairfax County, Virginia",2011,"54","Professional and technical services",160952
+"34","51059","Fairfax County, Virginia",2011,"55","Management of companies and enterprises",19132
+"35","51059","Fairfax County, Virginia",2011,"56","Administrative and waste services",36952
+"36","51059","Fairfax County, Virginia",2011,"61","Educational services",9780
+"37","51059","Fairfax County, Virginia",2011,"62","Health care and social assistance",48165
+"38","51059","Fairfax County, Virginia",2011,"71","Arts, entertainment, and recreation",10416
+"39","51059","Fairfax County, Virginia",2011,"72","Accommodation and food services",38412
+"40","51059","Fairfax County, Virginia",2011,"81","Other services, except public administration",20382
+"41","51059","Fairfax County, Virginia",2011,"92","Public administration",26372
+"42","51059","Fairfax County, Virginia",2011,"99","Unclassified",2
+"43","51059","Fairfax County, Virginia",2012,"11","Agriculture, forestry, fishing and hunting",49
+"44","51059","Fairfax County, Virginia",2012,"21","Mining, quarrying, and oil and gas extraction",221
+"45","51059","Fairfax County, Virginia",2012,"22","Utilities",1007
+"46","51059","Fairfax County, Virginia",2012,"23","Construction",25265
+"47","51059","Fairfax County, Virginia",2012,"31-33","Manufacturing",8459
+"48","51059","Fairfax County, Virginia",2012,"42","Wholesale trade",13915
+"49","51059","Fairfax County, Virginia",2012,"44-45","Retail trade",53205
+"50","51059","Fairfax County, Virginia",2012,"48-49","Transportation and warehousing",8787
+"51","51059","Fairfax County, Virginia",2012,"51","Information",21783
+"52","51059","Fairfax County, Virginia",2012,"52","Finance and insurance",22913
+"53","51059","Fairfax County, Virginia",2012,"53","Real estate and rental and leasing",9081
+"54","51059","Fairfax County, Virginia",2012,"54","Professional and technical services",161220
+"55","51059","Fairfax County, Virginia",2012,"55","Management of companies and enterprises",22156
+"56","51059","Fairfax County, Virginia",2012,"56","Administrative and waste services",38086
+"57","51059","Fairfax County, Virginia",2012,"61","Educational services",10420
+"58","51059","Fairfax County, Virginia",2012,"62","Health care and social assistance",48260
+"59","51059","Fairfax County, Virginia",2012,"71","Arts, entertainment, and recreation",10939
+"60","51059","Fairfax County, Virginia",2012,"72","Accommodation and food services",39744
+"61","51059","Fairfax County, Virginia",2012,"81","Other services, except public administration",20835
+"62","51059","Fairfax County, Virginia",2012,"92","Public administration",28055
+"63","51059","Fairfax County, Virginia",2012,"99","Unclassified",0
+"64","51059","Fairfax County, Virginia",2013,"11","Agriculture, forestry, fishing and hunting",56
+"65","51059","Fairfax County, Virginia",2013,"21","Mining, quarrying, and oil and gas extraction",272
+"66","51059","Fairfax County, Virginia",2013,"22","Utilities",1038
+"67","51059","Fairfax County, Virginia",2013,"23","Construction",24763
+"68","51059","Fairfax County, Virginia",2013,"31-33","Manufacturing",6489
+"69","51059","Fairfax County, Virginia",2013,"42","Wholesale trade",13722
+"70","51059","Fairfax County, Virginia",2013,"44-45","Retail trade",53570
+"71","51059","Fairfax County, Virginia",2013,"48-49","Transportation and warehousing",9067
+"72","51059","Fairfax County, Virginia",2013,"51","Information",21781
+"73","51059","Fairfax County, Virginia",2013,"52","Finance and insurance",23311
+"74","51059","Fairfax County, Virginia",2013,"53","Real estate and rental and leasing",9572
+"75","51059","Fairfax County, Virginia",2013,"54","Professional and technical services",156838
+"76","51059","Fairfax County, Virginia",2013,"55","Management of companies and enterprises",21566
+"77","51059","Fairfax County, Virginia",2013,"56","Administrative and waste services",39874
+"78","51059","Fairfax County, Virginia",2013,"61","Educational services",10400
+"79","51059","Fairfax County, Virginia",2013,"62","Health care and social assistance",52215
+"80","51059","Fairfax County, Virginia",2013,"71","Arts, entertainment, and recreation",8788
+"81","51059","Fairfax County, Virginia",2013,"72","Accommodation and food services",40339
+"82","51059","Fairfax County, Virginia",2013,"81","Other services, except public administration",21050
+"83","51059","Fairfax County, Virginia",2013,"92","Public administration",31273
+"84","51059","Fairfax County, Virginia",2013,"99","Unclassified",2
+"85","51059","Fairfax County, Virginia",2014,"11","Agriculture, forestry, fishing and hunting",52
+"86","51059","Fairfax County, Virginia",2014,"21","Mining, quarrying, and oil and gas extraction",235
+"87","51059","Fairfax County, Virginia",2014,"22","Utilities",1068
+"88","51059","Fairfax County, Virginia",2014,"23","Construction",23771
+"89","51059","Fairfax County, Virginia",2014,"31-33","Manufacturing",6426
+"90","51059","Fairfax County, Virginia",2014,"42","Wholesale trade",13055
+"91","51059","Fairfax County, Virginia",2014,"44-45","Retail trade",54228
+"92","51059","Fairfax County, Virginia",2014,"48-49","Transportation and warehousing",9291
+"93","51059","Fairfax County, Virginia",2014,"51","Information",22820
+"94","51059","Fairfax County, Virginia",2014,"52","Finance and insurance",22768
+"95","51059","Fairfax County, Virginia",2014,"53","Real estate and rental and leasing",9666
+"96","51059","Fairfax County, Virginia",2014,"54","Professional and technical services",151304
+"97","51059","Fairfax County, Virginia",2014,"55","Management of companies and enterprises",18928
+"98","51059","Fairfax County, Virginia",2014,"56","Administrative and waste services",39258
+"99","51059","Fairfax County, Virginia",2014,"61","Educational services",10648
+"100","51059","Fairfax County, Virginia",2014,"62","Health care and social assistance",53025
+"101","51059","Fairfax County, Virginia",2014,"71","Arts, entertainment, and recreation",8879
+"102","51059","Fairfax County, Virginia",2014,"72","Accommodation and food services",40855
+"103","51059","Fairfax County, Virginia",2014,"81","Other services, except public administration",21218
+"104","51059","Fairfax County, Virginia",2014,"92","Public administration",30947
+"105","51059","Fairfax County, Virginia",2014,"99","Unclassified",7
+"106","51059","Fairfax County, Virginia",2015,"11","Agriculture, forestry, fishing and hunting",66
+"107","51059","Fairfax County, Virginia",2015,"21","Mining, quarrying, and oil and gas extraction",183
+"108","51059","Fairfax County, Virginia",2015,"22","Utilities",1133
+"109","51059","Fairfax County, Virginia",2015,"23","Construction",22968
+"110","51059","Fairfax County, Virginia",2015,"31-33","Manufacturing",6210
+"111","51059","Fairfax County, Virginia",2015,"42","Wholesale trade",13225
+"112","51059","Fairfax County, Virginia",2015,"44-45","Retail trade",55237
+"113","51059","Fairfax County, Virginia",2015,"48-49","Transportation and warehousing",9277
+"114","51059","Fairfax County, Virginia",2015,"51","Information",21922
+"115","51059","Fairfax County, Virginia",2015,"52","Finance and insurance",23955
+"116","51059","Fairfax County, Virginia",2015,"53","Real estate and rental and leasing",9612
+"117","51059","Fairfax County, Virginia",2015,"54","Professional and technical services",151690
+"118","51059","Fairfax County, Virginia",2015,"55","Management of companies and enterprises",18465
+"119","51059","Fairfax County, Virginia",2015,"56","Administrative and waste services",39571
+"120","51059","Fairfax County, Virginia",2015,"61","Educational services",10979
+"121","51059","Fairfax County, Virginia",2015,"62","Health care and social assistance",55338
+"122","51059","Fairfax County, Virginia",2015,"71","Arts, entertainment, and recreation",9377
+"123","51059","Fairfax County, Virginia",2015,"72","Accommodation and food services",43191
+"124","51059","Fairfax County, Virginia",2015,"81","Other services, except public administration",21378
+"125","51059","Fairfax County, Virginia",2015,"92","Public administration",31850
+"126","51059","Fairfax County, Virginia",2015,"99","Unclassified",339
+"127","51059","Fairfax County, Virginia",2016,"11","Agriculture, forestry, fishing and hunting",89
+"128","51059","Fairfax County, Virginia",2016,"21","Mining, quarrying, and oil and gas extraction",200
+"129","51059","Fairfax County, Virginia",2016,"22","Utilities",1140
+"130","51059","Fairfax County, Virginia",2016,"23","Construction",23240
+"131","51059","Fairfax County, Virginia",2016,"31-33","Manufacturing",5640
+"132","51059","Fairfax County, Virginia",2016,"42","Wholesale trade",13897
+"133","51059","Fairfax County, Virginia",2016,"44-45","Retail trade",55213
+"134","51059","Fairfax County, Virginia",2016,"48-49","Transportation and warehousing",9132
+"135","51059","Fairfax County, Virginia",2016,"51","Information",20459
+"136","51059","Fairfax County, Virginia",2016,"52","Finance and insurance",25847
+"137","51059","Fairfax County, Virginia",2016,"53","Real estate and rental and leasing",9498
+"138","51059","Fairfax County, Virginia",2016,"54","Professional and technical services",154191
+"139","51059","Fairfax County, Virginia",2016,"55","Management of companies and enterprises",17810
+"140","51059","Fairfax County, Virginia",2016,"56","Administrative and waste services",40098
+"141","51059","Fairfax County, Virginia",2016,"61","Educational services",11041
+"142","51059","Fairfax County, Virginia",2016,"62","Health care and social assistance",58071
+"143","51059","Fairfax County, Virginia",2016,"71","Arts, entertainment, and recreation",9714
+"144","51059","Fairfax County, Virginia",2016,"72","Accommodation and food services",44940
+"145","51059","Fairfax County, Virginia",2016,"81","Other services, except public administration",21651
+"146","51059","Fairfax County, Virginia",2016,"92","Public administration",31884
+"147","51059","Fairfax County, Virginia",2016,"99","Unclassified",1045
+"148","51059","Fairfax County, Virginia",2017,"11","Agriculture, forestry, fishing and hunting",101
+"149","51059","Fairfax County, Virginia",2017,"21","Mining, quarrying, and oil and gas extraction",178
+"150","51059","Fairfax County, Virginia",2017,"22","Utilities",1170
+"151","51059","Fairfax County, Virginia",2017,"23","Construction",23579
+"152","51059","Fairfax County, Virginia",2017,"31-33","Manufacturing",5855
+"153","51059","Fairfax County, Virginia",2017,"42","Wholesale trade",14119
+"154","51059","Fairfax County, Virginia",2017,"44-45","Retail trade",54757
+"155","51059","Fairfax County, Virginia",2017,"48-49","Transportation and warehousing",9364
+"156","51059","Fairfax County, Virginia",2017,"51","Information",19872
+"157","51059","Fairfax County, Virginia",2017,"52","Finance and insurance",27870
+"158","51059","Fairfax County, Virginia",2017,"53","Real estate and rental and leasing",9619
+"159","51059","Fairfax County, Virginia",2017,"54","Professional and technical services",155587
+"160","51059","Fairfax County, Virginia",2017,"55","Management of companies and enterprises",17416
+"161","51059","Fairfax County, Virginia",2017,"56","Administrative and waste services",41044
+"162","51059","Fairfax County, Virginia",2017,"61","Educational services",11092
+"163","51059","Fairfax County, Virginia",2017,"62","Health care and social assistance",59742
+"164","51059","Fairfax County, Virginia",2017,"71","Arts, entertainment, and recreation",9586
+"165","51059","Fairfax County, Virginia",2017,"72","Accommodation and food services",45801
+"166","51059","Fairfax County, Virginia",2017,"81","Other services, except public administration",21507
+"167","51059","Fairfax County, Virginia",2017,"92","Public administration",32192
+"168","51059","Fairfax County, Virginia",2017,"99","Unclassified",1191
+"169","51059","Fairfax County, Virginia",2018,"11","Agriculture, forestry, fishing and hunting",71
+"170","51059","Fairfax County, Virginia",2018,"21","Mining, quarrying, and oil and gas extraction",195
+"171","51059","Fairfax County, Virginia",2018,"22","Utilities",1199
+"172","51059","Fairfax County, Virginia",2018,"23","Construction",24282
+"173","51059","Fairfax County, Virginia",2018,"31-33","Manufacturing",5711
+"174","51059","Fairfax County, Virginia",2018,"42","Wholesale trade",14083
+"175","51059","Fairfax County, Virginia",2018,"44-45","Retail trade",54583
+"176","51059","Fairfax County, Virginia",2018,"48-49","Transportation and warehousing",9592
+"177","51059","Fairfax County, Virginia",2018,"51","Information",19685
+"178","51059","Fairfax County, Virginia",2018,"52","Finance and insurance",28225
+"179","51059","Fairfax County, Virginia",2018,"53","Real estate and rental and leasing",9843
+"180","51059","Fairfax County, Virginia",2018,"54","Professional and technical services",159038
+"181","51059","Fairfax County, Virginia",2018,"55","Management of companies and enterprises",17649
+"182","51059","Fairfax County, Virginia",2018,"56","Administrative and waste services",42590
+"183","51059","Fairfax County, Virginia",2018,"61","Educational services",11509
+"184","51059","Fairfax County, Virginia",2018,"62","Health care and social assistance",62192
+"185","51059","Fairfax County, Virginia",2018,"71","Arts, entertainment, and recreation",9804
+"186","51059","Fairfax County, Virginia",2018,"72","Accommodation and food services",46065
+"187","51059","Fairfax County, Virginia",2018,"81","Other services, except public administration",21488
+"188","51059","Fairfax County, Virginia",2018,"92","Public administration",32055
+"189","51059","Fairfax County, Virginia",2018,"99","Unclassified",1254
+"190","51059","Fairfax County, Virginia",2019,"11","Agriculture, forestry, fishing and hunting",63
+"191","51059","Fairfax County, Virginia",2019,"21","Mining, quarrying, and oil and gas extraction",269
+"192","51059","Fairfax County, Virginia",2019,"22","Utilities",1321
+"193","51059","Fairfax County, Virginia",2019,"23","Construction",25102
+"194","51059","Fairfax County, Virginia",2019,"31-33","Manufacturing",5672
+"195","51059","Fairfax County, Virginia",2019,"42","Wholesale trade",13824
+"196","51059","Fairfax County, Virginia",2019,"44-45","Retail trade",53125
+"197","51059","Fairfax County, Virginia",2019,"48-49","Transportation and warehousing",12360
+"198","51059","Fairfax County, Virginia",2019,"51","Information",20276
+"199","51059","Fairfax County, Virginia",2019,"52","Finance and insurance",28105
+"200","51059","Fairfax County, Virginia",2019,"53","Real estate and rental and leasing",10129
+"201","51059","Fairfax County, Virginia",2019,"54","Professional and technical services",160363
+"202","51059","Fairfax County, Virginia",2019,"55","Management of companies and enterprises",20460
+"203","51059","Fairfax County, Virginia",2019,"56","Administrative and waste services",43394
+"204","51059","Fairfax County, Virginia",2019,"61","Educational services",11497
+"205","51059","Fairfax County, Virginia",2019,"62","Health care and social assistance",63916
+"206","51059","Fairfax County, Virginia",2019,"71","Arts, entertainment, and recreation",9828
+"207","51059","Fairfax County, Virginia",2019,"72","Accommodation and food services",46329
+"208","51059","Fairfax County, Virginia",2019,"81","Other services, except public administration",20947
+"209","51059","Fairfax County, Virginia",2019,"92","Public administration",32244
+"210","51059","Fairfax County, Virginia",2019,"99","Unclassified",1305
+"211","51059","Fairfax County, Virginia",2020,"11","Agriculture, forestry, fishing and hunting",71
+"212","51059","Fairfax County, Virginia",2020,"21","Mining, quarrying, and oil and gas extraction",73
+"213","51059","Fairfax County, Virginia",2020,"22","Utilities",1327
+"214","51059","Fairfax County, Virginia",2020,"23","Construction",24345
+"215","51059","Fairfax County, Virginia",2020,"31-33","Manufacturing",5029
+"216","51059","Fairfax County, Virginia",2020,"42","Wholesale trade",13673
+"217","51059","Fairfax County, Virginia",2020,"44-45","Retail trade",48243
+"218","51059","Fairfax County, Virginia",2020,"48-49","Transportation and warehousing",14432
+"219","51059","Fairfax County, Virginia",2020,"51","Information",20926
+"220","51059","Fairfax County, Virginia",2020,"52","Finance and insurance",28034
+"221","51059","Fairfax County, Virginia",2020,"53","Real estate and rental and leasing",9418
+"222","51059","Fairfax County, Virginia",2020,"54","Professional and technical services",160436
+"223","51059","Fairfax County, Virginia",2020,"55","Management of companies and enterprises",21140
+"224","51059","Fairfax County, Virginia",2020,"56","Administrative and waste services",41590
+"225","51059","Fairfax County, Virginia",2020,"61","Educational services",10467
+"226","51059","Fairfax County, Virginia",2020,"62","Health care and social assistance",60646
+"227","51059","Fairfax County, Virginia",2020,"71","Arts, entertainment, and recreation",6641
+"228","51059","Fairfax County, Virginia",2020,"72","Accommodation and food services",34377
+"229","51059","Fairfax County, Virginia",2020,"81","Other services, except public administration",17839
+"230","51059","Fairfax County, Virginia",2020,"92","Public administration",31890
+"231","51059","Fairfax County, Virginia",2020,"99","Unclassified",1554
+"232","51059","Fairfax County, Virginia",2021,"11","Agriculture, forestry, fishing and hunting",80
+"233","51059","Fairfax County, Virginia",2021,"21","Mining, quarrying, and oil and gas extraction",73
+"234","51059","Fairfax County, Virginia",2021,"22","Utilities",1243
+"235","51059","Fairfax County, Virginia",2021,"23","Construction",24353
+"236","51059","Fairfax County, Virginia",2021,"31-33","Manufacturing",5028
+"237","51059","Fairfax County, Virginia",2021,"42","Wholesale trade",13867
+"238","51059","Fairfax County, Virginia",2021,"44-45","Retail trade",50349
+"239","51059","Fairfax County, Virginia",2021,"48-49","Transportation and warehousing",14739
+"240","51059","Fairfax County, Virginia",2021,"51","Information",21583
+"241","51059","Fairfax County, Virginia",2021,"52","Finance and insurance",27983
+"242","51059","Fairfax County, Virginia",2021,"53","Real estate and rental and leasing",9507
+"243","51059","Fairfax County, Virginia",2021,"54","Professional and technical services",160874
+"244","51059","Fairfax County, Virginia",2021,"55","Management of companies and enterprises",21158
+"245","51059","Fairfax County, Virginia",2021,"56","Administrative and waste services",43902
+"246","51059","Fairfax County, Virginia",2021,"61","Educational services",10515
+"247","51059","Fairfax County, Virginia",2021,"62","Health care and social assistance",63233
+"248","51059","Fairfax County, Virginia",2021,"71","Arts, entertainment, and recreation",7668
+"249","51059","Fairfax County, Virginia",2021,"72","Accommodation and food services",36708
+"250","51059","Fairfax County, Virginia",2021,"81","Other services, except public administration",18533
+"251","51059","Fairfax County, Virginia",2021,"92","Public administration",33869
+"252","51059","Fairfax County, Virginia",2021,"99","Unclassified",1621

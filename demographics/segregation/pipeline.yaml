@@ -1,0 +1,41 @@
+name: segregation
+description: "Segregation entropy index from ACS DP05 race/ethnicity data"
+
+source:
+  type: census_acs
+  profile: VA_NCR
+  years: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+  geographies: [tract]
+
+  # Variable IDs changed between 2016 and 2017
+  variables_2015_2016:
+    total_pop: "DP05_0001"
+    hisp_latin: "DP05_0066"
+    white: "DP05_0072"
+    black: "DP05_0073"
+    american_indian: "DP05_0074"
+    asian: "DP05_0075"
+    nhopi: "DP05_0076"
+    sor: "DP05_0077"
+    two: "DP05_0078"
+
+  variables_2017_plus:
+    total_pop: "DP05_0001"
+    hisp_latin: "DP05_0071"
+    white: "DP05_0077"
+    black: "DP05_0078"
+    american_indian: "DP05_0079"
+    asian: "DP05_0080"
+    nhopi: "DP05_0081"
+    sor: "DP05_0082"
+    two: "DP05_0083"
+
+output:
+  path: data/distribution
+  filename: segregation_index.csv.xz
+
+prepare:
+  crosswalk: ../../geographies/VA/State Geographies/Health Districts/2020/data/distribution/va_ct_to_hd_crosswalk.csv
+  source_col: ct_geoid
+  target_col: hd_geoid
+  method: sum

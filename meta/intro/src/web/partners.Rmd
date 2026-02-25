@@ -1,0 +1,16 @@
+---
+title: "Collaborate With Us"
+---
+
+### Current partners
+<center> ![Mastercard Center for Inclusive Growth](img/partners-mclogo.png){width="300px"} ![Virginia Department of Health](img/partners-vdhlogo.png){width="300px"}
+
+
+<center> ![Arlington County, Virginia](img/partners-arllogo.png){width="300px"} ![Fairfax County, Virginia](img/partners-fxlogo.png){width="300px"}
+
+### About us
+<center> [![](img/partners-biilogo.jpeg){width="300px"}](https://biocomplexity.virginia.edu/)
+
+<div style="text-align: left"> The **Social and Decision Analytics Division** is a data science research group in the UVA Biocomplexity Institute. Our vision is to address social challenges requiring knowledge and perspectives from multiple disciplines. Our team includes statisticians, economists, public health experts, mathematicians, and social psychologists, all working together to understand how information about populations combines to reveal new truths. We are in Arlington, Virginia, a stone’s throw from Washington, D.C., and in close proximity to local, state, and federal policymakers. </div>
+
+`r htmltools::includeHTML("./footer.html")`

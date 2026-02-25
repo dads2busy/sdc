@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+
+# Environment variables
+.env
+
+# R artifacts
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.Rproj.user/
+*-Ex.R
+/*.tar.gz
+/*.Rcheck/
+*_cache/
+/cache/
+*.utf8.md
+*.knit.md
+.Renviron
+.httr-oauth
+
+# OS
+.DS_Store
+
+# Generated/large artifacts
+**/docs/maps/
+**/docs/*.html
+**/docs/settings.json
+**/data/working/
+**/data/original/
+**/*.geojson
+**/Synthetic_population/
+*.zip
+
+# Installer packages
+*.pkg
+
+# Fonts (site assets, can be regenerated)
+*.ttf
+*.woff
+*.woff2
+*.eot
+
+# Site-generated images
+**/docs/**/*.png
+**/docs/**/*.svg

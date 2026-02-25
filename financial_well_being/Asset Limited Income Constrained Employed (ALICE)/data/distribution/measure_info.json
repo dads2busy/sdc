@@ -1,0 +1,56 @@
+{
+    "alice_pct": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Financial Well Being",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percentage of households that are Asset Limited, Income Constrained, Employed. Households Earning more than the Federal Poverty Level, but not enough to afford the basics where they live.",
+        "long_name": "Percentage of households that are Asset Limited, Income Constrained, Employed (ALICE)",
+        "measure_type": "percentage",
+        "short_description": "The percent of households that are above the Federal Poverty Level but still cannot afford the basics where they live.",
+        "short_name": "Percentage of ALICE households",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "United for Alice",
+                "url": "https://www.unitedforalice.org/"
+            }
+        ],
+        "statement": "{value} of the households in {features.name} are ALICE.",
+        "type": "percent",
+        "unit": "",
+        "variants": ""
+    },
+    "poverty_pct": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Financial Well Being",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percentage of households that are below the Federal Poverty Level. Not being able to afford the basics where they live.",
+        "long_name": "Percentage of households that are below the Federal Poverty Level.",
+        "measure_type": "percentage",
+        "short_description": "The percent of households that are below the Federal Poverty Level.",
+        "short_name": "Percentage of households in poverty",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "United for Alice",
+                "url": "https://www.unitedforalice.org/"
+            }
+        ],
+        "statement": "{value} of the households in {features.name} are in poverty.",
+        "type": "percent",
+        "unit": "",
+        "variants": ""
+    }
+}

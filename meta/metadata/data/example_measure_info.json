@@ -1,0 +1,23 @@
+{
+  "Accommodation_and_Food_Services_LQ": {
+    "category": "Business climate",
+    "type": "",
+    "short_name": "Accommodation and Food Services LQ",
+    "long_name": "Accommodation and Food Services Location Quotient",
+    "short_description": "Industry activity (measure by employment) compared to the county average",
+    "long_description": "Industry activity (measure by employment) compared to the county average",
+    "statement": "Accommodation and Food Services Industry activity in {features.name} is {value}.",
+    "equity_category": "",
+    "sources": [
+      {
+        "name": "Mergent Intellect",
+        "date_accessed": "2022"
+      },
+      {
+        "name": "BEA what are the location quotient?",
+        "date_accessed": "2022",
+        "url": "https://www.bea.gov/help/faq/478"
+      }
+    ]
+  }
+}

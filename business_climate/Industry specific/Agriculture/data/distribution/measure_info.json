@@ -1,0 +1,326 @@
+{
+    "total_cropland_acres": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total acerage used in agriculture for cropland",
+        "measure_type": "count",
+        "short_description": "Total acreage for cropland",
+        "short_name": "Total acreage for cropland",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "The total acreage for cropland to {features.name} is {value}.",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    },
+    "total_irrigatedCropland_acre": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total acreage used in agriculture for irrigated cropland",
+        "measure_type": "count",
+        "short_description": "Total acreage for irrigated cropland",
+        "short_name": "Total acreage for irrigated cropland",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "The total acreage for irrigated cropland to {features.name} is {value}.",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    },
+    "total_cropland_operations": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Number of operations with land devoted to cropland growing",
+        "measure_type": "count",
+        "short_description": "Number of operations with cropland",
+        "short_name": "Number of operations with cropland",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "The total number of operations with cropland to {features.name} is {value}.",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    },
+    "total_animal_expense": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "County's total expenses towards animal industry",
+        "measure_type": "count",
+        "short_description": "Total expenses towards animal industry",
+        "short_name": "Total expenses towards animal industry",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "The overall expenses towards animals to {features.name} is {value}.",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "fruit_treeNut_total_sales": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total sales of fruits and treenuts within a given county",
+        "measure_type": "count",
+        "short_description": "Total sales of fruits and treenuts",
+        "short_name": "Total sales of fruits and treenuts",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total sales of fruit and tree nuts to {features.name} is {value}.",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "total_animalProducts_sales": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total sales of animal products within a given county",
+        "measure_type": "count",
+        "short_description": "Total sales of animal products",
+        "short_name": "Total sales of animal products",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total sales of animal products to {features.name} is {value}.",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "total_commodity_sales": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total sales of commodities within a given county",
+        "measure_type": "count",
+        "short_description": "Total sales of commodities",
+        "short_name": "Total sales of commodities",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total sales of commodities to {features.name} is {value}",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "total_calves_sales": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total sales of calves within a given county",
+        "measure_type": "count",
+        "short_description": "Total sales of calves",
+        "short_name": "Total sales of calves",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total sales of calves to {features.name} is {value}.",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "total_farmValue": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total asset value of agriculture within a given county",
+        "measure_type": "count",
+        "short_description": "Asset value of agriculture",
+        "short_name": "Total sales of calves",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total asset value of agriculture to {features.name} is {value}.",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "operation_farmValue": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total asset value per operation within a given county",
+        "measure_type": "count",
+        "short_description": "Total asset value per operation",
+        "short_name": "Total sales of calves",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total asset value per operation to {features.name} is {value}.",
+        "type": "dollar",
+        "unit": "dollar",
+        "variants": ""
+    },
+    "total_acres": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total acres used for agriculture within a given county",
+        "measure_type": "count",
+        "short_description": "Total acres in agriculture",
+        "short_name": "Total acres in agriculture",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total acres used for agriculture in {features.name} is {value}",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    },
+    "total_operations": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Agriculture Industry",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "",
+        "long_name": "Total operations used for agriculture within a given county",
+        "measure_type": "count",
+        "short_description": "Total acres in agriculture",
+        "short_name": "Total operations in agriculture",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Department of Agriculture National Agriculture Statistics Service",
+                "url": "https://www.nass.usda.gov/"
+            }
+        ],
+        "statement": "Total operations used for agriculture in {features.name} is {value}",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    }
+}

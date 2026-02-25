@@ -1,0 +1,73 @@
+---
+title: "Untitled"
+author: "cm"
+date: "1/5/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+```
+
+
+```{r}
+provider_ncr <- read.csv("/home/cpm9w/git/sdc.health_dev/Health Care Services/Hospitals and Emergency Rooms/Service Access Scores/data/working/ncr_cms_2015_2022_hospitals.csv")  
+
+#
+table(provider_ncr$year)
+table(provider_ncr$city)
+
+
+
+provider_ncr %>% filter(county_name=="ARLINGTON", year==2020 | year==2021 | year==2019)
+provider_ncr %>% filter(county_name=="ARLINGTON")
+
+provider_ncr_acute <- provider_ncr %>% filter(hospital_type =='Acute Care Hospitals') 
+
+
+library("data.table")  
+#all hospitals
+table(provider_ncr$county_name, provider_ncr$year)
+#hospital type by year
+table(provider_ncr$hospital_type, provider_ncr$year)
+#acute care hospitals per county
+table(provider_ncr_acute$county_name, provider_ncr_acute$year)
+
+type_hosp <- dcast(provider_ncr, hospital_type  year, fun.aggregate = count)
+
+table(provider_ncr_clean$county_name, provider_ncr_clean$year)
+  
+
+```
+
+```{r}
+
+table1 <- provider %>% group_by(county) %>% summarise(num=n(), fips=first(countyfips))
+
+```
+
+```{r}
+#clean provider
+
+provider_clean <- provider %>% filter( type != 'MILITARY') %>% filter(type != 'PSYCHIATRIC') %>% filter( type != 'REHABILITATION')
+
+table2 <- provider_clean %>% group_by(county) %>% summarise(num=n(), fips=first(countyfips))
+
+
+provider_clean %>% filter(county=='DISTRICT OF COLUMBIA') %>% filter(type=='GENERAL ACUTE CARE')
+provider_ncr_clean %>% filter(year==2021) %>% filter(county_name=='DISTRICT OF COLUMBIA') %>% filter( hospital_type  == 'Acute Care Hospitals')
+
+
+
+#Final lists
+provider_init <- provider %>% filter(type=='GENERAL ACUTE CARE') # %>% filter(county=='DISTRICT OF COLUMBIA')
+provider_new <- provider_ncr %>% filter( hospital_type  == 'Acute Care Hospitals')  # %>% filter(year==2021) %>% filter(county_name=='DISTRICT OF COLUMBIA')
+
+```
+
+
+

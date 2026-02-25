@@ -1,0 +1,134 @@
+<style>
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Create two unequal columns that floats next to each other */
+.column {
+  float: left;
+  padding: 10px;
+  height: 300px; /* Should be removed. Only for demonstration */
+}
+
+.left {
+  width: 25%;
+}
+
+.right {
+  width: 75%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.card-header {
+  text-align: center;
+}
+</style>
+
+<div class="card mb-3 row" style="background-color:#F0F0F0">
+  <div class="column left">
+  <div class="card-header"> <h2> Supporting local equity-informed decision-making in the National Capital Region </h2> </div>
+  <div class="card-body">
+  <p class="card-text">  We provide <b>actionable data for local-level decision-making</b> by creating new <b>below county-level datasets and measures</b> derived from publicly collectible data sources. We aim to <b>inform equitable and sustainable growth</b> in Virginia and the National Capital Region. </p>
+  <h4 class="card-title"> Data - Applications - Tools - Methods </h4>
+  </div>
+  </div>
+  <div class="column right">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="80%" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+    <rect width="100%" height="100%" fill="#868e96"></rect>
+    <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  </svg>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header"> <h2> What is a Data Commons? </h2> </div>
+  <div class="card-body">
+  <p class="card-text">  A Data Commons is an open knowledge repository that co-locates data from a variety of sources, builds and curates data insights, and provides tools designed to track issues over time and geography. A Data Commons allows governments and key stakeholders to learn continuously from their own data. </p>
+  <h4 class="card-title"> Our Social Impact Data Commons </h4>
+  </div>
+  </div>
+  <div class="card mb-3 row">
+  <div class="card text-white bg-primary mb-3 column left" style="width:25%;">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  </svg>
+  <div class="card-header">provides data, indicators, indicies, case studies, and training </div>
+  </div>
+  <div class="card text-white bg-primary mb-3 column left" style="width:25%;">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  <div class="card-header">analyzes impact from social, economic, and health trends
+and major events </div>
+  </div>
+  <div class="card text-white bg-primary mb-3 column left" style="width:25%;">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  <div class="card-header">enables ongoing learning from data </div>
+  </div>
+  <div class="card text-white bg-primary mb-3 column left" style="width:25%;">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  <div class="card-header">addresses local issues of concern (food insecurity and equity, for example) </div>
+  </div>
+</div>
+<br>
+
+<div class="card mb-3 row" style="background-color:#F0F0F0">
+  <div class="card-header"> <h2> Stories </h2> </div>
+  <div class="card text-white bg-secondary mb-3 column left" style="width:33%;">
+  <div class="card-header"><strong>Access to Broadband</strong></div>
+  <div class="column left" style ="width:33%">
+  <p> Multiple measures tell the story in Arlington County </p>
+  <a href="broadband.html" type="button" class="btn btn-primary btn-sm">Read Story</a>
+  </div>
+  <div class="column left" style ="width:66%">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="80%" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  </div>
+  </div>
+  <div class="card text-white bg-secondary mb-3 column left" style="width:33%;">
+  <div class="card-header"><strong>Health Equity</strong></div>
+  <div class="column left" style ="width:33%">
+  <p> Is access to urgent care health services equitable in Arlington and Fairfax County? </p>
+  <a href="health_equity.html" type="button" class="btn btn-primary btn-sm">Read Story</a>
+  </div>
+  <div class="column left" style ="width:66%">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="80%" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  </div>
+  </div>
+  <div class="card text-white bg-secondary mb-3 column left" style="width:33%;">
+  <div class="card-header"><strong>Business Diversity</strong></div>
+  <div class="column left" style ="width:33%">
+  <p> What are the patterns in minority business ownership in Fairfax County? </p>
+  <a href="economic_diversity.html" type="button" class="btn btn-primary btn-sm">Read Story</a>
+  </div>
+  <div class="column left" style ="width:66%">
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="80%" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+  <rect width="100%" height="100%" fill="#868e96"></rect>
+  <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+  </div>
+  </div>
+  </div>
+</div>
+
+`r htmltools::includeHTML("./footer.html")`
+

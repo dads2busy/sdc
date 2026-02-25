@@ -1,0 +1,23 @@
+---
+title: "Equity and Access to Health Services for Rural Areas"
+subtitle: "An open-source R package for calculating floating catchment areas"
+---
+
+### The `catchment` package
+We developed an R package to calculate spatial access and availability metrics. The floating catchment area (FCA) is a method that identifies spatial accessibility to a specific service, for example, hospitals, supermarkets, schools. FCA defines the service area by a threshold travel time while accounting for the availability of physicians by their surrounded demands (Lou et al., 2003).v
+
+Catchments (catchment areas) are regions defined by the effective range of a catching entity (or the result of its catching). For example, a basin might catch water, a hospital patients, a school students, or a store or restaurant customers. Each of these entities might have any number of conceptual catchments, such as those externally defined (like a school district), those realized (as by the origin of actual customers), and those projected (such as a travel-time radius).
+
+[Explore the `catchment` package functionality and articles.](https://uva-bi-sdad.github.io/catchment/index.html)
+
+[The Introduction to Floating Catchment Areas article ](https://uva-bi-sdad.github.io/catchment/articles/introduction.html) walks through tractable examples.
+
+[The catchment_ratio function](https://uva-bi-sdad.github.io/catchment/reference/catchment_ratio.html) is the main function of the package, used to define catchments by a travel-cost matrix with bounds and/or a decay function, and calculate supply to demand ratios within them. It is a generalized implementation of a range of 2- and 3-step floating catchment area models, which is generally meant to align with those of the access Python package.
+
+![](img/health-fca2.png)
+
+![](img/health-fca1.png)
+
+
+
+`r htmltools::includeHTML("./footer.html")`

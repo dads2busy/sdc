@@ -1,0 +1,211 @@
+---
+title: "prepare data for supermarket driving times - ARL - VA"
+author: "--"
+date: "02/23/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#libraries
+```{r}
+library(sf)
+library(tidygeocoder)
+library(dplyr)
+library(community)
+library(readr)
+```
+#clean df
+```{r}
+#start clean
+rm(list=ls())
+```
+#working directory
+```{r}
+setwd("~/test_symlink/git/sdc.food_dev/Food Access/supermarket_arl_va")
+```
+
+#Specify the fips code for the County: 
+```{r}
+county_fips <- 51013  #Arlington County, VA
+county_name <- "Arlington County"
+```
+
+
+# load data provider
+```{r}
+#data
+provider <- read.csv("~/test_symlink/git/sdc.food_dev/Food Access/supermarket_arl_va/sample.csv")
+
+# assign IDs just to be explicit
+provider$ID <- paste0("l", seq_len(nrow(provider)))
+
+#assign weight
+provider$weight <- 1
+```
+
+# fix data
+```{r}
+## collapse by location
+# provider$doctors <- 1
+# provider$location <- paste0(provider$lat, ",", provider$lon)
+# #identify unique values
+# provider <- provider %>% distinct(name, location, .keep_all = TRUE)
+# 
+# counts <- tapply(provider$doctors, provider$location, sum)
+# locations <- which(!duplicated(provider$location))
+# provider <- provider[locations,]
+# provider$doctors <- counts[provider$location]
+# 
+# ## assign IDs just to be explicit
+# provider$ID <- paste0("l", seq_len(nrow(provider)))
+# 
+# 
+# provider <- provider %>% filter(!is.na(lat))
+# provider$state <- substr(provider$geoid_blk,1,2)
+# provider %>% group_by(state) %>% summarise(doctors=sum(doctors))
+```
+
+# data combined
+```{r}
+library(tidycensus)
+library(tidyverse)
+
+#census_api_key("eba406410c653b81d6a795ac4e989221f7bdf302")
+#census_key
+census_api_key( Sys.getenv("census_key") )
+
+pop_county_va_bg <- get_acs(geography = "block group", 
+                  year = 2021,
+                  variables = c(pop_total = "B03002_001",
+                                pop_white= "B03002_003",
+                                pop_black = "B03002_004", 
+                                pop_asian="B03002_006",
+                                pop_latino="B03002_012"
+                  ),
+                  state = "VA",
+                  county = county_name,
+                  survey = "acs5",
+                  output = "wide",
+                  geometry = TRUE) %>% 
+                      # deselect margin of error columns
+                      select(-ends_with("M"))
+
+
+pop_county_va_bg <- pop_county_va_bg %>% select(GEOID, NAME, pop_total=pop_totalE, pop_white= pop_whiteE, 
+                                                pop_black= pop_blackE, pop_asian= pop_asianE, pop_latino= pop_latinoE, geometry)
+
+# data combined
+#centroid and coordinates
+
+data_combined <- data.frame(
+  GEOID = pop_county_va_bg$GEOID,
+  population = pop_county_va_bg$pop_total,
+st_coordinates(st_centroid(pop_county_va_bg$geometry))
+)
+
+
+```
+
+## travel time
+```{r}
+library(osrm)
+options(osrm.server = "http://104.248.112.16:5001/", osrm.profile = "car")
+
+if(!file.exists("traveltimes_exercise.csv")){
+  traveltimes <- osrmTable(
+    src = data_combined[, c("X", "Y")],  #population-demand
+    dst =  provider[, c("lon", "lat")]     #providers-supply
+  )$duration
+  
+  write.csv(
+    cbind(GEOID = rownames(traveltimes), as.data.frame(traveltimes)),
+    "traveltimes_exercise.csv", row.names = FALSE
+  )
+}
+
+traveltimes <- read.csv("traveltimes_exercise.csv", row.names = 1)
+
+
+```
+
+# add1. Define geography id. This is because the Geography-GEOID from initial file may be outdated
+```{r}
+library(tigris)
+library(maps)
+library(sf)
+# add block geoids
+# get US blocks shapefile
+blocks_VA <- st_as_sf(block_groups(state="VA", year=2019)) #, year=2010
+
+blocks <- blocks_VA
+# lon and lat to geo-points
+geopts <- provider %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4269) #4326. initial: 4269
+# indeces of bgs which contain a geopoint
+inds <- st_within(geopts$geometry, blocks$geometry, sparse=T)
+blk_list <- c()
+for (i in inds){
+  if (identical(blocks$NAME[i],character(0))){
+    blk_list<- append(blk_list, NA)}
+  else{
+    blk_list <- append(blk_list, blocks$GEOID[i])}
+}
+provider['GEOID'] <- blk_list
+
+```
+
+# add2 count providers per geography using matching codes
+```{r}
+
+#providers w geoid
+#provider$GEOID <- substr(provider$geoid_blk_new, 1, 12 ) 
+#data_combined with geoid: ok
+num_providers <- provider %>% group_by(GEOID) %>% summarise(prov_cnt = sum(doctors) )
+
+#join providers to block groups
+data_combined$GEOID <-  as.character( data_combined$GEOID)
+data_combined <- data_combined %>% left_join(num_providers, by= "GEOID" )
+
+sum(data_combined$prov_cnt, na.rm = TRUE)
+
+```
+# add3 mean and median of 10 nearest drive times 
+```{r}
+#mean of 10 nearest
+top_mean <- function(x) {  
+   mean(head(sort(x ), 10) ) }
+#median of 10 nearest
+top_median <- function(x) {  
+   median(head(sort(x ), 10) ) }
+#apply rowwise
+traveltimes_near <- data.frame(near_10_mean=apply(traveltimes, 1, top_mean), 
+                               near_10_median=apply(traveltimes, 1, top_median)) 
+#rownames_to_column(traveltimes_near, var = "GEOID")
+traveltimes_near$GEOID <- row.names(traveltimes_near) 
+#join mean median traveltimes to geographies
+data_combined <- data_combined %>% left_join(traveltimes_near, by= "GEOID")
+#data_combined <- st_drop_geometry(data_combined)
+
+```
+
+#prepara data for save
+```{r}
+#raw traveltimes: traveltimes matrix already estimated and with colnames arranged 
+traveltimes <- read.csv("traveltimes_exercise.csv", row.names = 1)
+#population: always recheck relevant population: ie. for pediatrics: pop 0-17 years
+population <- data_combined %>% select(GEOID, obgyn_pop, prov_cnt, near_10_mean, near_10_median)
+# realign travel times
+traveltimes <- traveltimes[as.character(population$GEOID), provider$ID]
+
+```
+# save new data
+```{r}
+write.csv(provider[, c("ID", "address", "lat", "lon", "doctors")], "provider.csv", row.names = FALSE)
+write.csv(cbind(GEOID = rownames(traveltimes), traveltimes), "traveltimes_trimmed.csv", row.names = FALSE)
+write.csv(population, "population.csv", row.names = FALSE)
+```
+
+
+

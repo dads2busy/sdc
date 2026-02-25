@@ -1,0 +1,515 @@
+{
+    "RISK_SCORE": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "In the NRI, the score includes three components: a natural hazards risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "National Risk Index - Score - Composite",
+        "measure_type": "index",
+        "short_description": "The NRI score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk to all 18 hazard types.",
+        "short_name": "National Risk Index (NRI)",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "AVLN_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The avalanche risk index score includes three components: an avalanche risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Avalanche - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The avalanche risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from an avalanche.",
+        "short_name": "Avalanche Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a avalanche risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "CFLD_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The coastal flooding risk index score includes three components: a coastal flooding risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Coastal Flooding - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The coastal flooding risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a coastal flood.",
+        "short_name": "Coastal Flooding Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a coastal flooding risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "CWAV_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The cold wave risk index score includes three components: a cold wave risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Cold Wave - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The cold wave risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a cold wave.",
+        "short_name": "Cold Wave Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a cold wave risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "DRGT_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The drought risk index score includes three components: a drought risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Drought - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The drought risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a drought.",
+        "short_name": "Drought Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a drought risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "ERQK_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The earthquake risk index score includes three components: an earthquake risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Earthquake - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The earthquake risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from an earthquake.",
+        "short_name": "Earthquake Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has an earthquake risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "HAIL_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The hail risk index score includes three components: a hail risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Hail - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The hail risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from hail.",
+        "short_name": "Hail Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a hail risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "HWAV_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The heatwave risk index score includes three components: a heatwave risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Heatwave - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The heatwave risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a heatwave.",
+        "short_name": "Heatwave Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a heatwave risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "HRCN_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The hurricane risk index score includes three components: a hurricane risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Hurricane - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The hurricane risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a hurricane.",
+        "short_name": "Hurricane Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a hurricane risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "ISTM_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The ice storm risk index score includes three components: a ice storm risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Ice Storm - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The ice storm risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from an ice storm.",
+        "short_name": "Ice Storm Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a ice storm risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "LNDS_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The landslide risk index score includes three components: a landslide risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Landslide - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The landstorm risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a landslide.",
+        "short_name": "Landslide Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a landslide risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "LTNG_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The lightning risk index score includes three components: a lightning risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Lightning - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The lightning risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from lightning.",
+        "short_name": "Lightning Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a lightning risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "RFLD_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The riverine flood risk index score includes three components: a riverine flood risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Riverine Flood - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The riverine flood risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from riverine flood.",
+        "short_name": "Riverine Flood Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a riverine flood risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "SWND_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The strong wind risk index score includes three components: a strong wind risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Strong Wind - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The strong wind risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from strong winds.",
+        "short_name": "Strong Wind Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a strong wind risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "TRND_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The tornado risk index score includes three components: a tornado risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Tornado - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The tornado risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a tornado.",
+        "short_name": "Tornado Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a tornado risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "TSUN_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The tsunami risk index score includes three components: a tsunami risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Tsunami - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The tsunami risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a tsunami.",
+        "short_name": "Tsunami Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a tsunami risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "VLCN_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The volcanic activity risk index score includes three components: a volcanic activity risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Volcanic Activity - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The volcanic activity risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from volcanic activity.",
+        "short_name": "Volcanic Activity Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a volcanic activity risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "WFIR_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The wildfire risk index score includes three components: a wildfire risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Wildfire - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The wildfire risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from a wildfire.",
+        "short_name": "Wildfire Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a wildfire risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "WNTW_RISKS": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Environment",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "The winter weather risk index score includes three components: a winter weather risk component, a consequence enhancing component (social vulnerability), and a consequence reduction component (community resilience).",
+        "long_name": "Winter Weather - Hazard Type Risk Index Score",
+        "measure_type": "index",
+        "short_description": "The winter weather risk index score is a unitless index (0 minimum risk, 100 maximum risk) calculated to measure a community\u2019s risk from winter weather.",
+        "short_name": "Winter Weather Risk",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "Census Tract Level",
+                "location_url": "",
+                "name": "Federal Emergency Management Agency: National Risk Index",
+                "url": "https://hazards.fema.gov/nri/data-resources"
+            }
+        ],
+        "statement": "{features.name} has a winter weather risk index value of {value} where 0 is the minimum and 100 is the maximum.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    }
+}

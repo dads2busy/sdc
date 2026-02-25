@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Food Insecurity</title>
+
+<script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.22/datatables.js"></script>
+<link href="site_libs/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<link rel="icon" href="https://raw.githubusercontent.com/uva-bi-sdad/community/main/logo.svg"/>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Social Impact Data Commons</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Overview</a>
+</li>
+<li>
+  <a href="process.html">Process</a>
+</li>
+<li>
+  <a href="data.html">Data Repositories</a>
+</li>
+<li>
+  <a href="dashboard.html">Dashboard</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tools &amp; Methods
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="health.html">Catchment Areas</a>
+    </li>
+    <li>
+      <a href="food.html">Food Security</a>
+    </li>
+    <li>
+      <a href="demographic.html">Demographic Redistribution</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Stories
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="broadband.html">Access to Broadband</a>
+    </li>
+    <li>
+      <a href="health_equity.html">Health Equity</a>
+    </li>
+    <li>
+      <a href="economic_diversity.html">Business Diversity</a>
+    </li>
+    <li>
+      <a href="food_security.html">Food Security</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="media.html">Media</a>
+</li>
+<li>
+  <a href="partners.html">Partners</a>
+</li>
+<li>
+  <a href="https://github.com/uva-bi-sdad">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Food Insecurity</h1>
+<h3 class="subtitle">How do we measure food insecurity in Fairfax
+County?</h3>
+
+</div>
+
+
+<hr />
+<div class="section_header">
+Issue overview
+</div>
+<div class="section_text">
+<p>The current measure of food insecurity, the USDA Current Population
+Survey Food Security Supplement, monitors food insecurity over time at
+national and state levels. Our stakeholders, local governments and
+nonprofits, want food insecurity measures at a smaller geographic level.
+Such knowledge would permit local officials to better address the
+problem in identifiable small geographies with targeted outreach and
+mitigation strategies, such as nutrition education and social service
+referrals.</p>
+<p>We accomplish this by modeling food insecurity as a function of
+household income, size, composition, and the census tract where the
+household resides and categorize a household as food insecure, at-risk
+of food insecurity, or food secure using the cost-of-living as the
+threshold.</p>
+</div>
+<div class="section_header">
+Calculating local cost of living
+</div>
+<div class="section_text">
+<p>We define the cost-of-living as the amount of income necessary to pay
+federal and state income taxes and to meet a household’s needs to
+function at a modest yet adequate standard of living. We include
+“living” in our designation to connect this to the “living wage” and to
+distinguish that the cost-of-living is not set at a deprivation level.
+Instead, it is a budget that could be used to define a living wage. We
+reviewed the following calculators to build a sense of the existing
+solutions to tackle defining a cost-of-living.</p>
+<ul>
+<li>
+<a href="https://livingwage.mit.edu/">The Living Wage Calculator from
+Massachusetts Institute of Technology</a>
+<li>
+<a href="https://www.epi.org/resources/budget/">The Family Budget
+Calculator from Economic Policy Institute</a>
+<li>
+<a href="https://selfsufficiencystandard.org/">The Self Sufficiency
+Standard from Washington University’s Center for Women’s Welfare</a>.
+</ul>
+<p>We found that the available cost of living calculators did not meet
+our need detail at the sub-county level. To construct a sub-county cost
+of living, we completed a data discovery to find available sources for
+budget categories available at a geographically granular level and
+replicable across the National Capital Region. The basic needs include
+housing, food, transportation, healthcare, childcare, broadband, and
+other necessities such as clothing, household supplies, personal care,
+nonprescription medicine, and school supplies. The household income
+standard estimates are a function of family size and composition and
+where the family resides. It assumes the total cost of each need without
+government subsidies (e.g., public housing, Medicaid, or childcare
+assistance); or nonprofit or informal assistance from family and friends
+(e.g., unpaid childcare by a relative, food from food banks, or shared
+housing). An cost-of-living budget was calculated for every household
+combination within a census tract. The data sources used to construct
+the budget are listed in the table below.</p>
+</div>
+<div id="htmlwidget-6560bb9d79cfd0818b95" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6560bb9d79cfd0818b95">{"x":{"filter":"none","vertical":false,"caption":"<caption>Components of the Household Living Income:  Date, Data Source, Geographic Area, and Adjustments<\/caption>","data":[["Housing","Food","Transportation","Healthcare","Childcare","Broadband","Other Necessities","Tax\nLiability"],["Yearly","Monthly","Yearly","Yearly","Biennial","NA","NA","Yearly"],["<a href=\"https://www.huduser.gov/portal/datasets/fmr/fmrs/FY2023_code/2023summary_sa.odn\" target=\"_blank\">Washington-Arlington-Alexandria, DC-VA-MD HUD Metro FMR Area Advisory Small Area FMRs by Unit Bedrooms<\/a> (includes utilities)","<a href=\"https://www.fns.usda.gov/cnpp/usda-food-plans-cost-food-reports-monthly-reports\" target=\"_blank\">USDA Food Plans: Cost of Food Reports (monthly reports)<\/a><br>Low-Cost Food Plan adjusted for Economies-of-Scale<br><a href=\"https://fns-prod.azureedge.us/sites/default/files/usda_food_plans_cost_of_food/FoodPlans2007AdminReport.pdf\" target=\"_blank\">(Methodology)<\/a>","<a href=\"https://htaindex.cnt.org/\" target=\"_blank\">H+T <\/a>(Housing + Transit Affordability Index)<br>non-profit <a href=\"https://cnt.org/\" target=\"_blank\">Center for Neighborhood Technology<\/a><br><a href=\"https://htaindex.cnt.org/about/method-2022.pdf\" target=\"_blank\">(Methodology)<\/a>","U.S. Centers for Medicare & Medicaid Services,  <a href=\"https://www.healthcare.gov/health-plan-information-2022/\" target=\"_blank\">Health Insurance Market Place <\/a> Bronze Plan;<a href=https://www.kff.org/report-section/ehbs-2021-summary-of-findings/\" target=\"_blank\">Kaiser Family Foundation 2021 Health Benefits Survey","<a href=\"https://www.dol.gov/agencies/wb/topics/featured-childcare\" target=\"_blank\"> Department of Labor Women’s Bureau National <\/a> Median Home-Based Childcare\n<a href=\"https://www.dol.gov/sites/dolgov/files/WB/media/NationalDatabaseofChildcarePricesTechnicalGuideFinal.pdf\" target=\"_blank\"> (Methodology)<\/a>","Scrapped from <br><a href=\"https://broadbandnow.com/\" target=\"_blank\">BroadbandNow;<\/a><br> <a href=\"https://www.transportation.gov/gis/national-address-database\" target=\"_blank\">Department of Transportation, National Address Database<\/a>","20% of the cost of housing, utilities, food","National Bureau of Economic Research’s <a href=\"http://taxsim.nber.org/taxsim35/\" target=\"_blank\">TAXSIM <\/a> Version 35 R interface \n<a href=\"https://cran.rstudio.com/web/packages/usincometaxes/vignettes/using-usincometaxes.html\" target=\"_blank\"> usincometaxes<\/a>"],["ZIP code","National","Census tract","<a href=\"https://www.cms.gov/cciio/programs-and-initiatives/health-insurance-market-reforms/va-gra\" target=\"_blank\">State geographic rating area<\/a>","County","Address at the center of a Census block","NA","State"],["ZIPS codes are distributed to census tracts based on demographic data","National adjusted to the county or city level using Feeding America’s Map the Meal Gap 2021 data","NA","NA","NA","NA","NA","NA"],["NA","<a href=\"https://www.bls.gov/regions/mid-atlantic/news-release/consumerpriceindex_washingtondc.htm#ro3xg01wbu.f.1\" target=\"_blank\">Consumer Price Index, CBSA Washington DC – March 2023;<\/a>(used to adjust the 2021 Feeding America’s Map the Meal Gap data)","NA","NA","DOL Women’s Bureau National Methodology used to impute the Washington, D.C. childcare costs from 2012 to 2022","NA","NA","NA"],["Census tract","County","Census tract","County","County","Census tract","Census tract","State"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Component<\/th>\n      <th>Data Updates<\/th>\n      <th>Data Source<\/th>\n      <th>Original Geographic Area<\/th>\n      <th>Geographic Area Adjustment<\/th>\n      <th>Inflation (Time) Adjustment<\/th>\n      <th>Final Geographic Area<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="section_header">
+Approach to measuring food insecurity
+</div>
+<div class="section_text">
+<p>To estimate the food insecurity at the census tract level using the
+cost-of-living as the threshold, we used household data at the Public
+Use Microdata Area (PUMA) level and aggregated household income and size
+data at the census tract level from the American Community Survey (ACS).
+Iterative proportional fitting (IPF) was used to estimate the number of
+households in each income by size category within a census tract (see
+Exhibit 2) subject to constraints from known and fixed marginal row and
+column totals.<a href="#fn1" class="footnote-ref"
+id="fnref1"><sup>1</sup></a><a href="#fn2" class="footnote-ref"
+id="fnref2"><sup>2</sup></a> The marginal row and column totals are
+household income , ACS Table S1901, and household size, ACS Table
+B11016, at the census tract level. For each census tract the procedure
+was:</p>
+<ol style="list-style-type: decimal">
+<li>fill the body of the table (Exhibit 2, Panel 2) with starting values
+(seeds) which were adjusted iteratively to match the row and column
+marginal totals;</li>
+<li>the cells in each row were adjusted by multiplying each cell by the
+ratio of the (fixed row marginal / actual row sum);<br />
+</li>
+<li>the cells in each column were adjusted by multiplying each cell by
+the ratio of the (fixed column marginal / actual column sum);<br />
+Iterations between (2) and (3) were performed until the stop criterion
+was reached, either when the difference between iterations was less than
+10-11 or the number of iterations reach 1,000. The estimates for census
+tract 450100 as displayed in Exhibit 2, Panel 2. For example, there will
+be 135 two person households with an income in the range [75,000 to
+99,999] for census tract 450100. For Fairfax County, 274 2-way tables
+were estimated each with 45 cells. All computations were done using the
+R-package for Multidimensional Array Fitting (mipfp).<a href="#fn3"
+class="footnote-ref" id="fnref3"><sup>3</sup></a></li>
+</ol>
+<p>A monthly cost-of-living midpoint was calculated for each household
+size by income category (each cell in the census track table). The
+midpoint was then compared to the limits of the income category to
+classify all the households within a cell as secure, insecure, at-risk
+households. For each cell:</p>
+<ol style="list-style-type: decimal">
+<li>calculate the cell threshold by summing seven components of the
+cost-of-living excluding food costs (transportation, healthcare,
+childcare, housing, broadband, other expenses, and taxes) for each
+household combination of a particular household size and taking the
+midpoint;</li>
+<li>estimate the food budget range for a cell as the difference between
+the cell threshold minus lower end and the cell threshold minus upper
+end of the income category;<br />
+</li>
+<li>calculate the monthly food costs for the household size by using the
+USDA monthly low-cost food plan;</li>
+<li>compare the USDA monthly food cost to the food budget range, if the
+USDA monthly food cost is less than the lower end of the food budget
+range the household is food secure; if the USDA monthly food cost is
+greater than the upper end of the food budget range the household is
+food insecure; if the USDA monthly food cost is contained within the
+range the household is at risk.</li>
+</ol>
+</div>
+<div class="section_header">
+Findings
+</div>
+<div style="text-align: center">
+<img src="img/food-food_insecurity_combined.png" class="story_image"
+width="800" />
+<figcaption style="width:600px;">
+Data Sources: USDA, accessed 2022 <br> Feeding America, accessed 2022
+<br> U.S. Department of Housing and Urban Development, accessed 2022
+<br> Center for Neighborhood Technology, accessed 2022 <br> Health
+Insurance Market Place, accessed 2022 <br> Department of Labor Women’s
+Bureau National, accessed 2022 <br> BroadbandNow, accessed 2022 <br>
+National Academy of Sciences accessed 2022 <br> National Bureau of
+Economic Research’s program TAXSIM Version 35, accessed 2022
+<a href = "https://uva-bi-sdad.github.io/capital_region/?selected_county=51059&selected_variable=insecure_pc_original">
+<br> Explore this measure on our dashboard </a> <br>
+</figcaption>
+</div>
+<div class="section_text">
+<p>Applying our methodology, we can explore food insecurity at the
+census tract level in Fairfax County. We find that the estimated
+percentage of households facing food insecurity in Fairfax is 20
+percent. This estimate is within the margin of error of the food
+insecurity estimate from the survey conducted by the National Opinion
+Research Center at the University of Chicago in 2022 for the Capital
+Area Food Bank. Within the county, Census tracts are at a minimum 0
+percent food insecure and at a maximum 58 percent food insecure.</p>
+<p>Census tracts with the highest percentage of the population estimated
+to be food insecure include southern Fairfax near Alexandria along Route
+1, North Springfield, Merrifield, along Leesburg Pike near southern
+Arlington, western Fairfax near Dulles, and western Herndon.</p>
+</div>
+<div style="float: right">
+<img src="img/food-food_insecure_at_risk.png" class="story_image"
+width="400" />
+<figcaption style="width:400px;">
+Data Sources: USDA, accessed 2022 <br> Feeding America, accessed 2022
+<br> U.S. Department of Housing and Urban Development, accessed 2022
+<br> Center for Neighborhood Technology, accessed 2022 <br> Health
+Insurance Market Place, accessed 2022 <br> Department of Labor Women’s
+Bureau National, accessed 2022 <br> BroadbandNow, accessed 2022 <br>
+National Academy of Sciences accessed 2022 <br> National Bureau of
+Economic Research’s program TAXSIM Version 35, accessed 2022
+<a href = "https://uva-bi-sdad.github.io/capital_region/?selected_county=51059&selected_variable=at_risk_pc_original">
+<br> Explore this measure on our dashboard </a>
+</figcaption>
+</div>
+<div class="section_text">
+<p>Our methodology distinguishes households that are in an ambiguous
+position of being food secure: they are at-risk for food insecurity.
+Across Fairfax overall, 26 percent of households are at-risk of facing
+food insecurity.</p>
+</div>
+<div style="clear: both">
+
+<div class="section_header">
+Explore the demographics of food insecure neighborhoods
+</div>
+<div style = "text-align: center;">
+<img src="img/food-demographics.png" class="story_image" width="700" />
+<figcaption style="width:600px;">
+Data Source: American Community Survey (ACS) Table B01001, accessed
+2021.
+<a href = "https://uva-bi-sdad.github.io/capital_region/?plot_type=scatter&shape_type=county&selected_variable=demographics:perc_hispanic_or_latino&selected_year=2019&filter.time_min=2009&filter.time_max=2019&filter.county=51059">
+<br> Explore these measures on our dashboard </a> <br>
+<a onclick="reveal('Fig5');"> Steps to replicate this map <br>
+</a><br />
+<span class="hiddenText" id="Fig5">
+<ol>
+<li>
+Click “Filter” in the top left navigation bar to open the Filter Window
+<li>
+In the Filter Window under “county” select “Arlington County” and
+“Fairfax County”
+<li>
+Exit the Filter Window
+<li>
+In the Starting Layer Menu, Select “Tract” #<img
+src="img/tutorial-start_layer_tract.png" />
+<li>
+In the Settings Menu under Summary Level select “Selected Super-Region”
+#<img src="img/tutorial-settings_menu_superregion.png" />
+<li>
+Scroll down to Map Options and input “2” for Outline Weight and “3” for
+Background Outline Weight #<img
+src="img/tutorial-settings_menu_outlines.png" />
+<li>
+Exit the Settings Menu
+<li>
+In the Variable Menu, select Asian American/Pacific Islander population
+under Demographics
+<li>
+In the Variable Menu, select Black population under Demographics
+<li>
+In the Variable Menu, select Hispanic/Latino population under
+Demographics
+<li>
+In the Variable Menu, select White population under Demographics
+<li>
+Click Export to open the Export Window and select Download to download
+the data locally #<img src="img/tutorial-export.png" />
+</ol>
+</span>
+</figcaption>
+</div>
+<div class="section_text">
+<p>When we overlay patterns of food insecurity with demographics, we can
+see patterns in the burden of food insecurity. We see that southern
+Fairfax near Alexandria along Route 1, which is disproportionately food
+insecure, has a higher Black population as well as Hispanic/Latino
+population. Similarly, North Springfield, and Leesburg Pike near
+southern Arlington also have a higher Black population as well as
+Hispanic/Latino population. Merrifield, western Fairfax near Dulles, and
+western Herndon, which experience higher than average food insecurity,
+have a higher than average Asian American/Pacific Islander
+population.</p>
+<p>Looking towards the at-risk population, which is concentrated in
+Great Falls and McLean, we see that these areas are made up of
+predominately White as well as Asian American/Pacific Islander
+populations.</p>
+</div>
+<div class="section_header">
+Exploring food insecurity with access to subsidies
+</div>
+<div class="section_text">
+<p>Read more about the <a
+href="https://dspg-young-scholars-program.github.io/fairfax-snap-app/background.html">Supplemental
+Nutrition Assistance Program (SNAP) in Fairfax County on the analysis
+page</a>.</p>
+<p>When we add SNAP access to our model, the percentage of households
+facing food insecurity falls to 19 percent. The minimum percentage of
+food insecure population in a Census tract is 0 percent and the maximum
+is 55 percent. The percentage of at-risk households is a mean of 16.7 in
+Census tracts, with a minimum of 16.7 percent and a maximum of 100
+percent.</p>
+</div>
+<p><strong>Note:</strong> If you find that the Social Impact Data
+Commons isn’t displaying data properly, you may need to clear the
+dashboard settings (from the Settings Menu) or clear your browser cache.
+Please contact us if you have other issues.</p>
+<hr />
+<div>
+  <table style="text-align:center;margin: auto;">
+  <tr>
+    <td style="text-align:center; font-size:10px;">
+    Sponsored by <br>
+    <img src="img/partners-mclogo.png" height="50px">
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align:center; font-size:10px; padding-top: 12px;">
+    Project Contact: Aaron Schroeder, ads7fg@virginia.edu
+    </td>
+  </tr>
+  </table>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>Beckman, R. J., Baggerly, K. A., &amp; McKay, M. D.
+(1996). Creating synthetic baseline populations. Transportation Research
+Part A: Policy and Practice, 30(6), 415-429.<a href="#fnref1"
+class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Deming, W. E., &amp; Stephan, F. F. (1940). On a least
+squares adjustment of a sampled frequency table when the expected
+marginal totals are known. The Annals of Mathematical Statistics, 11(4),
+427-444.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Barthélemy, J. and Suesse, T. (2018). “mipfp: An R
+Package for Multidimensional Array Fitting and Simulating Multivariate
+Bernoulli Distributions.” Journal of Statistical Software, Code
+Snippets, 86(2), 1–20. <a href="doi:10.18637/jss.v086.c02"
+class="uri">doi:10.18637/jss.v086.c02</a>.<a href="#fnref3"
+class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

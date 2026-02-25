@@ -1,0 +1,10 @@
+Quarterly Census of Employment and Wages (QCEW) Benchmark Data
+
+- Requested from the link on 
+https://www.bls.gov/cew/downloadable-data-files.htm
+
+- Requested data of Annual Averages By Industry from the years 2010-2021 
+
+- Data Received 3/4/23
+
+- The resulting csv files were transformed into csv.xz files using the code in "Microdata/QCEW Benchmark/code/working/prepare01.R" and then stored in "Microdata/QCEW Benchmark/data/original/" folder for the years 2010-2021. The naming convention for each file is "[year of data].annual [NAICS code] [Industry].csv.xz"

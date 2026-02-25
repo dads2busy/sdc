@@ -1,0 +1,9 @@
+---
+title: "For Users"
+output: html_document
+---
+
+## How to use the dashboard
+
+## How to navigate the repositories
+### How to merge with geographies files

@@ -1,0 +1,177 @@
+---
+title: "Social Data Commons Data Dictionary"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, echo = FALSE, include = FALSE, eval = TRUE}
+# Load packages
+#knitr::opts_chunk$set(echo = FALSE, include = FALSE, eval = FALSE)
+library(jsonlite)
+library(DT)
+library(purrr)
+#library(tidyverse)
+library(data.table)
+library(foreach)
+library(htmltools)
+library(dplyr)
+
+# Function to bind a list
+rbindlist.v2 <- function(l)
+{
+  l <- l[lapply(l, class) == "list"]
+  df <- foreach(element = l, .combine = bind_rows) %do%
+    {df = unlist(element); df = as.data.frame(t(df)); rm(element); return(df)}
+  rm(l)
+  return(df)
+}
+```
+
+## Search available measures
+
+```{r search_measures, eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+# Load data from measure_info_all
+# To do: figure out adding sources
+url <- "https://raw.githubusercontent.com/uva-bi-sdad/sdc.all/main/data/measure_info_all.json"
+json <- fromJSON(url)
+
+list <- rbindlist.v2(json) %>% as.data.frame() %>% select(category, short_name, long_name, short_description, long_description, statement) %>% mutate(measure = names(json[lapply(json, class) == "list"])) %>% select(measure, category, long_name, long_description)
+
+categories <- unique(list$category) %>% paste0(., collapse = ", ")
+
+# sources
+#list <- rbindlist.v2(fromJSON(url)) %>% as.data.frame() %>% select(category, short_name, long_name, short_description, long_description, statement) %>% mutate(measure = names(fromJSON(url)))
+
+#container <- htmltools::withTags(table(
+#  class = 'display',
+#  thead(
+#    tr(th(rowspan = 1, 'measure'),
+#      th(rowspan = 3, 'category'),
+#      th(colspan = 3, 'long_name'),
+#      th(colspan = 3, 'long_description')))))
+
+list %>% datatable(rownames = FALSE)
+
+# NAICS11_Herfindalh_Hirschman_index example
+
+```
+
+## Dataset metadata
+
+### Column names {#columns}
+```{r column_descriptions, eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+region_types <- unlist(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/region_types.json")) %>% paste0(., collapse = ", ")
+measure_types <- unlist(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/measure_types.json")) %>% paste0(., collapse = ", ")
+
+data.table(as.character(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/column_structure.json"))) %>% 
+  cbind(c(
+    "ID for the geography, see <a href = 'https://github.com/uva-bi-sdad/sdc.geographies'> sdc.geographies
+    standards</a>", 
+    "Human and machine readable ID, see <a href = '#measure'> see measure guidance</a>",
+    "Margin of error for the measure (NA if unavailable)",
+    #paste0("Type of the measure, one of [", measure_types, "]"),
+    #"Name of the region mapped to geoid, see <a href = 'https://github.com/uva-bi-sdad/sdc.geographies'>
+    #sdc.geographies standards</a>",
+    #paste0("Geographic resolution of the measure, one of [", region_types, "]"),
+    "Value for the given measure, geoid, and year combination",
+    "The year of the measure")) %>% 
+  datatable(colnames = c("column name", "description"),
+            options = list("pageLength" = 20),
+            escape=FALSE, rownames = FALSE)
+```
+## measure_info metadata
+
+### Keys {#measure_info}
+```{r measure_info_key_descriptions, eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+data_types <-  unlist(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/data_types.json")) %>% paste0(., collapse = ", ")
+units <-  unlist(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/units.json")) %>% paste0(., collapse = ", ")
+aggregation_methods <-  unlist(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/aggregation_methods.json")) %>% paste0(., collapse = ", ")
+
+data.table(as.character(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/measure_structure.json"))) %>%
+  cbind(c(
+    "",
+    "Thematic category or categories for the measure", 
+    "Citations for methods used to produce the measure",
+    "Type of the data, automatically inferred",
+    "Describes how the measure relates to equity",
+    "Related shapefile of points to be displayed with the measure",
+    "Long account of the production of the measure (no character limit). Should include detail on methods, multiple data sources, the way things were combined, decisions made to create the measure.",
+    "Human readable long name for the measure (55 char limit)",
+    "Type of the measure",
+    "Short account of the production of the measure (100 char limit)",
+    "Human readable short name for the measure (40 char limit)",
+    "Data source from which the measure is derived",
+    "Dynamic statement to describe the value of the data for a given geoid and year combination",
+    "----",
+    "Units associated with the measure, how to interpret",
+    "",
+    "")) %>% 
+  datatable(colnames = c("measure_info key", "Description"), 
+            options = list("pageLength" = 20),
+            escape=FALSE, rownames = FALSE)
+```
+
+### Citations {#citations}
+```{r eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+data.table(c("id",
+             "author",
+             "year",
+             "title",
+             "journal",
+             "volume",
+             "page",
+             "doi",
+             "version",
+             "url")) %>%
+            cbind(c(
+              "The reference id, same as the citation entry name",
+              "A list or list of lists specifying one or more authors. These can include entries for given and family names",
+              "Year of the publication",
+              "Title of the publication",
+              "Journal in which the publication appears",
+              "Volume number of the journal",
+              "Page number of the journal",
+              "Digital Object Identifier, from which a link is made (https://doi.org/{doi})",
+              "Version number of software",
+              "Link to the publication, alternative to a DOI"
+            )) %>% 
+  datatable(colnames = c("Key", "Description"), 
+            options = list("pageLength" = 20),
+            escape=FALSE, rownames = FALSE)
+```
+
+### Sources {#sources}
+```{r eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+data.table(as.character(read_json("https://raw.githubusercontent.com/uva-bi-sdad/sdc.metadata/master/data/source_structure.json"))) %>% 
+  cbind(c(
+    "Year of data access", 
+    "Specific data product, if available",
+    "Name of the provider of the data organization",
+    "URL location of the provider general description or more specific data set descriptive page")) %>% 
+  datatable(colnames = c("sources key", "description"), 
+            options = list("pageLength" = 20),
+            escape=FALSE, rownames = FALSE)
+```
+
+### Statement {#statement}
+```{r eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+data.table(c("features.name", "value"),
+  cbind(c(
+    "", 
+    ""))) %>% 
+  datatable(colnames = c("dynamic reference", "description"), 
+            options = list("pageLength" = 20),
+            escape=FALSE, rownames = FALSE)
+```
+
+### Layer {#layer}
+```{r eval = TRUE, echo = FALSE, include = TRUE, message = FALSE, warning = FALSE}
+data.table(c("source", "filter"),
+  cbind(c(
+    "Url to a geojson file (Note: Must point to a public repo (e.g. Not _dev))", 
+    "optional"))) %>% 
+  datatable(colnames = c("layer key", "description"), 
+            options = list("pageLength" = 20),
+            escape=FALSE, rownames = FALSE)
+```

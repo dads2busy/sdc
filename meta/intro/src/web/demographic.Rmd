@@ -1,0 +1,37 @@
+---
+title: "Redistributing Demographics for Local Decision-making"
+subtitle: "An open-source R package for redistributing demographics"
+---
+
+### The `redistribute` package
+
+[Explore the `redistribute` package functionality and articles. ](https://uva-bi-sdad.github.io/redistribute/)
+
+Often, data are not available in geographies relevant to local decisionmakers. For example, census geographies do not perfectly align with Arlington Civic Associations.
+
+![](img/demographic-censusvcivic.png)
+
+### Current approaches
+
+We review the current approaches to deal with a partial overlap
+
+* Policy Map - Must be overlapping 50% or more or leave it off
+* City-Data, Esri, others - Use percentage overlap
+* Our approach 1 - Allocate demographics to parcels according to number of housing units
+
+### Creation of indicators at locally relevant geographies
+
+#### Arlington County Black population example
+
+![Black population in Arlington County census tracts](img/demographic-arlcensus.png)
+
+![Estimated Black population in Arlington County civic associations](img/demographic-arlciv.png)
+
+#### Fairfax County average download speed example
+
+![Average download speed in Fairfax County census tracts](img/demographic-fxcensus.png)
+
+![Average download speed in Fairfax County planning districts](img/demographic-fxpd.png)
+Incorporating data from multiple sources: IPUMS, using IPF
+
+`r htmltools::includeHTML("./footer.html")`

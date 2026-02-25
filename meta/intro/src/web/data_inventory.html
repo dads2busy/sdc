@@ -1,0 +1,2754 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Data Inventory</title>
+
+<script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<link rel="icon" href="https://raw.githubusercontent.com/uva-bi-sdad/community/main/logo.svg"/>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Social Impact Data Commons</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Overview</a>
+</li>
+<li>
+  <a href="process.html">Process</a>
+</li>
+<li>
+  <a href="data.html">Data Repositories</a>
+</li>
+<li>
+  <a href="dashboard.html">Dashboard</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tools &amp; Methods
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="health.html">Catchment Areas</a>
+    </li>
+    <li>
+      <a href="food.html">Food Security</a>
+    </li>
+    <li>
+      <a href="demographic.html">Demographic Redistribution</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Stories
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="broadband.html">Access to Broadband</a>
+    </li>
+    <li>
+      <a href="health_equity.html">Health Equity</a>
+    </li>
+    <li>
+      <a href="economic_diversity.html">Business Diversity</a>
+    </li>
+    <li>
+      <a href="food_security.html">Food Security</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="media.html">Media</a>
+</li>
+<li>
+  <a href="partners.html">Partners</a>
+</li>
+<li>
+  <a href="https://github.com/uva-bi-sdad">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Data Inventory</h1>
+<h3 class="subtitle">Report of Collected Data</h3>
+
+</div>
+
+
+<div id="data" class="section level2">
+<h2>Data</h2>
+<style>
+  td.rotate {
+    /* Something you can count on */
+    /* height: 140px; */
+    white-space: nowrap;
+    vertical-align: bottom;
+    padding: 0px 0px 10px 0px;
+  }
+
+  td.rotate > div {
+    transform:
+      /* Magic Numbers */
+      /* translate(25px, 51px) */
+      /* 45 is really 360 - 45 */
+      rotate(270deg);
+    width: 30px;
+    text-align: right;
+  }
+
+  /* Center all columns */
+  table td {
+      text-align: center;
+  }
+
+  /* Override rule above to left align specific columns */
+  table td:nth-child(1), table td:nth-child(2), table td:nth-child(3) {
+      text-align: left;
+  }
+</style>
+
+<h3>Current Data Inventory</h3>
+
+<table style='border-collapse:collapse;'>
+ <colgroup>
+  <col><col><col style='border-right: 2px solid blue;'>
+  <col><col><col><col><col><col><col><col style='border-right: 2px solid blue;'>
+  <col><col><col style='border-right: 2px solid blue;'>
+  <col><col><col style='border-right: 2px solid blue;'>
+ </colgroup>
+ <tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td colspan=14 style='text-align:center;'>NCR REGION</td>
+ </tr>
+ <tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td colspan=8 style='text-align:center;'>VA</td>
+  <td colspan=3 style='text-align:center;'>MD</td>
+  <td colspan=3 style='text-align:center;'>DC</td>
+ </tr>
+ <tr>
+  <td style='width:80pt; height:100pt; vertical-align:bottom;'>CATEGORY</td>
+  <td style='width:100pt; vertical-align:bottom;'>MEASURE</td>
+  <td style='width:60pt; vertical-align:bottom;'>YEARS</td>
+  <td class='rotate'><div><span>county</div></span></td>
+  <td class='rotate'><div><span>tract</span></div></td>
+  <td class='rotate'><div><span>block group</span></div></td>
+  <td class='rotate'><div><span>zip code</span></div></td>
+  <td class='rotate'><div><span>planning dist</span></div></td>
+  <td class='rotate'><div><span>human srvc reg</span></div></td>
+  <td class='rotate'><div><span>supervisor dist</span></div></td>
+  <td class='rotate'><div><span>civic assoc</span></div></td>
+  <td class='rotate'><div><span>county</span></div></td>
+  <td class='rotate'><div><span>tract</span></div></td>
+  <td class='rotate'><div><span>block group</span></div></td>
+  <td class='rotate'><div><span>county</span></div></td>
+  <td class='rotate'><div><span>tract</span></div></td>
+  <td class='rotate'><div><span>block group</span></div></td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Average download speed in Mb/sec</td>
+  <td >2019-2021</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Average upload speed in Mb/sec</td>
+  <td >2019-2021</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percent of the
+  total population with at least 100Mb download/20Mb upload speed</td>
+  <td >2019-2021</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percent of the
+  total population with at least 25Mb download/3Mb upload speed</td>
+  <td >2019-2021</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>The number of
+  unique devices accessing Ookla Internet speed tests</td>
+  <td >2019-2021</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+  <td>X</td>
+  <td >X</td>
+  <td >X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Annual mean number
+  of providers from FCC</td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>The price for fast
+  internet (100 Mb/s upload) as a percentage of median household income</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>The price for good
+  internet (25 Mb/s upload) as a percentage of median household income</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>The national
+  average price for internet ($64) as a percentage of median household income</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Minimum price for
+  very fast (100+ MB/s upload) internet</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Median price for
+  very fast (100+ MB/s upload) internet</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>The Digital Equity
+  Index (DEI) is a composite variable indicating the degree of broadband equity</td>
+  <td>2019-2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percentage of
+  households self-reported to have a broadband internet connection</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percentage of the
+  households self-reported to not have a computer or device at home</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percentage of
+  households self-reported to not have internet access at home</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percentage of
+  households self-reported to have a high speed internet service</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>broadband</td>
+  <td>Percent of
+  population with Internet with 100+ MB/s download speed</td>
+  <td>2019-2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Percentage of the
+  population self-reported to be covered by any health coverage plan</td>
+  <td>2015-2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Percent of
+  population self-reporting poor mental health in 14+ days of previous month</td>
+  <td>2015-2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Percent of
+  population self-reporting poor physical health in 14+ days of previous month</td>
+  <td>2015-2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Primary care
+  access score based on 2-step enhanced floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>OBGYN access score
+  based on 2-step enhanced floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Dental care access
+  score based on 2-step enhanced floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Pediatric care
+  access score based on 2-step enhanced floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Substance/behavioral
+  health services access score 3-step floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Count of substance
+  use/behavioral health facilities</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Substance/behavioral health
+  services median drive time to 10 closest</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Emergency medical services access
+  score based on 3-step floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+  <td >&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Count of emergency
+  medical services facilities</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Hospital access
+  score based on 3-step floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Count of hospitals</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Median drive time in minutes to
+  the ten closest hospitals</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Mental health services access
+  score based on 3-step floating catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+ </tr>
+ <tr>
+  <td >health</td>
+  <td>Count of mental health facilities</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >health</td>
+  <td>Rate per 100,000 Medicare
+  enrollees of preventable hospital stays</td>
+  <td >2015-2021</td>
+  <td >X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td ></td>
+ </tr>
+ <tr>
+  <td>health</td>
+  <td>Average emergency department
+  visits for drug overdose per 100,000 residents</td>
+  <td >2019-2021</td>
+  <td >X</td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td ></td>
+  <td ></td>
+ </tr>
+ <tr>
+  <td>demographics</td>
+  <td>Black population percent</td>
+  <td >2015-2019</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+  <td >X</td>
+ </tr>
+ <tr>
+  <td>demographics</td>
+  <td>White population
+  percent</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td >demographics</td>
+  <td>American
+  Indian/Native population percent</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr  >
+  <td  >demographics</td>
+  <td>Asian
+  American/Pacific Islander population percent</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>demographics</td>
+  <td>Other racial
+  population percent</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr  >
+  <td  >demographics</td>
+  <td>The percent of
+  households with limited English</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td >demographics</td>
+  <td>Hispanic/Latino
+  population percent</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>demographics</td>
+  <td>Veteran population
+  percent</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td >demographics</td>
+  <td>The percent of the
+  population over age 64</td>
+  <td>2015-2019</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+ </tr>
+ <tr  >
+  <td  >employment</td>
+  <td>Population
+  self-reported as employed divided by total civilian workforce population</td>
+  <td>2017-2020</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >employment</td>
+  <td>Earnings per job
+  is calculated based on the GDP and Personal Income table from the BEA</td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >education</td>
+  <td>Count of
+  population with high school diploma or higher education   </td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >education</td>
+  <td>Percent of
+  population with high school diploma or higher education   </td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >education</td>
+  <td>Mean drive to to
+  closest 5 2-year colleges</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >education</td>
+  <td>Median drive to to
+  closest 5 2-year colleges</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >education</td>
+  <td>Median 3rd grade
+  reading score passing rate</td>
+  <td>2019-2021</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >education</td>
+  <td>Mean 3rd grade
+  reading score passing rate</td>
+  <td>2019-2021</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >education</td>
+  <td>Total daycare
+  capacity (number of slots)</td>
+  <td>2021</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td>education</td>
+  <td>Daycare services
+  access score</td>
+  <td>2021</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td >education</td>
+  <td>Daycare median
+  drive time to closest 5</td>
+  <td>2021</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+ </tr>
+ <tr>
+  <td >education</td>
+  <td>Daycare mean drive
+  time to closest 5</td>
+  <td>2021</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+  <td>X</td>
+  <td >X</td>
+  <td>X</td>
+ </tr>
+ <tr >
+  <td >housing</td>
+  <td>Housing cost ACS</td>
+  <td>2015-2019</td>
+  <td>&nbsp;</td>
+  <td >&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td >&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>housing</td>
+  <td>Median mortgage
+  cost ACS</td>
+  <td>2015-2019</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr >
+  <td >housing</td>
+  <td>Median rent cost
+  ACS</td>
+  <td>2015-2019</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>housing</td>
+  <td>Median gross rent
+  ACS</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr >
+  <td >housing</td>
+  <td>Home owner count</td>
+  <td>2015-2019</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >housing</td>
+  <td>Vacant 12 months
+  or longer count - Residential</td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >housing</td>
+  <td>Total count of
+  vacant addresses - Other  </td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>housing</td>
+  <td>Percentage of
+  vacant addresses  </td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >housing</td>
+  <td>Percentage of
+  vacant addresses - Other  </td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >housing</td>
+  <td>All vacant
+  addresses 12 months or longer count   </td>
+  <td>2015-2020</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >housing</td>
+  <td>Number of eviction
+  judgments in which renters were ordered to leave</td>
+  <td>2015-2016</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>housing</td>
+  <td>All eviction cases
+  filed in an area  </td>
+  <td>2015-2016</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>transportation</td>
+  <td>National
+  walkability index score</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+ </tr>
+ <tr  >
+  <td  >transportation</td>
+  <td>Average travel
+  time to work (minutes) per worker over 16</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >transportation</td>
+  <td>Percentage workers
+  over 16 carpooled to work </td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >transportation</td>
+  <td>Percentage of HHs
+  with no vehicle available</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr >
+  <td >parks</td>
+  <td>Grill relative
+  access score</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >parks</td>
+  <td>Basketball court
+  relative access sccore</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >parks</td>
+  <td>Park parking
+  relative access sccore</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >parks</td>
+  <td>Tennis court
+  relative access sccore</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>parks</td>
+  <td>Park relative
+  access sccore</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >parks</td>
+  <td>Playground
+  relative access sccore</td>
+  <td>2021</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Percentage of food
+  insecure children</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Percentage of food
+  insecure households</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >food</td>
+  <td>The average weekly
+  dollar amount food-secure individuals report spending on food</td>
+  <td>2015-2019</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr  >
+  <td  >food</td>
+  <td>Supermarket access
+  score using 2-stage catchment areas</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Retail food
+  environment index of available healthy and less healthy food retailers</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Tomatillo access
+  core using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Nopalito access
+  core using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Mixed fruit access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Garbanzo bean
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Tuna (canned)
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Cheese access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Avocado access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Curry powder
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Peppers access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Green chiles
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Pinto beans access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Legumes access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Corn tortillas
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Tomato sauce
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Barley access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td >food</td>
+  <td>Black eye peas
+  access score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Rice access score
+  using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Masa access score
+  using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Dried dates access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Teff access score
+  using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Crackers access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Jalapenos access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Tomatoes access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Dried beans access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Fava beans access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Lentils access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>salsa access score
+  using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Pasta access score
+  using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Black beans access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Squash access
+  score using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>food</td>
+  <td>Beets access score
+  using ecdf</td>
+  <td>2021</td>
+  <td>X</td>
+  <td>X</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>X</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+ </tr>
+</table>
+<hr />
+<div>
+  <table style="text-align:center;margin: auto;">
+  <tr>
+    <td style="text-align:center; font-size:10px;">
+    Sponsored by <br>
+    <img src="img/partners-mclogo.png" height="50px">
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align:center; font-size:10px; padding-top: 12px;">
+    Project Contact: Aaron Schroeder, ads7fg@virginia.edu
+    </td>
+  </tr>
+  </table>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+name: "The Social Impact Data Commons"
+output_dir: "../../docs"
+exclude: ["*.nb.html", "*.csv", "*.CSV", "*.dcf", "parlog", "old", "dashboard"]
+output:
+  html_document:
+    theme: "flatly"
+    css: style.css
+    includes:
+      in_header: header.html
+    highlight: tango
+navbar:
+  title: "Social Impact Data Commons"
+  left:
+    - text: "Overview"
+      href: index.html
+    - text: "Process"
+      href: process.html
+    - text: "Data Repositories"
+      href: data.html
+#      menu:
+#      - text: "Data Repositories"
+#        href: data.html
+#      - text: "Data Inventory"
+#        href: data_inventory.html
+#      - text: "Data Dictionary"
+#        href: data_dictionary.html
+    - text: "Dashboard"
+      href: dashboard.html
+    - text: "Tools & Methods"
+      menu:
+      - text: "Catchment Areas"
+        href: health.html
+      - text: "Food Security"
+        href: food.html
+      - text: "Demographic Redistribution"
+        href: demographic.html
+    - text: "Stories"
+      menu:
+      - text: "Access to Broadband"
+        href: broadband.html
+      - text: "Health Equity"
+        href: health_equity.html
+      - text: "Business Diversity"
+        href: economic_diversity.html
+      - text: "Food Security"
+        href: food_security.html
+    - text: "Media"
+      href: media.html
+    - text: "Partners"
+      href: partners.html
+    - text: ""
+      icon: fa-github
+      href: "https://github.com/uva-bi-sdad"
+

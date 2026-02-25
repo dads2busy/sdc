@@ -1,0 +1,147 @@
+---
+title: "Untitled"
+author: "cm"
+date: "1/6/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# List of buffer tracts for NCR
+```{r}
+source("~/VDH/Floating_Catchment_Areas/va/buffer_counties_va.R")
+
+map
+buffer_counties_state
+plot(st_buffer(counties_ncr_st$geometry,50))
+plot( st_buffer(counties_ncr_st$geometry,500) )
+
+map + st_buffer(counties_ncr_st$geometry,50)
+
+plot(counties_ncr_st, max.plot = 4)
+
+
+counties_ncr_st$id <- 1
+
+ncr_region <- counties_ncr_st %>% group_by(id) %>% summarise(aland= sum(ALAND))
+
+plot(ncr_region)
+
+map
+```
+
+
+
+# Data combined: population DMV 
+```{r}
+library(tidycensus)
+library(tidyverse)
+
+census_api_key("eba406410c653b81d6a795ac4e989221f7bdf302")
+
+# counties_ncr <- c(51013 , 51059  ,51600  ,51107  ,51610  ,51683  ,51685  ,51153  ,51510  ,
+#                   11001  , 
+#                   24021  ,24031  ,24033  ,24017) 
+
+buffer_blocks_ncr <- read.csv("~/VDH/Floating_Catchment_Areas/dmv/buffer_blocks_ncr.csv" )
+buffer_blocks_ncr$fips <- substr(buffer_blocks_ncr$identifier,3,5)
+
+
+# Bring in census tract data. 
+pop_va_hosp <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "VA",
+                       county = c('013', '059', '600', '107', '610', '683', '685', '153', '510'),
+                       #county = c("013", "059") , 
+                       survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+pop_dc_hosp <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "DC",
+                        survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+pop_md_hosp <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "MD",
+                       county = c('021', '031', '033', '017'),
+                       survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+
+#neighboring blocks MD: 24 - PA:42 - VA:51 - WV:54
+pop_md_hosp_neig <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "MD",
+                         county = unique(buffer_blocks_ncr$fips[buffer_blocks_ncr$STATEFP20=='24']),
+                        survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+pop_pa_hosp_neig <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "PA",
+                         county = unique(buffer_blocks_ncr$fips[buffer_blocks_ncr$STATEFP20=='42']),
+                        survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+pop_va_hosp_neig <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "VA",
+                         county = unique(buffer_blocks_ncr$fips[buffer_blocks_ncr$STATEFP20=='51']),
+                        survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+pop_wv_hosp_neig <- get_acs(geography = "block group", 
+                        year = 2021,
+                        variables = c(population = "B01003_001E"),
+                        state = "WV",
+                         county = unique(buffer_blocks_ncr$fips[buffer_blocks_ncr$STATEFP20=='54']),
+                        survey = "acs5",
+                        output = "wide",
+                        geometry = TRUE)
+
+#joint df
+pop_buffer_hosp <- rbind(pop_va_hosp,
+                         pop_dc_hosp,
+                         pop_md_hosp,
+                         pop_md_hosp_neig,
+                         pop_pa_hosp_neig,
+                         pop_va_hosp_neig,
+                         pop_wv_hosp_neig ) %>% unique()
+
+
+#
+va <- pop_buffer_hosp %>% select(GEOID, NAME, population=population )
+
+
+# data combined
+#centroid and coordinates
+
+data_combined <- data.frame(
+  GEOID = va$GEOID,
+  population = va$population,
+sf::st_coordinates(st_centroid(va$geometry))
+)
+
+data_combined <- data_combined %>% filter(!is.na(data_combined$X))
+
+data_combined <- data_combined %>% filter(GEOID != 517000323001 )
+data_combined <- data_combined %>% filter(GEOID != 517000323002 )
+data_combined <- data_combined %>% filter(GEOID != 517000323003 )
+
+```

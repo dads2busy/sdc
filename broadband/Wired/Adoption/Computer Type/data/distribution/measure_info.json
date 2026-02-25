@@ -1,0 +1,29 @@
+{
+    "perc_hh_without_compdev": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Accessibility",
+        "layer": "",
+        "long_description": "Percentage of households self-reported to not have a computer or device at home. Data is based on American Community Survey Table B28001 in ACS 2015/2019 5-year estimates. Geographies: County (5), Block group (12), Census Tract (11), Health District (51_hd)",
+        "long_name": "Percentage of households without a computer",
+        "measure_type": "percent",
+        "short_description": "Percentage of households self-reported to not have a computer or device at home. Data is based on American Community Survey Table B28001 in ACS 2015/2019 5-year estimates. Geographies: County (5), Block group (12), Census Tract (11), Health District (51_hd)",
+        "short_name": "Households without a computer",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "American Community Survey Table B28001",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            }
+        ],
+        "statement": "{value} of households in {features.name} do not have a computer or device.",
+        "type": "percent",
+        "unit": "household",
+        "variants": ""
+    }
+}

@@ -1,0 +1,208 @@
+---
+title: "dc_food_mrfei"
+author: "Joanna Schroeder"
+date: "1/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(sf)
+library(data.table)
+library(tigris)
+library(leaflet)
+#library(remotes)
+#remotes::install_github("jamgreen/lehdR")
+#library(lehdr)
+library(tidyverse)
+library(ggplot2)
+#library(devtools)
+#install_github("yonghah/esri2sf")
+library(esri2sf)
+library(osmdata)
+library(sf)
+library(tidygeocoder)
+library(dplyr)
+library(stringr)
+library(viridis)
+
+### pre -------------------------------
+
+# load packages
+for (pkg in c("tidyverse", "data.table", "stringr", "stringi", "mosaic", "dplyr", "readr","gt", "dataverse")) {
+  library(pkg, character.only = TRUE)
+}
+
+# db connection
+get_db_conn <-
+  function(db_name = "sdad",
+           db_host = "postgis1",
+           db_port = "5432",
+           db_user = Sys.getenv("db_usr"),
+           db_pass = Sys.getenv("db_pwd")) {
+    RPostgreSQL::dbConnect(
+      drv = RPostgreSQL::PostgreSQL(),
+      dbname = db_name,
+      host = db_host,
+      port = db_port,
+      user = db_user,
+      password = db_pass
+    )
+  }
+```
+
+```{r}
+## table names ##
+# dc_geographies.va_013_arl_2020_civic_associations
+# dc_population_characteristics.va_013_arl_2020_civic_association_demographics
+
+## getting data ---------------------------------
+
+## get shapes ##
+## get civic associations ##
+#con <- get_db_conn()
+#ca <- st_read(con, query = "SELECT * FROM dc_geographies.va_013_arl_2020_civic_associations")
+#ca <- sf::st_read(con, c("dc_geographies", "va_013_arl_2020_civic_associations"))
+#DBI::dbDisconnect(con)
+ca <- sf::st_read("/project/biocomplexity/sdad/projects_data/mc/data_commons/Civic_Association_Polygons/Civic_Association_Polygons.shp")
+
+## get states ##
+states <- states(cb = TRUE)
+va <- states %>% filter(NAME == "Virginia")
+dc <- states %>% filter(NAME == "District of Columbia")
+md <- states %>% filter(NAME == "Maryland")
+dmv <- va %>% rbind(dc) %>% rbind(md)
+va_bg <- block_groups(state = "Virginia", cb = TRUE)
+dc_bg <- block_groups(state = "District of Columbia", cb = TRUE)
+md_bg <- block_groups(state = "Maryland", cb = TRUE)
+bg <- va_bg %>% rbind(dc_bg) %>% rbind(md_bg)
+
+## get points ##
+## get supermarkets OSM ##
+# see http://bboxfinder.com/#-77.516815,38.661756,-76.528045,39.055285
+#bb <- c(-77.516815,38.661756,-76.528045,39.055285)
+#bb <- c(38.661756,-77.516815,39.055285,-76.528045)
+bb <- c("Virginia")
+# building the query
+q <- bb %>%
+  opq(timeout = 25*100) %>%
+  add_osm_feature("shop")
+
+# query
+shops <- osmdata_sf(q)
+
+# filter point layer to get supermarket locations
+supermarkets <- shops$osm_points %>%
+  filter(str_detect(shop, "supermarket")) %>% select(osm_id, geometry)
+convenience <- shops$osm_points %>%
+  filter(str_detect(shop, "convenience")) %>% select(osm_id, geometry)
+dollar <- shops$osm_points %>%
+  filter(str_detect(shop, "variety")) %>% select(osm_id, geometry)
+
+# viz
+supermarkets %>%
+ggplot() +
+  geom_sf(data = va) +
+  geom_sf(size = .2)
+
+## get supermarkets ZACH ##
+z_supermarkets <- sf::st_read("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_health_behavior_diet/virginia_grocery_stores_2.shp")
+
+# viz
+z_supermarkets %>%
+  ggplot() +
+  geom_sf(data = va) +
+  geom_sf(size = .2) +
+  xlim(c(-83.5, -75.5)) +
+  ylim(c(36.5,39.5))
+
+## get fast food ##
+# building the query
+# use same bb, change feature
+q <- bb %>%
+  opq(timeout = 25*100) %>%
+  add_osm_feature(key = "amenity", value = "fast_food")
+
+# query
+amenities <- osmdata_sf(q)
+
+# filter point layer to get fast food locations
+fastfood <- amenities$osm_points %>%
+  filter(str_detect(amenity, "fast_food")) %>% select(osm_id, geometry)
+
+# set same crs
+st_crs(ca) <- 4269
+st_crs(supermarkets) <- 4269
+st_crs(fastfood) <- 4269
+
+## creating measures ---------------------------
+
+## assigning counts of supermarkets and fast food to civic associations ##
+# with buffer and cdc ratio method
+# civic associations
+ca_supermarkets <- st_join(ca, supermarkets, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(OBJECTID) %>% mutate(super_count = n()) %>% select(OBJECTID, super_count) %>% st_drop_geometry() %>% distinct()
+ca_fastfood <- st_join(ca, fastfood, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(OBJECTID) %>% mutate(fast_count = n()) %>% select(OBJECTID, fast_count) %>% st_drop_geometry() %>% distinct()
+RFEI <- ca %>% left_join(ca_supermarkets, by = "OBJECTID") %>% left_join(ca_fastfood, by = "OBJECTID") %>% mutate(RFEI = (super_count/(super_count + fast_count)) * 100) %>% mutate(RFEI = ifelse(is.na(RFEI), 0, RFEI))
+
+RFEI %>%
+  ggplot() +
+  geom_sf(aes(fill = RFEI)) +
+  scale_fill_viridis()
+
+# create table
+va_ca_sdad_2021_mrfei_v1 <- RFEI #%>% st_drop_geometry() %>% select(OBJECTID, LABEL, RFEI) %>% rename(geoid = OBJECTID, region_name = LABEL, value = RFEI) %>% mutate(year = 2021, measure = "mrfei", measure_type = "index", region_type = "civic association") %>% distinct()
+
+# census block groups
+bg_supermarkets <- st_join(bg, supermarkets, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(GEOID) %>% mutate(super_count = n()) %>% select(GEOID, super_count) %>% st_drop_geometry() %>% distinct()
+bg_fastfood <- st_join(bg, fastfood, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(GEOID) %>% mutate(fast_count = n()) %>% select(GEOID, fast_count) %>% st_drop_geometry() %>% distinct()
+RFEI <- bg %>% left_join(bg_supermarkets, by = "GEOID") %>% left_join(tr_fastfood, by = "GEOID") %>% mutate(RFEI = (super_count/(super_count + fast_count)) * 100) %>% mutate(RFEI = ifelse(is.na(RFEI), 0, RFEI)) %>% distinct()
+
+RFEI %>%
+  ggplot() +
+  geom_sf(aes(fill = RFEI)) +
+  scale_fill_viridis()
+
+va_bg_sdad_2021_mrfei_v1 <- RFEI
+
+## adding in convenience and dollar stores
+# civic associations
+ca_supermarkets <- st_join(ca, supermarkets, st_is_within_distance, dist = 804.672) %>% filter(!is.na(name)) %>% group_by(OBJECTID) %>% mutate(super_count = n()) %>% select(OBJECTID, super_count) %>% st_drop_geometry()
+ca_convenience <- st_join(ca, convenience, st_is_within_distance, dist = 804.672) %>% filter(!is.na(name)) %>% group_by(OBJECTID) %>% mutate(conv_count = n()) %>% select(OBJECTID, super_count) %>% st_drop_geometry()
+ca_variety <- st_join(ca, variety, st_is_within_distance, dist = 804.672) %>% filter(!is.na(name)) %>% group_by(OBJECTID) %>% mutate(var_count = n()) %>% select(OBJECTID, super_count) %>% st_drop_geometry()
+ca_fastfood <- st_join(ca, fastfood, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(OBJECTID) %>% mutate(fast_count = n()) %>% select(OBJECTID, fast_count) %>% st_drop_geometry()
+RFEI <- ca %>% left_join(ca_supermarkets, by = "OBJECTID") %>% left_join(ca_fastfood, by = "OBJECTID") %>% mutate(RFEI = (super_count/(super_count + fast_count + var_count + conv_count)) * 100) %>% mutate(RFEI = ifelse(is.na(RFEI), 0, RFEI))
+
+RFEI %>%
+  ggplot() +
+  geom_sf(aes(fill = RFEI)) +
+  scale_fill_viridis()
+
+va_ca_sdad_2021_mrfei_v2 <- RFEI
+
+# rename for table
+#va_ca_sdad_2021_mrfei <- RFEI %>% st_drop_geometry() %>% select(OBJECTID, LABEL, RFEI) %>% rename(geoid = OBJECTID, region_name = LABEL, value = RFEI) %>% mutate(year = 2021, measure = "mrfei", measure_type = "index", region_type = "civic association") %>% distinct()
+
+# census block groups
+bg_supermarkets <- st_join(bg, supermarkets, st_is_within_distance, dist = 804.672) %>% filter(!is.na(name)) %>% group_by(GEOID) %>% mutate(super_count = n()) %>% select(GEOID, super_count) %>% st_drop_geometry()
+bg_convenience <- st_join(bg, convenience, st_is_within_distance, dist = 804.672) %>% filter(!is.na(name)) %>% group_by(GEOID) %>% mutate(conv_count = n()) %>% select(GEOID, super_count) %>% st_drop_geometry()
+bg_variety <- st_join(bg, variety, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(GEOID) %>% mutate(var_count = n()) %>% select(GEOID, fast_count) %>% st_drop_geometry()
+bg_fastfood <- st_join(bg, fastfood, st_is_within_distance, dist = 804.672) %>% filter(!is.na(osm_id)) %>% group_by(GEOID) %>% mutate(fast_count = n()) %>% select(GEOID, fast_count) %>% st_drop_geometry()
+RFEI <- bg %>% left_join(bg_supermarkets, by = "GEOID") %>% left_join(tr_fastfood, by = "GEOID") %>% mutate(RFEI = (super_count/(super_count + fast_count + conv_count + var_count)) * 100) %>% mutate(RFEI = ifelse(is.na(RFEI), 0, RFEI))
+
+RFEI %>%
+  ggplot() +
+  geom_sf(aes(fill = RFEI)) +
+  scale_fill_viridis()
+
+va_bg_sdad_2021_mrfei_v2 <- RFEI
+
+# create dataset
+#va_tr_sdad_2021_mrfei <- tr_RFEI %>% st_drop_geometry() %>% select(GEOID, NAME, RFEI) %>% rename(geoid = GEOID, value = RFEI) %>% mutate(year = 2021, measure = "mrfei", measure_type = "index", region_type = "tract", region_name = paste0("Census Tract ", NAME)) %>% select(-NAME) %>% distinct()
+#va_catr_sdad_2021_mrfei <- rbind(va_ca_sdad_2021_mrfei, va_tr_sdad_2021_mrfei)
+#write.csv(va_catr_sdad_2021_mrfei, "va_catr_sdad_2021_mrfei.csv")
+
+#ca_supermarkets <- st_join(supermarkets, ca) #%>% group_by(OBJECTID) %>% mutate(super_count = n()) %>% select(OBJECTID, super_count) %>% st_drop_geometry()
+
+# Added moe = "" column
+
+```
+

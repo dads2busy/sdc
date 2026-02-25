@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Economic Health and Diversity</title>
+
+<script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<link rel="icon" href="https://raw.githubusercontent.com/uva-bi-sdad/community/main/logo.svg"/>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Social Impact Data Commons</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Overview</a>
+</li>
+<li>
+  <a href="process.html">Process</a>
+</li>
+<li>
+  <a href="data.html">Data Repositories</a>
+</li>
+<li>
+  <a href="dashboard.html">Dashboard</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tools &amp; Methods
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="health.html">Catchment Areas</a>
+    </li>
+    <li>
+      <a href="food.html">Food Security</a>
+    </li>
+    <li>
+      <a href="demographic.html">Demographic Redistribution</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Stories
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="broadband.html">Access to Broadband</a>
+    </li>
+    <li>
+      <a href="health_equity.html">Health Equity</a>
+    </li>
+    <li>
+      <a href="economic_diversity.html">Business Diversity</a>
+    </li>
+    <li>
+      <a href="food_security.html">Food Security</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="media.html">Media</a>
+</li>
+<li>
+  <a href="partners.html">Partners</a>
+</li>
+<li>
+  <a href="https://github.com/uva-bi-sdad">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Economic Health and Diversity</h1>
+<h3 class="subtitle">What are the patterns in minority business
+ownership in Fairfax County?</h3>
+
+</div>
+
+
+<div style="clear: both">
+
+<hr />
+<div class="section_header">
+Overview
+</div>
+<div class="section_text">
+<p>Fairfax County stakeholders are interested in understanding economic
+health, in particular economic diversity and minority business
+ownership. Specifically, our stakeholders are interested in gaining an
+overview of minority owned business activity in the County. We also
+wanted to study the relationship between minority businesses ownership
+and employment of minorities. To investigate this topic, we began by
+discovering existing data sources related to businesses.</p>
+</div>
+<div class="section_header">
+Data discovery
+</div>
+<div class="section_text">
+<p>We found that <a href="https://www.mergentintellect.com">Mergent
+Intellect</a>, a data source licensed by the University of Virginia
+Library, contained information on business locations and minority
+ownership. To use this data to align with our stakeholder’s questions,
+we carefully examined available metadata and data dictionaries. A
+<strong>minority owned business</strong>, as defined by the <a
+href="https://in.nau.edu/contracting-purchasing-services/small-and-diverse-business-program-definitions/">U.S.
+Small Business Administration (SBA)</a>, must be majority (51%) owned by
+an individual or individuals belonging to minority racial or ethnic
+(Hispanic) groups. Other designations by SBA, such as Women and
+Veteran-owned businesses, were not within the scope of this
+investigation.</p>
+<p>In our process of data discovery, we found a large discrepancy
+between the composition of business ownership reported in Fairfax by the
+<a
+href="https://experience.arcgis.com/experience/7a670bacb15b4e67b80982e6fd6a9fba/page/Demog-Composition/">U.S.
+Census Bureau Survey of Business Owners</a> and the composition reported
+by Mergent Intellect. As we will discuss in next steps, we are currently
+investigating methods to bridge this gap and efficiently use real-time
+opportunity data to investigate minority business ownership.</p>
+<p>For our investigation, we aimed to provide Fairfax County with a
+descriptive overview of business activity by minority owned businesses.
+To describe business activity, we collected information related to
+industry and time. To understand industry activity, we extracted
+industry classification data from Mergent Intellect. Mergent Intellect
+provides the North American Industry Classification System (NAICS) Code
+for businesses, which is a standard for collecting and publishing data
+related to the business economy. Mergent Intellect also reports the
+founding year of a business, so we inferred its years of operation
+between 2011-2020. Given these data, we proposed metrics to describe
+industry activities that are <em>cross-sectional</em> and <em>over
+time</em>.</p>
+</div>
+<div style="clear: both">
+<div class="section_header">
+Overview of minority owned businesses
+</div>
+<div class="section_text">
+<p>Exhibit 1 below presents data from Mergent Intellect to show the
+number of businesses in Fairfax County between 2011 and 2020 by minority
+and non-minority ownership.</p>
+<p>Mergent Intellect data show that the number of companies in Fairfax
+County has grown 112% between 2011 and 2020. The number of minority
+owned companies has grown 138%. Minority owned companies represent a
+small share of companies in Fairfax County. In 2011, the share of
+minority owned companies represented 7% of total companies which grew to
+8% in 2020 (see Exhibit 1).</p>
+</div>
+<div style="text-align: center;">
+<figcaption>
+Exhibit 1: Number of Companies in Fairfax County, by
+Minority/Non-Minority Ownership, 2011-2020.
+</figcaption>
+<img src="img/econ-n_companies_years.png" class="story_image"
+width="600" />
+<figcaption>
+Data source: Mergent Intellect, accessed 2022
+</figcaption>
+</div>
+<div class="section_text">
+<p>In Fairfax County, the top five industries by minority owned business
+activity in 2020 are listed below (see Exhibit 2). The number in
+parentheses represents the share of minority owned companies in that
+industry (see Exhibit 2).</p>
+<ul>
+<li>Professional, scientific (16%)</li>
+<li>Administrative and support (11%)</li>
+<li>Construction (7%)</li>
+<li>Information (8%)</li>
+<li>Transportation and warehousing (9%)</li>
+</ul>
+<p>In 2020, minority owned companies represented less than 20% of all
+companies across all industries.</p>
+</div>
+<div style="text-align: center;">
+<figcaption>
+Exhibit 2: Number and Percentage of Minority-Owned Businesses by
+Industry in Fairfax County, 2020.
+</figcaption>
+<img src="img/econ-minority_companies_industry.png" class="story_image"
+width="600" />
+<figcaption>
+Data source: Mergent Intellect, accessed 2022
+</figcaption>
+</div>
+<div class="section_text">
+<p>The data from Mergent Intellect provide a general overview of
+minority owned business activity in Fairfax. The number of minority
+owned businesses in the county has grown relatively proportionally to
+business growth overall. We also see that minority owned businesses do
+not exceed more than 20% of total ownership in any industry.</p>
+</div>
+</div>
+<div style="clear: both">
+<div class="section_header">
+The relationship between minority business ownership and minority
+employment
+</div>
+<div class="section_text">
+<p>Exhibit 3 shows overall trends for employment by minority owned
+businesses across all industries. We see that employment is concentrated
+in industries characterized by high minority owned business
+activity:</p>
+<ul>
+<li>Professional, scientific (21%)</li>
+<li>Administrative and support (17%)</li>
+<li>Construction (6%)</li>
+<li>Information (12%)</li>
+<li>Transportation and warehousing (19%)</li>
+</ul>
+<p>The share of employment by minority owned companies in each industry
+remains below 23%. For all industries with high minority owned business
+activity except construction, the share of employment is above 10%.</p>
+</div>
+<div style="text-align: center;">
+<figcaption>
+Exhibit 3: Number and Percentage of Employment by Minority Owned
+Businesses in Fairfax County, 2020.
+</figcaption>
+<img src="img/econ-e3.png" class="story_image" width="600" />
+<figcaption>
+Data source: Mergent Intellect, accessed 2022
+</figcaption>
+</div>
+</div>
+<div class="section_text">
+<p>Our stakeholders were interested in understanding the relationship
+between minority owned businesses and employment of minorities. The
+Longitudinal Employer-Household Dynamic Survey (LEHD) Origin-Destination
+Employment Statistics (LODES) provides data on jobs by Census block
+group broken down into racial and ethnic classifications. We were able
+to combine this data with information from Mergent Intellect to
+investigate the spatial relationship between minority owned businesses
+and minority employment.</p>
+<p>Exhibit 4 (Left) shows the percentage of minority employees by Census
+block group in Fairfax County in 2019. We observe that minority
+employment accounts for below 25% of total employment in most Census
+block groups in Fairfax. We also see pockets with higher concentrations
+of minority employment in the County. Exhibit 4 (Right) shows the
+percentage of minority businesses by Census block group in Fairfax
+County in 2019. We observe that minority ownership, as well, accounts
+for less than 20% of total ownership in most Census block groups in
+Fairfax. Again, we also see areas with higher concentrations of minority
+business ownership in the County.</p>
+</div>
+<div style="text-align: center;">
+<figcaption>
+Exhibit 4: Percentage of Minority Employees by Census Block Group in
+Fairfax County, 2019 (Left), Percentage of Minority Owned Businesses by
+Census Block Group in Fairfax County, 2019 (Right).
+</figcaption>
+<img src="img/econ-e4.png" class="story_image" width="700" />
+<figcaption>
+Data Source: Data sources: Longitudinal Employer-Household Dynamic
+Survey (LEHD) Origin-Destination Employment Statistics (LODES) (Left),
+Mergent Intellect, accessed 2022 (Right)
+</figcaption>
+</div>
+<div class="section_text">
+<p>Exhibit 5 shows the relationship between between the percentage of
+minority owned businesses and the percentage of minority workers in
+Census block groups in Fairfax County in 2019. We see no correlation in
+the presence of minority owned businesses and the presence of minority
+employees. We were surprised by this finding, as we were expecting to
+find a positive relationship between these variables. A spatial
+correlation between minority business ownership and minority employment
+can be mostly explained by a higher concentration of businesses overall.
+In other words, more minority businesses operate in Census block groups
+with high business activity in general, and therefore higher employment
+overall, including minority employment.</p>
+</div>
+<div style="text-align: center;">
+<figcaption>
+Exhibit 5. The Relationship Between the Percentage of Minority Owned
+Businesses and the Percentage of Minority workers in Census Block Groups
+in Fairfax County, 2019.
+</figcaption>
+<img src="img/econ-e5.png" class="story_image" width="600" />
+<figcaption>
+Data Source: Data sources: Longitudinal Employer-Household Dynamic
+Survey (LEHD) Origin-Destination Employment Statistics (LODES), Mergent
+Intellect, accessed 2022
+</figcaption>
+</div>
+<div style="clear: both">
+<div class="section_header">
+Next Steps
+</div>
+</div>
+<div class="section_text">
+<p>This analysis provides an early view of minority business ownership.
+We are continuing to collaborate with our stakeholders in Fairfax County
+to investigate the topic of minority business ownership. The next steps
+in our analysis include:</p>
+<ul>
+<li>Continuing to validate our results using U.S. Census Bureau Survey
+of Business Owners.</li>
+<li>Leveraging real-time opportunity data and modeling techniques to
+measure minority business ownership more accurately.</li>
+<li>Completing case studies to understand the business ownership and
+employment dynamics of specific industries or business corridor.</li>
+<li>Creating more metrics for studying this topic, including the exit
+and entry rate of businesses, as well as the creation and destruction of
+jobs.</li>
+</ul>
+</div>
+<div style="clear: both">
+
+
+<hr />
+<div>
+  <table style="text-align:center;margin: auto;">
+  <tr>
+    <td style="text-align:center; font-size:10px;">
+    Sponsored by <br>
+    <img src="img/partners-mclogo.png" height="50px">
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align:center; font-size:10px; padding-top: 12px;">
+    Project Contact: Aaron Schroeder, ads7fg@virginia.edu
+    </td>
+  </tr>
+  </table>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

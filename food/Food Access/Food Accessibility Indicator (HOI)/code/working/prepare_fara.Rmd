@@ -1,0 +1,393 @@
+---
+title: "Untitled"
+author: "cm"
+date: "10/17/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+rm( list = ls())
+```
+
+
+#libraries
+```{r}
+library(dplyr)
+library(readr)
+library(readxl)
+library(reshape2)
+library(tidyr)
+```
+
+#data
+```{r}
+
+#USA 2019
+fara_2019 <- read_excel("~/Documents/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/original/FoodAccessResearchAtlasData2019.xlsx", 
+sheet = "Food Access Research Atlas")
+
+#VA 2019
+fara_2019_va <- fara_2019 %>% filter(State == "Virginia") %>% select(CensusTract, State, County, Urban, Pop2010, lalowi1, lalowi1share, lalowi10share, lalowihalfshare, lalowi20share) 
+
+
+################################
+
+#USA 2015
+fara_2015 <- read_excel("~/Documents/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/original/FoodAccessResearchAtlasData2015.xlsx", 
+    sheet = "Food Access Research Atlas")
+
+#VA 2015
+fara_2015_va <- fara_2015 %>% filter(State == "Virginia") 
+
+#variables fara
+# fara_2015_va <- fara_2015_va %>% select(CensusTract, State, County, Urban, Pop2010 = POP2010, LILATracts_1And10, LILATracts_halfAnd10, LILATracts_1And20, LILATracts_Vehicle) %>% mutate(year = 2015) %>% as.data.frame()
+
+fara_2015_va <- fara_2015 %>% filter(State == "Virginia") %>% select(CensusTract, State, County, Urban, Pop2010=POP2010, lalowi1, lalowi1share, lalowi10share, lalowihalfshare, lalowi20share) 
+
+#joined df for 2 years
+#fara_original_2015_2019_va <- rbind(fara_2019_va, fara_2015_va)
+
+```
+
+# data with NAs
+```{r}
+
+#2019
+fara_2019_va_withna <- fara_2019_va %>% mutate(food_access_prop_init = as.numeric(lalowi1share)
+                                          )
+
+list_na_init <- fara_2019_va_withna %>% filter(is.na(food_access_prop_init)) %>% select(CensusTract) %>% as.data.frame()
+
+list_na <- c(list_na_init$CensusTract)
+```
+
+# Identify surrounding census tracts - Function
+```{r}
+library(tigris)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(tmap)
+
+censustracts <- tracts("VA", year = 2010)
+censustracts_st_va <- st_as_sf(tracts("VA", year = 2010))
+
+create_map <- function(geoid) {
+  tract_interest <- censustracts_st_va %>% filter(GEOID10 == geoid)
+  
+  Virginia_buffer <- st_difference(st_buffer(tract_interest$geometry, dist = 1609.34 * 0.2),
+                                   st_buffer(tract_interest$geometry, 1))
+  
+  buffer_tracts_list <- st_intersects(censustracts$geometry, Virginia_buffer)
+  ind_buffer_tracts <- which(sapply(buffer_tracts_list, length) > 0)
+  buffer_tracts <- censustracts[ind_buffer_tracts,]
+  
+  map <- ggplot() +
+    geom_sf(data = tract_interest$geometry, col = "white") +
+    geom_sf(data = buffer_tracts$geometry, col = "orange", fill = NA) +
+    ggtitle(paste("GEOID:", geoid))
+  
+  # result_list <- list(map = map, buffer_tracts_GEOID = buffer_tracts) #original
+    result_list <- list( buffer_tracts_GEOID = cbind(buffer_tracts, data.frame(geoid_id = rep(geoid, nrow(buffer_tracts)))) )
+  return(result_list)
+}
+
+
+#test
+# geoid_list <- c("51013101500","51013101401", "51013101601" )  
+# 
+# for (geoid in geoid_list) {
+#   result <- create_map(geoid)
+#   
+#   print(result$map)
+#   assign(paste0("buffer_tracts_", geoid), result$buffer_tracts_GEOID)
+# }
+
+#create df using rbind
+
+# matrix_info <- list()
+# 
+# for (geoid in geoid_list) {
+#   result <- create_map(geoid)
+#   
+#   print(result$map)
+#   assign(paste0("buffer_tracts_", geoid), result$buffer_tracts_GEOID)
+#   
+#   matrix_info <- rbind(result, matrix_info)
+# }
+
+```
+
+# Run function with tracts that have NAs
+```{r}
+#new exercise 424
+
+matrix_info <- list()
+
+for (geoid in list_na) {
+  result <- create_map(geoid)
+  
+  matrix_info <- rbind(result, matrix_info)
+}
+
+library(purrr)
+#convert list in dataframe
+df_surrounding_tracts <- map_df(matrix_info, ~.x)
+
+#match information to surrounding tract
+
+df_surrounding_tracts_data <- df_surrounding_tracts %>% select(GEOID10, geoid_na = geoid_id) %>% st_drop_geometry() %>% left_join( fara_2019_va_withna %>% filter(!is.na(food_access_prop_init)) %>% select(CensusTract, food_access_prop_init), by = c("GEOID10" = "CensusTract") )
+
+#simple average by tract that has NA
+df_surrounding_tracts_data_avg <- df_surrounding_tracts_data %>% group_by(geoid_na) %>% summarise( avg_surr_tracts = mean(food_access_prop_init, na.rm = TRUE) )
+
+
+```
+
+#join initial with averages per sourrounding tract: iter 1
+```{r}
+
+fara_2019_va_withna <- fara_2019_va_withna %>% left_join(df_surrounding_tracts_data_avg, by = c("CensusTract"="geoid_na"))
+
+
+fara_2019_va_one_iteration <- fara_2019_va_withna %>% mutate(food_access_prop_one_iter = ifelse( !is.na(food_access_prop_init), food_access_prop_init, avg_surr_tracts ) )
+```
+
+#iter 2
+
+# data with NAs
+```{r}
+
+list_na_iter_one <- fara_2019_va_one_iteration %>% filter(is.na(food_access_prop_one_iter)) %>% select(CensusTract) %>% as.data.frame()
+#tracts without info
+list_na_first_iter <- c(list_na_iter_one$CensusTract)
+```
+
+# Run function with tracts that have NAs - iter 2
+```{r}
+#new exercise 424
+
+matrix_info <- list()
+
+for (geoid in list_na_first_iter) {
+  result <- create_map(geoid)
+  
+  matrix_info <- rbind(result, matrix_info)
+}
+
+library(purrr)
+#convert list in dataframe
+df_surrounding_tracts_one_iter <- map_df(matrix_info, ~.x)
+
+#match information to surrounding tract
+
+df_surrounding_tracts_one_iter_data  <- df_surrounding_tracts_one_iter %>% select(GEOID10, geoid_na = geoid_id) %>% st_drop_geometry() %>% left_join( fara_2019_va_one_iteration %>% filter(!is.na(food_access_prop_one_iter)) %>% select(CensusTract, food_access_prop_one_iter), by = c("GEOID10" = "CensusTract") )
+
+#simple average by tract that has NA
+df_surrounding_tracts_data_one_iter_avg <- df_surrounding_tracts_one_iter_data %>% group_by(geoid_na) %>% summarise( avg_surr_tracts_one_iter = mean(food_access_prop_one_iter, na.rm = TRUE) )
+
+
+
+#join initial with averages per sourrounding tract: iter 1
+fara_2019_va_one_iteration <- fara_2019_va_one_iteration %>% left_join(df_surrounding_tracts_data_one_iter_avg, by = c("CensusTract"="geoid_na"))
+
+
+fara_2019_va_two_iteration <- fara_2019_va_one_iteration %>% mutate(food_access_prop_two_iter = ifelse( !is.na(food_access_prop_one_iter), food_access_prop_one_iter, avg_surr_tracts_one_iter ) )
+```
+
+#iter 3
+
+# data with NAs
+```{r}
+
+list_na_iter_two <- fara_2019_va_two_iteration %>% filter(is.na(food_access_prop_two_iter)) %>% select(CensusTract) %>% as.data.frame()
+#tracts without info
+list_na_second_iter <- c(list_na_iter_two$CensusTract)
+```
+
+
+# Run function with tracts that have NAs - iter 2
+```{r}
+#new exercise 424
+
+matrix_info <- list()
+
+for (geoid in list_na_second_iter) {
+  result <- create_map(geoid)
+  
+  matrix_info <- rbind(result, matrix_info)
+}
+
+library(purrr)
+#convert list in dataframe
+df_surrounding_tracts_two_iter <- map_df(matrix_info, ~.x)
+
+#match information to surrounding tract
+
+df_surrounding_tracts_two_iter_data  <- df_surrounding_tracts_two_iter %>% select(GEOID10, geoid_na = geoid_id) %>% st_drop_geometry() %>% left_join( fara_2019_va_two_iteration %>% filter(!is.na(food_access_prop_two_iter)) %>% select(CensusTract, food_access_prop_two_iter), by = c("GEOID10" = "CensusTract") )
+
+#simple average by tract that has NA
+df_surrounding_tracts_data_two_iter_avg <- df_surrounding_tracts_two_iter_data %>% group_by(geoid_na) %>% summarise( avg_surr_tracts_two_iter = mean(food_access_prop_two_iter, na.rm = TRUE) )
+
+
+
+#join initial with averages per sourrounding tract: iter 1
+fara_2019_va_three_iteration <- fara_2019_va_two_iteration %>% left_join(df_surrounding_tracts_data_two_iter_avg, by = c("CensusTract"="geoid_na"))
+
+
+fara_2019_va_three_iteration <- fara_2019_va_three_iteration %>% mutate(food_access_prop_three_iter = ifelse( !is.na(food_access_prop_two_iter), food_access_prop_two_iter, avg_surr_tracts_two_iter ) )
+```
+
+# ####################################### 2015 ######################################## #######################################
+
+
+
+
+
+Final data set 
+```{r}
+fara_iter_2019_va <- fara_2019_va_three_iteration %>% select( CensusTract, food_access_prop=food_access_prop_three_iter )
+
+```
+
+
+
+
+# ####################################### # ######################################## #######################################
+#variable food accessibility - PREV
+```{r}
+# #select lalowi1share.  if null, select lalowihalfshare
+# 
+# #2019
+# fara_2019_va <- fara_2019_va %>% mutate(food_access_prop_init = case_when( !is.na(as.numeric(lalowi1share)) ~  as.numeric(lalowi1share), 
+#                                                                       is.na(as.numeric(lalowi1share)) ~ as.numeric(lalowihalfshare)
+#                                                                         ), 
+#                                         food_access_prop = ifelse( is.na(food_access_prop_init), 0, food_access_prop_init )
+#                                           )
+# 
+# #2015
+# fara_2015_va <- fara_2015_va %>% mutate(food_access_prop_init = case_when( !is.na(as.numeric(lalowi1share)) ~  as.numeric(lalowi1share), 
+#                                                                       is.na(as.numeric(lalowi1share)) ~ as.numeric(lalowihalfshare)
+#                                                                         ), 
+#                                         food_access_prop = ifelse( is.na(food_access_prop_init), 0, food_access_prop_init )
+#                                           )
+
+```
+
+# Crosswalk function
+```{r}
+#tract conversions: 2010 --> 2020
+source("~/Documents/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/code/working/tract_conversions.R")
+
+```
+
+#data from vdh - validation 2019
+```{r}
+
+#conversion tracts 2010 --> 2020
+fara_iter_2019_va$CensusTract <- as.character(fara_iter_2019_va$CensusTract)
+
+fara_2019_va_updated <- convert_2010_to_2020_tracts(as.data.frame(fara_iter_2019_va %>% select(CensusTract, food_access_prop) ), 
+                                                      geoid_col = 'CensusTract', 
+                                                      val_col = 'food_access_prop' ) %>% rename( food_access_prop = value) 
+
+
+##Validation
+#data
+HOI_V3_14_Variables_Raw_Scores <- read_excel("~/Documents/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/original/HOI V3_14 Variables_Raw Scores.xlsx")
+
+
+
+#validation match
+# validation_dat <- fara_2019_va_updated %>% left_join(HOI_V3_14_Variables_Raw_Scores %>% select(CT2, `Food Access*` ) , by = c( "geoid" = "CT2" ) )
+validation_dat <- fara_iter_2019_va %>% left_join(HOI_V3_14_Variables_Raw_Scores %>% select(CT2, `Food Access*` ) , by = c( "CensusTract" = "CT2" ) )
+
+
+#corr plot
+plot(validation_dat$food_access_prop, validation_dat$`Food Access*`*100)
+
+#corr
+cor.test(validation_dat$food_access_prop, validation_dat$`Food Access*`)
+
+
+```
+
+#data from vdh - validation 2015
+```{r}
+
+#conversion tracts 2010 --> 2020
+fara_2015_va$CensusTract <- as.character(fara_2015_va$CensusTract)
+
+fara_2015_va_updated <- convert_2010_to_2020_tracts(as.data.frame(fara_2015_va %>% select(CensusTract, food_access_prop=lalowi1share) ), 
+                                                      geoid_col = 'CensusTract', 
+                                                      val_col = 'food_access_prop' ) %>% rename( food_access_prop = value) 
+
+
+##Validation
+#data
+#HOI_V3_14_Variables_Raw_Scores <- read_excel("~/git/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/original/HOI V3_14 Variables_Raw Scores.xlsx")
+
+
+
+#validation match
+validation_dat_2015 <- fara_2015_va_updated %>% left_join(HOI_V3_14_Variables_Raw_Scores %>% select(CT2, `Food Access*` ) , by = c( "geoid" = "CT2" ) )
+
+#corr plot
+plot(validation_dat_2015$food_access_prop, validation_dat_2015$`Food Access*`)
+
+#corr
+cor.test(validation_dat_2015$food_access_prop, validation_dat_2015$`Food Access*`)
+
+
+```
+
+#data frame - years
+```{r}
+
+df_fara <- fara_2019_va_updated %>% select(geoid, food_access_prop_2019=food_access_prop ) %>% left_join( fara_2015_va_updated %>% select(geoid, food_access_prop_2015=food_access_prop ), by = 'geoid') %>% mutate(food_access_prop_2015 = food_access_prop_2015*100)
+
+year1 <- 2015
+year2 <- 2019
+
+df_fara <- df_fara %>% mutate( change_lin = (food_access_prop_2019-food_access_prop_2015)/(year2 - year1))
+
+#linear estimation
+df_fara <- df_fara %>% mutate(food_access_prop_2016 = 1*change_lin +food_access_prop_2015,
+                              food_access_prop_2017 = 2*change_lin +food_access_prop_2015,
+                              food_access_prop_2018 = 3*change_lin +food_access_prop_2015)
+                              
+```
+
+#reshape long format and rename
+```{r}
+
+df_fara_long <- df_fara %>% select(-c(change_lin)) %>% pivot_longer(cols = c("food_access_prop_2015", 
+                                                                             "food_access_prop_2016",
+                                                                             "food_access_prop_2017", 
+                                                                             "food_access_prop_2018",
+                                                                             "food_access_prop_2019") 
+                                                                    ) %>% mutate(measure = "food_access_percentage", 
+                                                                                 moe = "", 
+                                                                                 year = case_when( name == 'food_access_prop_2015' ~ 2015,
+                                                                                                   name == 'food_access_prop_2016' ~ 2016,
+                                                                                                   name == 'food_access_prop_2017' ~ 2017,
+                                                                                                   name == 'food_access_prop_2018' ~ 2018,
+                                                                                                   name == 'food_access_prop_2019' ~ 2019
+                                                                                                   )) %>% select(-c(name)) %>% 
+  select("geoid", "year",  "measure", "value", "moe")
+
+```
+
+#Save
+
+```{r}
+write.csv(df_fara_long, "~/Documents/sdc.food_dev/Food Access/Food Accessibility Indicator (HOI)/data/distribution/va_tr_usda_2015_2019_food_access.csv", row.names = FALSE )
+```
+
+
+

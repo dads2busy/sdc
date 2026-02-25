@@ -1,0 +1,36 @@
+{
+    "perc_income_min_price_25": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Affordability",
+        "layer": "",
+        "long_description": "The minimum price for good internet (which is defined as 25 MB/s upload) as a percentage of median household income. Geographies: Block group (12), Census Tract (11), County (5)",
+        "long_name": "The minimum price for good internet (25 MB/s upload) as a percentage of median household income",
+        "measure_type": "percent",
+        "short_description": "The minimum price for good internet (which is defined as 25 MB/s upload) as a percentage of median household income. Geographies: Block group (12), Census Tract (11), County (5)",
+        "short_name": "Percentage of income for good internet",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "American Community Survey",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            },
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Broadband Now",
+                "url": "https://broadbandnow.com/"
+            }
+        ],
+        "statement": "Good internet costs {value} of the median household income in {features.name}.",
+        "type": "percent",
+        "unit": "dollar",
+        "variants": ""
+    }
+}

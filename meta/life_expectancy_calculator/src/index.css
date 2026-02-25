@@ -1,0 +1,241 @@
+/* Existing CSS */
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+  
+  :root {
+    margin-left: 16px;
+    --main-color: rgb(104, 117, 217);
+    --main-color-hover: rgb(104, 117, 217, 0.2);
+    --track-color: #ddd;
+    --mark-color: #aaaaaa;
+  }
+  
+  .textbox {
+    width: 40%;
+    padding: 10px;
+    margin: 0 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .feature_Name {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  
+  .container2 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 20px;
+    max-width: 70%;
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .customSlider {
+    width: 100%;
+    margin: auto;
+  }
+  
+  .customSlider-track {
+    top: 4px;
+    height: 2px;
+    background: var(--track-color);
+  }
+  
+  .customSlider-track.customSlider-track-0 {
+    background: var(--main-color);
+  }
+  
+  .customSlider-thumb {
+    cursor: pointer;
+    background: var(--main-color);
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    outline: none;
+  }
+  
+  .customSlider-thumb:hover {
+    box-shadow: 0 0 0 8px var(--main-color-hover);
+  }
+  
+  .customSlider-mark {
+    cursor: pointer;
+    top: 6px;
+    width: 1.5px;
+    height: 8px;
+    background-color: var(--mark-color);
+  }
+  
+  .customSlider-mark.customSlider-mark-before {
+    background-color: var(--main-color);
+  }
+  
+  .customSlider-mark.customSlider-mark-active {
+    display: none;
+  }
+  
+  .feature_Name:hover {
+    color: var(--main-color);
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+
+  
+  .button-27 {
+    appearance: none;
+    background-color: #000000;
+    border: 2px solid #1A1A1A;
+    border-radius: 15px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    margin: 20px;
+    min-height: 60px;
+    min-width: 0;
+    outline: none;
+    padding: 16px 24px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 50%;
+    will-change: transform;
+  }
+  
+  
+
+  
+  .button-27:disabled {
+    pointer-events: none;
+  }
+  
+  .button-27:hover {
+    box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+    transform: translateY(-2px);
+  }
+  
+  .button-27:active {
+    box-shadow: none;
+    transform: translateY(0);
+  }
+  
+  /* New CSS */
+  .app-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh; /* Ensure full height for better visibility */
+  }
+  
+  .slider-container {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .map-container {
+    flex: 1;
+    width: 100%;
+    height: 50vh; /* Ensure the map takes full height */
+  }
+  
+
+  .button-filter {
+    appearance: none;
+    background-color: #000000;
+    border: 2px solid #1A1A1A;
+    /* border-radius: 15px; */
+    box-sizing: content-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+    min-height: 60px;
+    min-width: 0;
+    outline: none;
+    padding: 16px 24px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 50%;
+    will-change: transform;
+  }
+
+  :root {
+    --arrow-bg: rgba(255, 255, 255, 0.3);
+    --arrow-icon: url('data:image/svg+xml;charset=utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><path d="M5 1L1 9h8z"/></svg>');
+    --option-bg: white;
+    --select-bg: rgba(255, 255, 255, 0.2);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  /* <select> styles */
+  select {
+    /* Reset */
+    appearance: none;
+    border: 0;
+    outline: 0;
+    font: inherit;
+    /* Personalize */
+    width: 20rem;
+    padding: 1rem 4rem 1rem 1rem;
+    background: var(--arrow-icon) no-repeat right 0.8em center / 1.4em,
+      linear-gradient(to left, var(--arrow-bg) 3em, var(--select-bg) 3em);
+    color: black;
+    border-radius: 0.25em;
+    box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    /* Remove IE arrow */
+    &::-ms-expand {
+      display: none;
+    }
+    /* Remove focus outline */
+    &:focus {
+      outline: none;
+    }
+    /* <option> colors */
+    option {
+      color: inherit;
+      background-color: var(--option-bg);
+    }
+  }
+  

@@ -1,0 +1,29 @@
+{
+    "perc_total_100_20_using_devices": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Availability",
+        "layer": "",
+        "long_description": "Percent of the total population with a fast internet speed, which is defined as above 100/20 MB/S and able to stream HD video on multiple devices or download large files quickly. Geographies: Block group (12), Census tract (11), County (5), Health District (51_hd)",
+        "long_name": "Percent of the Total Population with Fast Internet Speed",
+        "measure_type": "percent",
+        "short_description": "Percent of the total population with a fast internet speed, which is defined as above 100/20 MB/S and able to stream HD video on multiple devices or download large files quickly. Geographies: Block group (12), Census tract (11), County (5), Health District (51_hd)",
+        "short_name": "Percent Fast (total)",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Ookla",
+                "url": "https://www.ookla.com/ookla-for-good/open-data"
+            }
+        ],
+        "statement": "{value} of the total population in {features.name} has a fast internet speed.",
+        "type": "percent",
+        "unit": "individual",
+        "variants": ""
+    }
+}

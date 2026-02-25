@@ -1,0 +1,2271 @@
+---
+title: "Gender Wage Gap"
+author: "Joanna Schroeder"
+date: "7/25/2023"
+output: html_document
+---
+
+Meeting w/ Ed.
+- Hourly vs. Annual Wages.
+- Code up the version where everyone under 40 hours is annualized salary (2080), just look at the first few ones to see if the takeaway is the same
+- No visible difference
+
+```{r setup, message = FALSE}
+# Load packages
+library(tidycensus)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+options(max.print=1000000)
+
+# View variables
+# View(pums_variables)
+# Data dictionary
+# https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2021.txt
+```
+
+- "WAGP": Wages or salary income past 12 months
+- "ADJINC": Adjustment factor for income and earnings dollar amounts (6 implied decimal places)
+- "HISP": Recoded detailed Hispanic origin
+- "RAC1P": Recoded detailed race code
+- "AGEP": Age
+- "SEX": Sex
+- "NATIVITY": Nativity
+- "HHL": Household language
+- "ESR": Employment status recode
+- "WKHP": Usual hours worked per week past 12 months
+- "DIS": Disability
+- "MULTG": Multigenerational household (3 or more generations)
+
+- "OCCP": Occupation code
+- "ANC1P": Detailed ancestry 1
+- "ANC2P": Detailed ancestry 2
+- "PAOC": 
+
+- "PWGTP" Person weight
+
+**TO DO:** Work on presentation of data, Investigate household compositions, In each PUMA lowest and highest earners, label are the categories, Get standard errors for estimates using replicate weights (person-level)
+
+**QUESTIONS:** 
+
+- Should I keep visualizing in Leaflet or get onto Fairfax Women and Girls Data Commons?
+  - (If get on the Data Commons we will need to add PUMA geographies, or I could show Census Tracts)
+- Are tables a more effective way of digesting this data? A combination of the two?
+
+https://acsdatacommunity.prb.org/discussion-forum/f/forum/593/calculating-margins-of-error-for-pums-estimates-in-r
+
+[Pew study (1)](https://www.pewresearch.org/social-trends/interactives/wage-gap-calculator/washington-arlington-alexandria-dc-va-md-wv/16/)
+
+[Pew study (2)](https://www.pewresearch.org/short-reads/2013/12/11/how-pew-research-measured-the-gender-pay-gap/)
+
+```{r, results='hide'}
+occ_text <- readr::read_csv("../../data/distribution/occ_codes.csv") %>% 
+  mutate(grouped_OCCP = substr(OCCP_text, 1, 3)) %>% 
+  mutate(grouped_OCCP_label = case_when(
+   grouped_OCCP == "MGR" ~ "Management",
+   grouped_OCCP == "BUS" ~ "Business Operations",
+   grouped_OCCP == "FIN" ~ "Financial Operations",
+   grouped_OCCP == "CMM" ~ "Computer and Mathematical",
+   grouped_OCCP == "ENG" ~ "Architecture and Engineering",
+   grouped_OCCP == "SCI" ~ "Life, Physical, and Social Science" ,
+   grouped_OCCP == "CMS" ~ "Community and Social Service" ,
+   grouped_OCCP == "LGL" ~ "Legal",
+   grouped_OCCP == "EDU" ~ "Educational Instruction and Library",
+   grouped_OCCP == "ENT" ~ "Arts, Design, Entertainment, Sports, and Media",
+   grouped_OCCP == "MED" ~ "Healthcare Practioners and Technical",
+   grouped_OCCP == "HLS" ~ "Healthcare Support", 
+   grouped_OCCP == "PRT" ~ "Protective Service",
+   grouped_OCCP == "EAT" ~ "Food Preparation and Serving Related",
+   grouped_OCCP == "CLN" ~ "Building and Grounds Cleaning and Maintenance",
+   grouped_OCCP == "PRS" ~ "Personal Care and Service", 
+   grouped_OCCP == "SAL" ~ "Sales and Related",
+   grouped_OCCP == "OFF" ~ "Office and Administrative Support",
+   grouped_OCCP == "FFF" ~ "Farming, Fishing, and Forestry",
+   grouped_OCCP == "CON" ~ "Construction and Extraction",
+   grouped_OCCP == "EXT" ~ "Mining, Extraction",
+   grouped_OCCP == "RPR" ~ "Istallation, Maintenance, and Repair",
+   grouped_OCCP == "PRD" ~ "Production",
+   grouped_OCCP == "TRN" ~ "Transportation and Material Moving",
+   grouped_OCCP == "MIL" ~ "Military",
+   grouped_OCCP == "Une" ~ "Unemployed"
+  ))
+
+# Accessing data
+acs_pums <- get_pums(
+  variables =
+    c("WAGP","ADJINC","HISP","RAC1P","AGEP","SEX","NATIVITY","HHL", "ESR", "WKHP", "OCCP", "NOC", "HHT", "HUPAOC", "DIS", "MULTG", "WKWN"),
+  state = "51",
+  puma = c("59301","59302","59303","59304","59305","59306","59307","59308","59309"),
+  survey = "acs5",
+  year = 2021,
+  rep_weights = "person")
+
+# DEFINITION: A HOUSEHOLD WITH ONLY ONE ADULT AND AT LEAST ONE CHILD
+acs_pums <- acs_pums %>% mutate(is_adult = ifelse(AGEP >= 18, 1, 0)) %>%
+  group_by(SERIALNO) %>% 
+  mutate(sum_adults = sum(is_adult), single_adult = ifelse(sum_adults == 1, 1, 0),
+         single_adult_w_kids = ifelse((single_adult == 1 & NOC >= 1), TRUE, FALSE)) %>%
+  left_join(occ_text)
+
+library(srvyr)
+
+persons_svy <- acs_pums %>% to_survey() %>% 
+  mutate(WAGP = WAGP*as.numeric(ADJINC)) %>% 
+  mutate(hourly_wage = WAGP/(WKHP*52)) %>%
+  mutate(annualized_salary = ifelse(WKHP >= 40, WAGP, hourly_wage * 2080))
+
+acs_pums %>% filter(WKHP != 0, WKHP != 40) %>%
+  ggplot(aes(x = WKHP)) +
+  geom_histogram(stat = "count")
+
+acs_pums %>% mutate(WAGP = WAGP*as.numeric(ADJINC)) %>% mutate(hourly_wage = as.numeric(WAGP/(WKHP*52))) %>% filter(hourly_wage <= 500) %>%
+  ggplot(aes(x = hourly_wage)) +
+  geom_histogram()
+
+persons_svy %>% filter(ESR == 1, WKHP != 0) %>%
+  mutate(weeks_worked = ifelse(WKWN == 0, 0, ifelse(WKWN == 52, 52, 1))) %>%
+  group_by(weeks_worked) %>%
+  summarise(prop = survey_prop()*100)
+
+persons_svy %>% filter(ESR != c("6"), ESR != "b") %>%
+  mutate(missing = ifelse(is.na(OCCP_text), "missing", "not missing")) %>%
+  group_by(missing) %>%
+  summarise(prop = survey_prop()*100)
+```
+
+```{r}
+occ_table <- persons_svy %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder")) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  filter(grouped_OCCP != "000N") %>%
+  group_by(sex,  age, grouped_OCCP_label) %>%
+  survey_tally() %>% ungroup() %>% 
+  group_by(sex,  age) %>% 
+  slice_max(n, n = 5) %>% mutate(rank = rank(-n, ties.method = "first")) %>% arrange(age, sex) %>%
+  pivot_wider(id_cols = c(age, rank), values_from = c(grouped_OCCP_label, n, n_se), names_from = "sex")
+
+#write.csv(occ_table, "occ_table_no_puma.csv", row.names = FALSE)
+#getwd()
+
+ex <- persons_svy %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder")) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex,  age, grouped_OCCP) %>% filter(!is.na(grouped_OCCP)) %>%
+  survey_tally() %>% ungroup() %>%
+  group_by(PUMA, sex,  age) %>% 
+  slice_max(n, n = 5) %>% arrange(PUMA, age, sex)
+```
+
+```{r, message = FALSE}
+# OVERALL WAGE GAP (BY HOURS AND AGE SPLITS) ----------------------------------------
+# This is what Pew calculates, though they show only full-time in their dashboard
+median_wages <- persons_svy %>%
+  # Filtering out those not in the workforce
+  filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+         age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder")) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, hours, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+male_wages <- median_wages %>% filter(sex == "male") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "hours", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, hours, age, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+# A gap greater than one indicates higher earnings by women 
+
+max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) %>% mutate(color = "orange")
+min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) %>% mutate(color = "purple")
+
+plot_data <- max %>% bind_rows(min) %>% mutate(label = paste(age))
+
+plot_data %>% filter(sex != "male") %>% mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = rank, label = label)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(fill = "orange", position="dodge", stat="identity") +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 3, color = "black") +
+  theme_void() +
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22))
+  
+```
+
+```{r, fig.height=14, fig.width=14}
+puma.labs <- c("59301" = "Mason", 
+               "59302" = "Franconia and Mount Vernon", 
+               "59303" = "Braddock", 
+               "59304" = "Springfield and Mount Vernon", 
+               "59305" = "Providence and Hunter Mill", 
+               "59306" = "Franconia and Braddock", 
+               "59307" = "Hunter Mill and Dranesville", 
+               "59308" = "Dranesville", 
+               "59309" = "Sully and Springfield")
+
+# CONVERTING TO HOURLY WAGES
+
+median_wages <- persons_svy %>%
+  # Filtering out those not in the workforce
+  dplyr::filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+male_wages <- median_wages %>% filter(sex == "male") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  #filter(sex != "male") %>%
+  distinct(sex, PUMA, age, median_wage, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+median_wages %>%
+  ggplot(aes(x = age, y = median_wage, fill = sex, group = sex)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#70ad48", "#4472c4"), labels = c("Female", "Male"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wage by Sex",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, PUMAs, 2021")
+```
+
+```{r fig.height = 14, fig.width = 16}
+
+# CONVERTING TO HOURLY WAGES
+
+median_wages <- persons_svy %>% filter(grouped_OCCP == "MGR") %>%
+  # Filtering out those not in the workforce
+  dplyr::filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+median_wages %>% filter(age != "Over 50") %>%
+  ggplot(aes(x = age, y = median_wage, fill = sex, group = sex)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#70ad48", "#4472c4"), labels = c("Female", "Male"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex within Management Occupations",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce working in management occupations, \n Fairfax County, Virginia, PUMAs, 2021")
+
+```
+
+```{r fig.height = 14, fig.width = 16}
+
+# CONVERTING TO HOURLY WAGES
+
+median_wages <- persons_svy %>% filter(grouped_OCCP == "EDU") %>%
+  # Filtering out those not in the workforce
+  dplyr::filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+median_wages %>% filter(age != "Over 50") %>%
+  ggplot(aes(x = age, y = median_wage, fill = sex, group = sex)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#70ad48", "#4472c4"), labels = c("Female", "Male"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wage by Sex within Educational Instruction and\nLibrary Occupations",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce working in management occupations, \n Fairfax County, Virginia, PUMAs, 2021")
+
+```
+```{r fig.height = 14, fig.width = 16}
+
+# CONVERTING TO HOURLY WAGES
+
+median_wages <- persons_svy %>% filter(grouped_OCCP == "CMM") %>%
+  # Filtering out those not in the workforce
+  dplyr::filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+median_wages %>% filter(age != "Over 50") %>%
+  ggplot(aes(x = age, y = median_wage, fill = sex, group = sex)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#70ad48", "#4472c4"), labels = c("Female", "Male"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex within Computer and Mathematical\nOccupations",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce working in computer and mathematical occupations, \n Fairfax County, Virginia, PUMAs, 2021")
+
+```
+
+```{r fig.height = 10, fig.width = 13}
+
+# CONVERTING TO HOURLY WAGES
+
+median_wages <- persons_svy %>% filter(OCCP_text == "SAL-Cashiers") %>%
+  # Filtering out those not in the workforce
+  dplyr::filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+median_wages %>% filter(age != "50 and\nolder") %>%
+  ggplot(aes(x = age, y = median_wage, fill = sex, group = sex)) +
+  #facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#70ad48", "#4472c4"), labels = c("Female", "Male"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex for Retail Cashiers",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 and under age 50 in the workforce working as retail cashiers, \n Fairfax County, Virginia, PUMAs, 2021")
+
+median_wages <- persons_svy %>% filter(OCCP_text == "MED-Physicians") %>%
+  # Filtering out those not in the workforce
+  dplyr::filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+median_wages %>% filter(age != "16 to 29") %>%
+  ggplot(aes(x = age, y = median_wage, fill = sex, group = sex)) +
+  #facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#70ad48", "#4472c4"), labels = c("Female", "Male"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex for Physicians",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 29 in the workforce working as physicians, \n Fairfax County, Virginia, PUMAs, 2021")
+```
+
+```{r}
+# A gap greater than one indicates higher earnings by women 
+
+#max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) %>% mutate(color = "orange")
+#min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) %>% mutate(color = "purple")
+
+#plot_data <- max %>% bind_rows(min) %>% mutate(label = paste(age))
+
+median_wages %>% mutate(label = paste(age)) %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = median_wage, x = age, label = label)) +
+  facet_wrap(~c(PUMA)) +
+  #geom_hline(yintercept=.25, linetype="dashed", 
+  #            color = "light gray", size=1) +
+  #geom_hline(yintercept=.50, linetype="dashed", 
+  #          color = "gray", size=1) +
+  #geom_hline(yintercept=1, linetype="dashed", 
+   #         color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity", fill = "#d13636") + ##21619a
+  #coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 7, color = "white") +
+  theme_void()+
+  theme(text = element_text(size = 22))+
+  #geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5)) +
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22), axis.text.x = element_text(size = 12)) +
+  ylim(0,2)
+
+## JUST PHYSICIANS
+median_wages <- persons_svy %>% filter(OCCP_text == "SAL-Cashiers") %>%
+  # Filtering out those not in the workforce
+  filter(ESR != c("6"), ESR != "b") %>%
+  # Creating variables for full-time vs part-time workers, age brackets from pew, sex
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(sex, age) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+male_wages <- median_wages %>% filter(sex == "male") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(age, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+# A gap greater than one indicates higher earnings by women 
+
+#max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) %>% mutate(color = "orange")
+#min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) %>% mutate(color = "purple")
+
+#plot_data <- max %>% bind_rows(min) %>% mutate(label = paste(age))
+
+median_wages %>% mutate(label = paste(age)) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity", fill = "#d13636") + ##21619a
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 7, color = "white") +
+  theme_void()+
+  theme(text = element_text(size = 22))+
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5)) +
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22), axis.text.x = element_text(size = 12)) +
+  ylim(0,2)
+```
+
+```{r, message = FALSE, fig.height=14, fig.width=14}
+# HISPANIC WAGE GAP (BY HOURS AND AGE SPLITS) ----------------------------------------
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         ),
+         hispanic = ifelse(HISP == "01", "Not Hispanic", "Hispanic")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(PUMA, sex, age, hispanic) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>% 
+  mutate(bar = paste0(sex, hispanic))
+
+median_wages %>% filter(bar != "Male, Hispanic") %>%
+  ggplot(aes(x = age, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#c44601", "#f57600", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Ethnicity",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, PUMAs, 2021")
+
+```
+
+```{r}
+male_wages <- median_wages %>% filter(sex == "male", hispanic == "non-hispanic") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -hispanic) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage) %>% filter(sex != "male") %>%
+  distinct(PUMA, age, hispanic, wage_gap, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, age, hispanic, median_wage, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+# A gap greater than one indicates higher earnings by women 
+
+#max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) %>% mutate(color = "orange")
+#min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) %>% mutate(color = "purple")
+
+#plot_data <- max %>% bind_rows(min) %>% mutate(label = paste(age))
+
+median_wages %>% mutate(label = paste(age)) %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label, fill = hispanic, group = hispanic)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("Hispanic", "Not Hispanic")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 5, color = "white") +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+
+median_wages %>% mutate(label = paste(age)) %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = median_wage, x = age, label = label, fill = hispanic, group = hispanic)) +
+  facet_wrap(~c(PUMA)) +
+  #geom_hline(yintercept=.25, linetype="dashed", 
+  #            color = "light gray", size=1) +
+  #geom_hline(yintercept=.50, linetype="dashed", 
+  #          color = "gray", size=1) +
+  #geom_hline(yintercept=1, linetype="dashed", 
+  #          color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("Hispanic", "Not Hispanic")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 4.3, color = "white") +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22),
+        axis.text.x = element_text(size = 22))
+  #geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5)) #+
+  #annotate("text", x = 1.5, y = 60, label = paste0("Wage Gap =", median_wages$wage_gap))
+```
+
+```{r, message = FALSE, fig.height = 14, fig.width = 16}
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(race = case_when(
+           #RAC1P == 1 ~ "white_alone",
+           #RAC1P == 2 ~ "black_alone",
+           #RAC1P == 3 ~ "native_alone",
+           #RAC1P == 4 ~ "alaska_alone",
+           #RAC1P == 5 ~ "other_native_alone",
+           #RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 7 ~ "native_hawaii_alone",
+           #RAC1P == 8 ~ "other",
+           #RAC1P == 9 ~ "two_or_more")) %>%
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7) ~ "Native",
+           RAC1P == 6 ~ "Asian",
+           RAC1P == 8 ~ "Other race",
+           RAC1P == 9 ~ "Two or more races")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(sex, race) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, race))
+
+median_wages_hispanic <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(
+  race = ifelse(HISP == "01", "Not Hispanic", "Hispanic")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(sex, race) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, race)) %>%
+  filter(bar == "Female, Hispanic")
+
+median_wages %>% bind_rows(median_wages_hispanic) %>%
+  filter(!(bar %in% c("Male, Black", "Male, Native",
+                                     "Male, Asian", "Male, Other race",
+                                     "Male, Two or more races"))) %>%
+  filter(sample >= 5) %>% 
+  ggplot(aes(x = factor(bar, levels = c("Female, Asian",
+                                           "Female, Black",
+                                           "Female, Native",
+                                           "Female, Other race",
+                                           "Female, Two or more races",
+                                           "Female, White", 
+                                           "Female, Hispanic",
+                                           "Male, White")),
+                            y = median_wage, fill = bar, group = bar)) +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 34), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+  scale_fill_manual(values=c("#d13737", "#d0bcf6",  "#FBEC5D","#f85889",  "#00b300", "orange","#94b3b8", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex, Race, and Ethnicity",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals in the workforce, Fairfax County, Virginia, 2021")+
+  guides(fill=guide_legend(nrow=3)) +
+  geom_label(aes(label = paste0("$",round(median_wage))), fill = "white", size = 12)
+ 
+```
+
+```{r, message = FALSE, fig.height = 14, fig.width = 16}
+# RACE WAGE GAP (BY HOURS AND AGE SPLITS) ----------------------------------------
+#install.packages('remotes')
+#remotes::install_github("coolbutuseless/ggpattern")
+#library(ggpattern)
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder"
+         ),
+         race = case_when(
+           #RAC1P == 1 ~ "white_alone",
+           #RAC1P == 2 ~ "black_alone",
+           #RAC1P == 3 ~ "native_alone",
+           #RAC1P == 4 ~ "alaska_alone",
+           #RAC1P == 5 ~ "other_native_alone",
+           #RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 7 ~ "native_hawaii_alone",
+           #RAC1P == 8 ~ "other",
+           #RAC1P == 9 ~ "two_or_more")) %>%
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7) ~ "Native",
+           RAC1P == 6 ~ "Asian",
+           RAC1P == 8 ~ "Other race",
+           RAC1P == 9 ~ "Two or more races")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(PUMA, sex, age, race) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, race))
+
+median_wages %>% filter(!(bar %in% c("Male, Black", "Male, Native",
+                                     "Male, Asian", "Male, Other race",
+                                     "Male, Two or more races"))) %>%
+  filter(sample >= 5, age == "16 to 29") %>% 
+  ggplot(aes(x = bar, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+  scale_fill_manual(values=c("#d13737", "#d0bcf6", "#f85889", "#00b300", "orange", "#94b3b8", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Race",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals age 16 to 29 in the workforce, Fairfax County, Virginia, 2021")
+
+median_wages %>% filter(!(bar %in% c("Male, Black", "Male, Native",
+                                     "Male, Asian", "Male, Other race",
+                                     "Male, Two or more races"))) %>%
+  filter(sample >= 5, age == "30 to 49") %>% 
+  ggplot(aes(x = bar, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+  scale_fill_manual(values=c("#d13737", "#d0bcf6", "#f85889", "#00b300", "orange", "#94b3b8", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Race",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals age 30 to 49 in the workforce, Fairfax County, Virginia, 2021")
+
+median_wages %>% filter(!(bar %in% c("Male, Black", "Male, Native",
+                                     "Male, Asian", "Male, Other race",
+                                     "Male, Two or more races"))) %>%
+  filter(sample >= 5, age == "50 and\nolder") %>% 
+  ggplot(aes(x = bar, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+  scale_fill_manual(values=c("#d13737", "#d0bcf6", "#f85889", "#00b300", "orange", "#94b3b8", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Race",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 50 in the workforce, Fairfax County, Virginia, 2021")
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder"
+         ),
+         race = case_when(
+           #RAC1P == 1 ~ "white_alone",
+           #RAC1P == 2 ~ "black_alone",
+           #RAC1P == 3 ~ "native_alone",
+           #RAC1P == 4 ~ "alaska_alone",
+           #RAC1P == 5 ~ "other_native_alone",
+           #RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 7 ~ "native_hawaii_alone",
+           #RAC1P == 8 ~ "other",
+           #RAC1P == 9 ~ "two_or_more")) %>%
+           RAC1P == 1 ~ "White alone",
+           RAC1P == 2 ~ "Black alone",
+           RAC1P %in% c(3, 4, 5, 7) ~ "Native alone",
+           RAC1P == 6 ~ "Asian alone",
+           RAC1P == 8 ~ "Other race",
+           RAC1P == 9 ~ "Two or more races")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(sex, race) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, race))
+
+median_wages %>% filter(!(bar %in% c("Male, Black", "Male, Native",
+                                     "Male, Asian", "Male, Other race",
+                                     "Male, Two or more races"))) %>%
+  filter(sample >= 5) %>% 
+  ggplot(aes(x = bar, y = median_wage, fill = bar, group = bar)) +
+  #facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+  scale_fill_manual(values=c("#d13737", "#d0bcf6", "#f85889", "#00b300", "orange", "#94b3b8", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Race",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, 2021")
+```
+
+```{r}
+male_wages <- median_wages %>% filter(sex == "male", race == "white_alone") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -race) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage) #%>% filter(sex != "male") %>%
+  #distinct(PUMA, age, race, wage_gap, "sample (n women)" = sample) %>%
+  #print(n = nrow(median_wages))
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, age, race, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) %>% mutate(label = paste(age))
+min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) %>% mutate(label = paste(age))
+
+plot_data <- max %>% bind_rows(min)
+
+
+# EVERYONE
+min %>% group_by(PUMA) %>%
+  mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label, fill = race)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position = position_dodge2(width = 1, preserve = "single"),
+           stat="identity") +
+  scale_fill_manual(limits = c("asian_alone", "black_alone", "binned_native_alone",
+                               "other", "two_or_more", "white_alone"), 
+    values = c("#d13737", "#e5e5e5", "#1b78c9", "#00b300", "orange", "#94b3b8"),
+                    labels = c("Asian/PI", "Black", "Native", "Other", "Two or More Races", "White")) +
+  coord_flip() +
+  #geom_text(aes(y = 0), hjust = 0, size = 7, color = "white") +
+  theme_void()+
+  theme(axis.text.y = element_text(), legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 1, padding = 0.5, preserve = "single"))
+
+# MIDDLE GROUP OF WOMEN
+median_wages %>% filter(age == "16 to 29") %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = race, fill = race)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position = position_dodge2(width = 0.5, padding = 0.5), stat="identity") +
+  scale_fill_manual(limits = c("asian_alone", "black_alone", "binned_native_alone",
+                               "other", "two_or_more", "white_alone"), 
+    values = c("#d13737", "#e5e5e5", "#1b78c9", "#00b300", "orange", "#94b3b8"),
+                    labels = c("Asian/PI", "Black", "Native", "Other", "Two or More Races", "White")) +
+  coord_flip() +
+  #geom_text(aes(y = 0), hjust = 0, size = 3, color = "white") +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+
+```
+
+```{r, message = FALSE, fig.height = 10, fig.width= 10}
+# RACE + LANGUAGE WAGE GAP ----------------------------
+# For this example I've collapsed languages into English and non-English
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         ),
+         race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"),
+         language = ifelse(HHL == 1, "english", "non-english")) %>%
+         #language = case_when(
+        #   HHL == "b" ~ "n/a",
+        #   HHL == 1 ~ "english",
+        #   HHL == 2 ~ "spanish",
+        #   HHL == 3 ~ "other_indo_european",
+        #   HHL == 4 ~ "asian",
+        #   HHL == 5 ~ "other")) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, race, language) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+# Caused by error in `svrVar()`: ! All replicates contained NAs
+
+male_wages <- median_wages %>% filter(sex == "male", race == "white_alone", language == "english") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -race, -language) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA")) %>%
+  mutate(wage_gap = median_wage/male_median_wage) %>% filter(sex != "male") %>%
+  distinct(PUMA, race, language, wage_gap, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, race, language, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) 
+min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) 
+
+plot_data <- max %>% bind_rows(min)
+
+
+# EVERYONE
+median_wages %>% mutate(label = ifelse(language == "english", "English", "Non-English")) %>% #group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = label, label = label, fill = race, group = race)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(limits = c("asian_alone", "black_alone", "other_and_binned_native_alone",
+                               "two_or_more", "white_alone"), 
+    values = c("#d13737", "#e5e5e5", "#1b78c9",  "orange", "#94b3b8"),
+                    labels = c("Asian/PI", "Black", "Other and Native", "Two or More Races", "White")) +
+  coord_flip() +
+  #geom_text(aes(y = 0), hjust = 0, size = 6, color = "white", position = position_dodge(width = .9)) +
+  theme_void()+
+  theme(legend.position = "top", legend.title = element_blank(), text = element_text(size = 22), axis.text.y = element_text()) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+```
+
+```{r, fig.height = 14, fig.width = 16}
+# LANGUAGE WAGE GAP ----------------------------
+# For this example I've collapsed languages into English and non-English
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         ),
+         race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"),
+         language = ifelse(HHL == 1, "English", "Non-English")) %>%
+         #language = case_when(
+        #   HHL == "b" ~ "n/a",
+        #   HHL == 1 ~ "english",
+        #   HHL == 2 ~ "spanish",
+        #   HHL == 3 ~ "other_indo_european",
+        #   HHL == 4 ~ "asian",
+        #   HHL == 5 ~ "other")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(PUMA, sex, age, language) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, language))
+
+median_wages %>% filter(bar != "Male, Non-English") %>%
+  ggplot(aes(x = age, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#c44601", "#f57600", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Language Spoken at Home",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, PUMAs, 2021")
+
+# Caused by error in `svrVar()`: ! All replicates contained NAs
+```
+
+```{r}
+male_wages <- median_wages %>% filter(sex == "male", language == "english") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -language) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, age, language, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+#max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) 
+#min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) 
+
+#plot_data <- max %>% bind_rows(min)
+
+
+# EVERYONE
+median_wages %>% mutate(label = paste(age)) %>% #group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label, fill = language, group = language)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+#  scale_fill_manual(limits = c("asian_alone", "black_alone", "other_and_binned_native_alone",
+#                               "two_or_more", "white_alone"), 
+#    values = c("#d13737", "#e5e5e5", "#1b78c9",  "orange", "#94b3b8"),
+#                    labels = c("Asian/PI", "Black", "Other and Native", "Two or More #Races", "White")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 6, color = "white", position = position_dodge(width = .9)) +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("English", "Non-English")) +
+  theme_void()+
+  theme(legend.position = "top", legend.title = element_blank(), text = element_text(size = 22), axis.text.y = element_text()) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+
+median_wages %>% mutate(label = paste(age)) %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label, fill = language, group = language)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("English", "Non-English")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 5, color = "white") +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+```
+
+```{r, fig.height = 14, fig.width = 16}
+# NATIVITY WAGE GAP ----------------------------
+# For this example I've collapsed languages into English and non-English
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         ),
+         race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"),
+         nativity = ifelse(NATIVITY == 1, "Native", "Foreign born")) %>%
+         #language = case_when(
+        #   HHL == "b" ~ "n/a",
+        #   HHL == 1 ~ "english",
+        #   HHL == 2 ~ "spanish",
+        #   HHL == 3 ~ "other_indo_european",
+        #   HHL == 4 ~ "asian",
+        #   HHL == 5 ~ "other")) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  group_by(PUMA, sex, age, nativity) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, nativity))
+
+median_wages %>% filter(bar != "Male, Foreign born") %>%
+  ggplot(aes(x = age, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom") +
+  scale_fill_manual(values=c("#c44601", "#f57600", "#4472c4"), name = "") +
+  labs(y = "Median Hourly Wage ($)",
+       x = "Age Group",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Nativity",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, PUMAs, 2021")
+```
+
+
+```{r}
+# Caused by error in `svrVar()`: ! All replicates contained NAs
+
+male_wages <- median_wages %>% filter(sex == "male", nativity == "native") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -nativity) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, age, nativity, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+#max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) 
+#min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) 
+
+#plot_data <- max %>% bind_rows(min)
+
+
+# EVERYONE
+median_wages %>% mutate(label = paste(age)) %>% #group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label, fill = nativity, group = nativity)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+#  scale_fill_manual(limits = c("asian_alone", "black_alone", "other_and_binned_native_alone",
+#                               "two_or_more", "white_alone"), 
+#    values = c("#d13737", "#e5e5e5", "#1b78c9",  "orange", "#94b3b8"),
+#                    labels = c("Asian/PI", "Black", "Other and Native", "Two or More #Races", "White")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 6, color = "white", position = position_dodge(width = .9)) +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("Native", "Foreign Born")) +
+  theme_void()+
+  theme(legend.position = "top", legend.title = element_blank(), text = element_text(size = 22), axis.text.y = element_text()) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+
+median_wages %>% mutate(label = paste(age)) %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = age, label = label, fill = nativity, group = nativity)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("Foreign Born", "Native")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 5, color = "white") +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+```
+
+```{r, message = FALSE}
+# RACE + NATIVITY WAGE GAP ----------------------------
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         ),
+         race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+            RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>%
+  mutate(nativity = ifelse(NATIVITY == 1, "native", "foreign born")) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex, age, race, nativity) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE))
+
+male_wages <- median_wages %>% filter(sex == "male", race == "white_alone", nativity == "native") %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -race, -nativity) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage) %>% filter(sex != "male") %>%
+  distinct(PUMA, age, race, nativity, wage_gap, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA", "age")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  filter(sex != "male") %>%
+  distinct(PUMA, age, race, nativity, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) 
+min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) 
+
+plot_data <- max %>% bind_rows(min)
+
+
+# EVERYONE
+plot_data %>% mutate(label = paste(age, nativity)) %>% group_by(PUMA) %>%
+  mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = rank, label = label, fill = race)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(aes(linetype = "0.25"), 
+               yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(aes(linetype = "0.50"), 
+               yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(aes(linetype = "1"), 
+               yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#d13737", "#e5e5e5", "#1b78c9", "#464646", "#000000", "#94b3b8")) +
+  coord_flip() +
+  geom_text(aes(y = 0), hjust = 0, size = 3, color = "white") +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank()) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+```
+
+```{r, fig.height = 14, fig.width = 16}
+# SINGLE PARENT WAGE GAP (BY HOURS AND AGE SPLITS) ---------------------------------
+
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  mutate(single_adult_w_kids = ifelse(single_adult_w_kids == TRUE, "Single Parent", "Not a\nSingle Parent")) %>%
+  group_by(PUMA, sex, single_adult_w_kids) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, single_adult_w_kids))
+
+median_wages %>%
+  ggplot(aes(x = single_adult_w_kids, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+    scale_fill_manual(values=c("#c44601", "#4472c4","#f57600","#68BBE3"), name = "", breaks=c("Female, Not a\nSingle Parent", "Male, Not a\nSingle Parent", "Female, Single Parent", "Male, Single Parent"))  +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages for Single Parents",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, PUMAs, 2021")
+```
+
+```{r}
+# comparing just parents
+
+male_wage <- median_wages %>% filter(single_adult_w_kids == TRUE, sex == "male") %>% ungroup() %>% distinct(PUMA, male_wage = median_wage)
+
+wage_gap <- median_wages %>% filter(single_adult_w_kids == TRUE) %>%
+  left_join(male_wage) %>%
+  group_by(PUMA, sex) %>% 
+  mutate(wage_gap = median_wage/male_wage) %>% filter(sex == "female") %>% ungroup() %>% distinct(PUMA, wage_gap)
+  
+plot_parents <- median_wages %>% filter(single_adult_w_kids == TRUE) %>% left_join(wage_gap) 
+
+plot_parents %>%
+  ggplot(aes(y = median_wage, x = sex, fill = sex, group = sex, label = paste0("Wage Gap = ", round(wage_gap, 2)))) +
+  facet_wrap(~c(PUMA)) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#21619a", "#d13636"), labels = c("Single Mothers", "Single Fathers")) +
+  geom_text(x = 0.5, y = 60) +
+  #annotate("text", x = 1.5, y = 60, label = paste0("Wage Gap =", plot_parents$wage_gap)) +
+  coord_flip() +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=median_wage_low, ymax=median_wage_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+
+
+male_wages <- median_wages %>% filter(sex == "male", single_adult_w_kids == FALSE) %>% rename(male_median_wage = median_wage) %>% ungroup() %>% select(-sample, -sex, -single_adult_w_kids) %>% rename(male_median_wage_low = median_wage_low, male_median_wage_upp = median_wage_upp)
+
+median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA")) %>%
+  mutate(wage_gap = median_wage/male_median_wage) %>% filter(sex != "male") %>%
+  distinct(PUMA, single_adult_w_kids, wage_gap, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+median_wages <- median_wages %>% ungroup() %>%
+  left_join(male_wages, by = c("PUMA")) %>%
+  mutate(wage_gap = median_wage/male_median_wage,
+         wage_gap_upp = median_wage_upp/male_median_wage_upp, 
+         wage_gap_low = median_wage_low/male_median_wage_low) %>%
+  #filter(sex != "male") %>%
+  distinct(PUMA, single_adult_w_kids, wage_gap, wage_gap_upp, wage_gap_low, "sample (n women)" = sample) %>%
+  print(n = nrow(median_wages))
+
+# A gap greater than one indicates higher earnings by women 
+
+#max <- median_wages %>% group_by(PUMA) %>% slice_max(wage_gap, n = 5) %>% mutate(color = "orange")
+#min <- median_wages %>% group_by(PUMA) %>% slice_min(wage_gap, n = 5) %>% mutate(color = "purple")
+
+#plot_data <- max %>% bind_rows(min) %>% mutate(label = paste(age))
+
+median_wages %>% group_by(PUMA) %>%
+  #mutate(rank = min_rank(-wage_gap)) %>%
+  ggplot(aes(y = wage_gap, x = single_adult_w_kids, fill = single_adult_w_kids, group = single_adult_w_kids)) +
+  facet_wrap(~c(PUMA)) +
+  geom_hline(yintercept=.25, linetype="dashed", 
+              color = "light gray", size=1) +
+  geom_hline(yintercept=.50, linetype="dashed", 
+            color = "gray", size=1) +
+  geom_hline(yintercept=1, linetype="dashed", 
+            color = "dark gray", size=1) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#d13636", "#21619a"), labels = c("Not Single Mothers", "Single Mothers")) +
+  coord_flip() +
+  annotate("text", x = 1.5, y = 1.05, label = "Hourly wage of a Not Single Father", angle = 90) +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22)) +
+  geom_errorbar(aes(ymin=wage_gap_low, ymax=wage_gap_upp), position = position_dodge2(width = 0.5, padding = 0.5))
+
+```
+
+
+```{r, fig.height = 14, fig.width = 16}
+median_wages <- persons_svy %>%
+  filter(ESR != c("6"), ESR != "b") %>%
+  #mutate(hours = ifelse(WKHP > 20, "full-time", "part-time"),
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder",
+         )) %>%
+  mutate(sex = ifelse(SEX == 1, "Male, ", "Female, ")) %>%
+  mutate(DIS = ifelse(DIS == 1, "has a\ndisability", "does not have\na disability")) %>%
+  group_by(PUMA, sex, DIS) %>%
+  summarise(sample = n(), median_wage = survey_median(hourly_wage, vartype="ci", level = .95, na.rm = TRUE)) %>%
+  mutate(bar = paste0(sex, DIS))
+
+median_wages %>%
+  ggplot(aes(x = DIS, y = median_wage, fill = bar, group = bar)) +
+  facet_wrap(vars(PUMA), labeller = labeller(PUMA = puma.labs), strip.position = "bottom") +
+  geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  theme(text = element_text(size = 28), legend.position = "bottom",
+        axis.text.x=element_blank()) +
+  scale_fill_manual(values=c("#c44601", "#4472c4","#f57600","#68BBE3"), name = "", breaks=c("Female, does not have\na disability", "Male, does not have\na disability", "Female, has a\ndisability", "Male, has a\ndisability")) +
+  labs(y = "Median Hourly Wage ($)",
+       x = "",
+       fill = "Sex",
+       title = "Median Hourly Wages by Sex and Disability Status",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Individuals over age 16 in the workforce, Fairfax County, Virginia, PUMAs, 2021")
+```
+
+```{r}
+# comparing just parents
+
+male_wage <- median_wages %>% filter(DIS == 2, sex == "male") %>% ungroup() %>% distinct(PUMA, male_wage = median_wage)
+
+wage_gap <- median_wages %>% 
+  left_join(male_wage) %>%
+  group_by(PUMA, sex) %>% 
+  mutate(wage_gap = median_wage/male_wage) %>% ungroup() %>% distinct(PUMA, sex, DIS, wage_gap, median_wage, median_wage_low, median_wage_upp)
+
+wage_gap %>%
+  ggplot(aes(y = median_wage, x = DIS, fill = sex, group = sex, label = paste0("Wage Gap = \n", round(wage_gap, 2)))) +
+  facet_wrap(~c(PUMA)) +
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values = c("#21619a", "#d13636"), labels = c("Women", "Men")) +
+  geom_text(aes(y = 60, hjust = .25), inherit.aes = TRUE, position = position_dodge(width = 1)) +
+  #annotate("text", x = 1.5, y = 60, label = paste0("Wage Gap =", wage_gap$wage_gap)) +
+  coord_flip() +
+  theme_void()+
+  theme(legend.position="top", legend.title = element_blank(), text = element_text(size = 22),
+        axis.text.y = element_text(size = 10, hjust = 0),
+        axis.text.x = element_text()) +
+  geom_errorbar(aes(ymin=median_wage_low, ymax=median_wage_upp), position = position_dodge2(width = 0.5, padding = 0.5)) +
+  scale_x_discrete(labels = c("Has a Disability", "Does not have a Disability")) +
+  labs(x = "Hourly Wage") +
+  scale_y_continuous(limits = c(0, 80))
+  
+```
+
+```{r}
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(work_hours) %>%
+  summarise(prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(work_hours) %>%
+  summarise(prop = survey_median(hourly_wage, vartype = "ci", na.rm = TRUE))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  filter(work_hours == "50 and over") %>% group_by(race) %>%
+  summarise(prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(race) %>%
+  summarise(prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  filter(!is.na(grouped_OCCP)) %>%
+  group_by(work_hours, grouped_OCCP) %>%
+  survey_tally() %>%
+  slice_max(n, n = 5)
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  filter(work_hours == "50 and over") %>%
+  filter(!is.na(grouped_OCCP)) %>%
+  group_by(race, grouped_OCCP) %>%
+  survey_tally() %>%
+  slice_max(n, n = 3)
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  filter(work_hours == "50 and over") %>%
+  filter(!is.na(grouped_OCCP)) %>%
+  group_by(PUMA, grouped_OCCP) %>%
+  survey_tally() %>%
+  slice_max(n, n = 3)
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP >= 50, "50 and over", "under 50"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(PUMA, work_hours) %>%
+  summarise(prop = survey_prop(vartype = "ci"))
+```
+
+
+```{r fig.height = 10, fig.width = 4}
+persons_svy %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 ~ "50 and\nolder")) %>%
+  mutate(sex = ifelse(SEX == 1, "male", "female")) %>%
+  group_by(PUMA, sex,  age, OCCP) %>%
+  survey_tally() %>% ungroup() %>% filter(OCCP != "000N") %>%
+  group_by(PUMA, sex,  age) %>% 
+  slice_max(n, n = 5) %>% arrange(PUMA, age, sex) %>%
+  left_join(occ_text) %>% select(-OCCP)
+  
+data <- persons_svy %>% filter(SEX == 2, AGEP > 16) %>%
+  mutate(age = case_when(
+           AGEP >= 16 & AGEP <= 29 ~ "16 to 29",
+           AGEP > 29 & AGEP <= 49 ~ "30 to 49",
+           AGEP > 49 & AGEP <= 69 ~ "50 to 69",
+           AGEP >= 70 ~ "over 70"),
+          race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>%
+  group_by(age, race) %>%
+  summarise(hours_worked = survey_quantile(WKHP, c(0.25, 0.5, 0.75))) 
+
+acs_pums %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"), 
+          hispanic = case_when(
+           HISP == "01" ~ "non-hispanic",
+           TRUE ~ "hispanic")) %>% 
+  pivot_longer(cols = c("race", "hispanic"), values_to = "race") %>%
+  filter(race != "non-hispanic") %>%
+  #left_join(data, by = c("age", "race")) %>%
+  ggplot(aes(x = WKHP)) +
+    #geom_rect(aes(xmin = 0, xmax = hours_worked_q25, ymin = 0, ymax = 0.15), 
+    #          fill = "red", inherit.aes = FALSE, alpha = 0.005) +
+    #geom_rect(aes(xmin = hours_worked_q25, xmax = hours_worked_q50, ymin = 0, ymax = 0.15), 
+    #          fill = "orange", inherit.aes = FALSE, alpha = 0.005) +
+    #geom_rect(aes(xmin = hours_worked_q50, xmax = hours_worked_q75, ymin = 0, ymax = 0.15), 
+    #          fill = "green", inherit.aes = FALSE, alpha = 0.005) +
+    #geom_rect(aes(xmin = hours_worked_q75, xmax = 100, ymin = 0, ymax = 0.15), 
+    #          fill = "blue", inherit.aes = FALSE, alpha = 0.005) +
+    geom_histogram(aes(y = ..density..)) +
+    geom_density() +
+    facet_wrap(vars(age, race), ncol = 6) +
+  theme_void() +
+  theme(axis.text.x = element_text(),
+        axis.text.y = element_text())+
+  scale_x_continuous(breaks = c(0, 40, 80, 100), 
+      labels = c("0", "40", "80", ""))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP > 50, "over 50", "50 and under"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(age, work_hours) %>%
+  summarise(age_prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP > 50, "over 50", "50 and under"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(race, work_hours) %>%
+  summarise(race_prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP > 50, "over 50", "50 and under"), 
+    age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+    race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more")) %>% 
+  group_by(PUMA, work_hours) %>%
+  summarise(PUMA_prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(work_hours = ifelse(WKHP > 50, "over 50", "50 and under"), 
+          hispanic = case_when(
+           HISP == "01" ~ "non-hispanic",
+           TRUE ~ "hispanic")) %>% 
+  group_by(hispanic, work_hours) %>%
+  summarise(hispanic_prop = survey_prop(vartype = "ci"))
+
+acs_pums %>% filter(SEX == 2, AGEP > 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"), 
+          hispanic = case_when(
+           HISP == "01" ~ "non-hispanic",
+           TRUE ~ "hispanic")) %>% 
+  pivot_longer(cols = c("race", "hispanic"), values_to = "race") %>%
+  filter(race != "non-hispanic") %>%
+  left_join(data, by = c("age", "race")) %>%
+  ggplot(aes(x = WKHP)) +
+    #geom_rect(aes(xmin = 0, xmax = hours_worked_q25, ymin = 0, ymax = 0.15), 
+    #          fill = "red", inherit.aes = FALSE, alpha = 0.005) +
+    #geom_rect(aes(xmin = hours_worked_q25, xmax = hours_worked_q50, ymin = 0, ymax = 0.15), 
+    #          fill = "orange", inherit.aes = FALSE, alpha = 0.005) +
+    #geom_rect(aes(xmin = hours_worked_q50, xmax = hours_worked_q75, ymin = 0, ymax = 0.15), 
+    #          fill = "green", inherit.aes = FALSE, alpha = 0.005) +
+    #geom_rect(aes(xmin = hours_worked_q75, xmax = 100, ymin = 0, ymax = 0.15), 
+    #          fill = "blue", inherit.aes = FALSE, alpha = 0.005) +
+    geom_density() +
+    facet_wrap(vars(age, PUMA), ncol = 9)
+
+persons_svy %>% filter(SEX == 2, AGEP > 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"),
+          hispanic = case_when(
+           HISP == "01" ~ "non-hispanic",
+           TRUE ~ "hispanic")) %>%
+  group_by(PUMA, SEX, hispanic, MULTG) %>%
+  survey_tally() %>% filter(MULTG == 2) %>% filter(hispanic == "hispanic") %>%
+  ggplot(aes(y = n, x = hispanic)) +
+  geom_col() +
+  facet_wrap(vars(PUMA), ncol = 1) +
+  ylim(0,2000)
+  
+persons_svy %>% filter(SEX == 2, AGEP > 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"), 
+          hispanic = case_when(
+           HISP == "01" ~ "non-hispanic",
+           TRUE ~ "hispanic")) %>% 
+  group_by(PUMA, SEX, race, single_adult_w_kids) %>%
+  survey_tally() %>%
+  filter(single_adult_w_kids == TRUE) %>%
+  ggplot(aes(y = n, x = race)) +
+  geom_col() +
+  facet_wrap(vars(PUMA), ncol = 1)
+
+persons_svy %>% filter(SEX == 2, AGEP > 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "white_alone",
+           RAC1P == 2 ~ "black_alone",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "other_and_binned_native_alone",
+           RAC1P == 6 ~ "asian_alone",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "two_or_more"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>% 
+  filter(hispanic == "Hispanic") %>%
+  group_by(PUMA, SEX, hispanic, single_adult_w_kids) %>%
+  survey_tally() %>%
+  filter(single_adult_w_kids == TRUE) %>%
+  ggplot(aes(y = n, x = hispanic)) +
+  geom_col() +
+  ylim(0,1000) +
+  facet_wrap(vars(PUMA), ncol = 1)
+
+persons_svy %>% filter(SEX == 2, AGEP > 16) %>%
+  filter(single_adult_w_kids == TRUE) %>%
+  group_by(PUMA) %>%
+  summarise(prop = survey_prop(vartype = "ci"))
+
+persons_svy %>% filter(SEX == 2, AGEP > 16) %>%
+  group_by(PUMA) %>%
+  summarise(prop = survey_prop(vartype = "ci"))
+
+# Keene, J. R., & Batson, C. D. (2010). Under one roof: A review of research on intergenerational coresidence and multigenerational households in the United States. Sociology Compass, 4(8), 642-657.
+
+# Deleire, T., & Kalil, A. (2002). Good things come in threes: Single-parent multigenerational family structure and adolescent adjustment. Demography (Pre-2011), 39(2), 393-413. https://proxy1.library.virginia.edu/login?qurl=https%3A%2F%2Fwww.proquest.com%2Fscholarly-journals%2Fgood-things-come-threes-single-parent%2Fdocview%2F222945955%2Fse-2%3Faccountid%3D14678
+
+# Debasree, D. G., & Wong, D. W. S. (2023). Age-Dependent Differences in Frequent Mental Distress (FMD) of US Older Adults Living in Multigenerational Families versus Living Alone. International Journal of Environmental Research and Public Health, 20(4), 3747. https://doi.org/10.3390/ijerph20043747
+
+# Wong K, Chan AHS, Ngan SC. The Effect of Long Working Hours and Overtime on Occupational Health: A Meta-Analysis of Evidence from 1998 to 2018. Int J Environ Res Public Health. 2019 Jun 13;16(12):2102. doi: 10.3390/ijerph16122102. PMID: 31200573; PMCID: PMC6617405.
+
+#Sayer, L.C. (2005). Gender, Time and Inequality: Trends in Women's and Men's Paid Work, Unpaid Work and Free Time. Social Forces 84(1), 285-303. https://doi.org/10.1353/sof.2005.0126.
+```
+
+```{r fig.height = 14, fig.width = 10}
+hispanic <- persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "Over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or more races"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic"),
+          work_hours = case_when(
+          WKHP == 0  ~"0 Hours",  
+          WKHP >= 1 & WKHP <= 30  ~ "1 to 30 Hours",
+          #WKHP >= 21 & WKHP <= 30  ~ "21 to 30 Hours", 
+          #WKHP >= 31 & WKHP <= 40  ~ "31 to 40 Hours", 
+          WKHP >= 31 & WKHP <= 49  ~ "31 to 49 Hours", 
+          #WKHP >= 1 & WKHP < 21  ~ "1 to 20 Hours", 
+          #WKHP >= 21 & WKHP < 30 ~ "21 to 30 Hours", 
+          #WKHP >= 31 & WKHP < 40 ~ "31 to 40 Hours", 
+          #WKHP >= 41 & WKHP < 50 ~ "41 to 49 Hours",
+          WKHP >= 50 ~ "50 Hours or More", 
+          )) %>% 
+  group_by(age, hispanic, work_hours) %>%
+  summarise(prop = survey_prop(vartype = "ci")) %>%
+  #pivot_longer(cols = c("race", "hispanic"), values_to = "race") %>%
+  #filter(race != "non-hispanic") %>%
+  #left_join(data, by = c("age", "race")) %>%
+  filter(hispanic == "Hispanic") %>%
+  rename(race = hispanic)
+
+data <- persons_svy %>% filter(SEX == 2, AGEP >= 16) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "Over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic"),
+          work_hours = case_when(
+          WKHP == 0  ~"0 Hours",  
+          WKHP >= 1 & WKHP <= 30  ~ "1 to 30 Hours",
+          #WKHP >= 21 & WKHP <= 30  ~ "21 to 30 Hours", 
+          #WKHP >= 31 & WKHP <= 40  ~ "31 to 40 Hours", 
+          WKHP >= 31 & WKHP <= 49  ~ "31 to 49 Hours", 
+          #WKHP >= 1 & WKHP < 21  ~ "1 to 20 Hours", 
+          #WKHP >= 21 & WKHP < 30 ~ "21 to 30 Hours", 
+          #WKHP >= 31 & WKHP < 40 ~ "31 to 40 Hours", 
+          #WKHP >= 41 & WKHP < 50 ~ "41 to 49 Hours",
+          WKHP >= 50 ~ "50 Hours or More", 
+          )) %>% 
+  group_by(age, race, work_hours) %>%
+  summarise(prop = survey_prop(vartype = "ci")) %>%
+  #pivot_longer(cols = c("race", "hispanic"), values_to = "race") %>%
+  #filter(race != "non-hispanic") %>%
+  #left_join(data, by = c("age", "race")) %>%
+  bind_rows(hispanic)
+
+data %>% mutate(prop_lab = case_when(
+  age == "16 to 18" & race == "Black" & work_hours == "31 to 49 Hours" ~
+    paste0(round(prop*100),"%"),
+  age == "26 to 40" & work_hours == "50 Hours or More" ~
+    paste0(round(prop*100),"%"),
+  age == "41 to 65" & work_hours == "50 Hours or More" ~
+    paste0(round(prop*100),"%"),
+  TRUE ~ NA)) %>%
+ggplot(aes(x = work_hours, y = prop*100)) +
+  facet_grid(rows = vars(age), cols = vars(factor(race, levels = c("Asian", "Black", "Native and\nother races", "Two or\nmore races", "White", "Hispanic"))))+
+  geom_bar(position="dodge", stat="identity", fill = "#00b300") +
+  theme_minimal() +
+  theme(text = element_text(size =16), legend.position = "bottom",
+        axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) +
+  labs(y = "Percent",
+       x = "",
+       fill = "",
+       title = "Hours Worked per Week by Age and Race and Ethnicity",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Women and girls over age 16, Fairfax County, Virginia, 2021") +
+  geom_label(aes(label = prop_lab, y = 20), fill = "white", size = 4, nudge_x = -.05)
+```
+
+```{r fig.height = 14, fig.width = 10}
+puma.labs <- c("59301" = "Mason", 
+               "59302" = "Franconia and Mount Vernon", 
+               "59303" = "Braddock", 
+               "59304" = "Springfield and Mount Vernon", 
+               "59305" = "Providence and Hunter Mill", 
+               "59306" = "Franconia and Braddock", 
+               "59307" = "Hunter Mill and Dranesville", 
+               "59308" = "Dranesville", 
+               "59309" = "Sully and Springfield")
+
+hispanic <- persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "Over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"),
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>%
+  group_by(PUMA, SEX, hispanic, MULTG) %>%
+  summarise(n = survey_prop()*100) %>% filter(MULTG == 2) %>% 
+  filter(hispanic == "Hispanic") %>%
+  rename(race = hispanic)
+
+persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "Over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"),
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>%
+  group_by(PUMA, SEX, race, MULTG) %>%
+  summarise(n = survey_prop()*100) %>% filter(MULTG == 2) %>% 
+  bind_rows(hispanic) %>%
+  ggplot(aes(y = n, x = factor(race, levels = c("Asian", "Black", "Native and\nother races", "Two or\nmore races", "White", "Hispanic")))) +
+  geom_col(fill = "#00b300") +
+  facet_wrap(vars(PUMA), ncol = 1, labeller = labeller(PUMA = puma.labs)) +
+  #ylim(0,2000) +
+  theme_minimal() +
+  theme(text = element_text(size =20), legend.position = "bottom",
+        axis.text.x = element_text(angle = 60, vjust = 1, hjust=1),
+        axis.text.y = element_text(size = 15)) +
+  labs(y = "Percent (out of adult women)",
+       x = "",
+       fill = "",
+       title = "Women in Multigenerational Households by Race and Ethnicity",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Adult women (over age 18), Fairfax County, Virginia, PUMAs, 2021")
+```
+
+```{r fig.height = 6, fig.width = 8}
+puma.labs <- c("59301" = "Mason", 
+               "59302" = "Franconia and Mount Vernon", 
+               "59303" = "Braddock", 
+               "59304" = "Springfield and Mount Vernon", 
+               "59305" = "Providence and Hunter Mill", 
+               "59306" = "Franconia and Braddock", 
+               "59307" = "Hunter Mill and Dranesville", 
+               "59308" = "Dranesville", 
+               "59309" = "Sully and Springfield")
+
+hispanic <- persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "Over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"),
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>%
+  group_by(SEX, hispanic, MULTG) %>%
+  summarise(n = survey_prop()*100) %>% filter(MULTG == 2) %>% 
+  filter(hispanic == "Hispanic") %>%
+  rename(race = hispanic)
+
+persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "Over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"),
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>%
+  group_by(SEX, race, MULTG) %>%
+  summarise(n = survey_prop()*100) %>% filter(MULTG == 2) %>% 
+  bind_rows(hispanic) %>%
+  ggplot(aes(y = n, x = factor(race, levels = c("Asian", "Black", "Native and\nother races", "Two or\nmore races", "White", "Hispanic")))) +
+  geom_col(fill = "#00b300") +
+  #facet_wrap(vars(PUMA), ncol = 1, labeller = labeller(PUMA = puma.labs)) +
+  #ylim(0,2000) +
+  theme_minimal() +
+  theme(text = element_text(size = 16), legend.position = "bottom",
+        axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) +
+  labs(y = "Percent (out of adult women)",
+       x = "",
+       fill = "",
+       title = "Women in Multigenerational Households by Race and Ethnicity",
+       caption = "Data Source: American Community Survey Microdata \n 
+       Adult women (over age 18), Fairfax County, Virginia, PUMAs, 2021") +
+  geom_label(aes(label = paste0(round(n), "%")), fill = "white", size = 6)
+```
+
+```{r fig.height = 14, fig.width = 10}
+hispanic <- persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>%
+          group_by(PUMA, SEX, hispanic, single_adult_w_kids) %>%
+          summarise(n = survey_prop()*100) %>%
+          filter(single_adult_w_kids == TRUE) %>%
+  filter(hispanic == "Hispanic") %>%
+  rename(race = hispanic)
+  
+persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>% 
+        group_by(PUMA, SEX, race, single_adult_w_kids) %>%
+          summarise(n = survey_prop()*100) %>%
+          filter(single_adult_w_kids == TRUE) %>%
+          bind_rows(hispanic) %>%
+          ggplot(aes(y = n, x = factor(race, levels = c("Asian", "Black", "Native and\nother races", "Two or\nmore races", "White", "Hispanic")))) +
+          geom_col(fill = "#00b300") +
+          #ylim(0,1000) +
+          theme_minimal() +
+          theme(text = element_text(size =20), legend.position = "bottom",
+                axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) +
+          facet_wrap(vars(PUMA), ncol = 1, labeller = labeller(PUMA = puma.labs)) +
+            labs(y = "Percent (out of adult women) ",
+               x = "",
+               fill = "",
+               title = "Single Mothers by Race and Ethnicity",
+               caption = "Data Source: American Community Survey Microdata \n 
+               Adult women (over age 18), Fairfax County, Virginia, PUMAs, 2021")
+```
+
+```{r fig.height = 6, fig.width = 8}
+hispanic <- persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>%
+          group_by(SEX, hispanic, single_adult_w_kids) %>%
+          summarise(n = survey_prop()*100) %>%
+          filter(single_adult_w_kids == TRUE) %>%
+  filter(hispanic == "Hispanic") %>%
+  rename(race = hispanic)
+  
+persons_svy %>% filter(SEX == 2, AGEP > 17) %>%
+    mutate(age = case_when(
+           AGEP <= 18 ~ "16 to 18",
+           AGEP > 18 & AGEP <= 25 ~ "19 to 25",
+           AGEP > 25 & AGEP <= 40 ~ "26 to 40",
+           AGEP > 40 & AGEP <= 65 ~ "41 to 65",
+           AGEP >= 65 ~ "over 65"),
+          race = case_when(
+           RAC1P == 1 ~ "White",
+           RAC1P == 2 ~ "Black",
+           RAC1P %in% c(3, 4, 5, 7, 8) ~ "Native and\nother races",
+           RAC1P == 6 ~ "Asian",
+           #RAC1P == 8 ~ "other",
+           RAC1P == 9 ~ "Two or\nmore races"), 
+          hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>% 
+        group_by(SEX, race, single_adult_w_kids) %>%
+          summarise(n = survey_prop()*100) %>%
+          filter(single_adult_w_kids == TRUE) %>%
+          bind_rows(hispanic) %>%
+          ggplot(aes(y = n, x = factor(race, levels = c("Asian", "Black", "Native and\nother races", "Two or\nmore races", "White", "Hispanic")))) +
+          geom_col(fill = "#00b300") +
+          #ylim(0,1000) +
+          theme_minimal() +
+          theme(text = element_text(size = 16), legend.position = "bottom",
+                axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) +
+          #facet_wrap(vars(PUMA), ncol = 1, labeller = labeller(PUMA = puma.labs)) +
+            labs(y = "Percent (out of adult women) ",
+               x = "",
+               fill = "",
+               title = "Single Mothers by Race and Ethnicity",
+               caption = "Data Source: American Community Survey Microdata \n 
+               Adult women (over age 18), Fairfax County, Virginia, PUMAs, 2021") +
+  geom_label(aes(label = paste0(round(n), "%")), fill = "white", size = 6)
+```
+
+
+```{r}
+persons_svy %>% filter(AGEP > 16) %>% group_by(SEX, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# Overall, 17.6% of men compared to 27.5% of women are not in the labor force in Fairfax
+persons_svy %>% filter(AGEP > 16) %>% group_by(SEX, RAC1P, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# 23.2% white men not // 35.5 women
+# 20.5% black men not // 27.1 women
+# 21.7% asian men not // 34.1 women
+persons_svy %>% filter(AGEP > 16) %>% group_by(SEX, NATIVITY, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# men: 23.4 native not in LF, 18.2 foreign born not in LF
+# women: 33.2 native not in LF, 34.9 foreign born not in LF
+
+persons_svy %>% filter(AGEP > 16) %>% mutate(hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>% group_by(SEX, hispanic, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# hispanic men 13.3 not in LF, not hispanic 23.1 not in LF
+# hispanic women 28.5 not in LF, not hispanic 34.4 not in LF
+
+persons_svy %>% filter(AGEP > 16) %>% group_by(SEX, single_adult_w_kids, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# not single adult w kid men 21.5 not in LF, yes men 27.5 not in LF
+# not single adult w kid women 34.4 not in LF, yes 14.5
+
+persons_svy %>% filter(AGEP > 16) %>% group_by(SEX, DIS, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# disabled men 60.2 not in LF, not disabled 18.0 not in LF
+# disabled women 69.4 not in LF, not disabled 30.3 not in LF
+
+# working years
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% group_by(SEX, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# Overall, 12.7% of men compared to 23.6% of women are not in the labor force in Fairfax
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% group_by(SEX, RAC1P, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# 12.4% white men not // 23.0 women
+# 15.1% black men not // 18.7 women
+# 14.1% asian men not // 26.1 women
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% group_by(SEX, NATIVITY, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# men: 14.3 native not in LF, 9.9 foreign born not in LF
+# women: 22.0 native not in LF, 26.1 foreign born not in LF
+
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% mutate(hispanic = case_when(
+           HISP == "01" ~ "Not Hispanic",
+           TRUE ~ "Hispanic")) %>% group_by(SEX, hispanic, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# hispanic men 9.4 not in LF, not hispanic 13.4 not in LF
+# hispanic women 23.1 not in LF, not hispanic 23.7 not in LF
+
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% group_by(SEX, single_adult_w_kids, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# not single adult w kid men 12.5 not in LF, yes men 27.0 not in LF
+# not single adult w kid women 23.8 not in LF, yes 14.5
+
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% group_by(SEX, DIS, ESR) %>% summarise(prop = survey_prop(vartype = "ci"))
+# disabled men 38.8 not in LF, not disabled 11.2 not in LF
+# disabled women 42.8 not in LF, not disabled 22.5 not in LF
+
+persons_svy %>% filter(AGEP > 16, AGEP < 65) %>% group_by(SEX) %>% summarise(prop = survey_prop(vartype = "ci"))
+# disabled men 38.8 not in LF, not disabled 11.2 not in LF
+# disabled women 42.8 not in LF, not disabled 22.5 not in LF
+
+persons_svy %>% group_by(grouped_OCCP_label, SEX) %>% summarise(prop = survey_prop(vartype = "ci")) %>% filter(SEX == "1") %>% arrange(prop)
+
+persons_svy %>% group_by(grouped_OCCP_label) %>% survey_tally() %>% arrange(-n)
+
+persons_svy %>% filter(OCCP != "000N") %>% mutate(na = is.na(grouped_OCCP_label)) %>% group_by(na) %>% summarise(prop = survey_prop(vartype = "ci"))
+
+# HHL of women overall
+persons_svy %>% filter(SEX == 2) %>% group_by(HHL) %>% summarise(prop = survey_prop())
+
+
+persons_svy %>% dplyr::filter(OCCP == "0230") %>% group_by(SEX) %>% 
+  survey_tally()
+persons_svy %>% dplyr::filter(OCCP == "0230") %>% group_by(SEX) %>% 
+  summarise(prop = survey_prop()*100)
+
+persons_svy %>% dplyr::filter(OCCP == "4600") %>% group_by(SEX) %>% 
+  survey_tally()
+persons_svy %>% dplyr::filter(OCCP == "4600") %>% group_by(SEX) %>% 
+  summarise(prop = survey_prop()*100)
+
+persons_svy %>% dplyr::filter(OCCP == "0230", !is.na(hourly_wage)) %>% 
+  summarise(wage = survey_median(hourly_wage))
+persons_svy %>% dplyr::filter(grouped_OCCP == "MGR", !is.na(hourly_wage)) %>% 
+  group_by(OCCP) %>%
+  summarise(wage = survey_median(hourly_wage)) %>% arrange(-wage)
+persons_svy %>% dplyr::filter(grouped_OCCP == "MGR", !is.na(hourly_wage)) %>% 
+  summarise(wage = survey_median(hourly_wage))
+persons_svy %>% dplyr::filter(OCCP == "4600", !is.na(hourly_wage)) %>% 
+  summarise(wage = survey_median(hourly_wage))
+
+wages <- persons_svy %>% dplyr::filter(!is.na(hourly_wage)) %>%
+  group_by(OCCP) %>%
+  summarise(wage = survey_median(hourly_wage)) %>% arrange(wage)
+
+numbers <- persons_svy %>% dplyr::filter(!is.na(hourly_wage)) %>%
+  group_by(OCCP) %>%
+  survey_tally()
+
+wages %>% left_join(numbers)
+#24th, lowest 5% of wages within the county and employs the most people in this 5%
+
+(569013/1150309)*100
+(110889/1150309)*100
+(6500/1150309)*100
+(235050/1150309)*100
+(873/1150309)*100
+(98434/1150309)*100
+(129550/1150309)*100
+(199234/1150309)*100
+```
+

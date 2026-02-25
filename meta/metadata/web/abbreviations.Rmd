@@ -1,0 +1,75 @@
+---
+title: "UNDER CONSTRUCTION"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+library(DT)
+
+library(rhandsontable)
+
+shinyUI(fluidPage(
+  tags$style('#myid * { word-wrap: break-word; color: blue }'),
+  titlePanel("Data Commons Metadatas"),
+  helpText("Changes to the table will be automatically saved to the source file."),
+  # uncomment line below to use action button to commit changes
+
+  actionButton("saveBtn", "Save"),
+  tabsetPanel(type = "tabs",
+              tabPanel("resolutions",
+                       div(id='myid', rHandsontableOutput("hot"))
+
+                       ),
+              tabPanel("coverages",
+
+
+                       ),
+              tabPanel("sources",
+
+
+                       )
+  )
+
+))
+
+library(rhandsontable)
+library(htmlTable)
+
+shinyServer(function(input, output, session) {
+  read_csv("test_df.csv")
+
+  fname = "test_df.csv"
+
+  observe({
+    # remove button and isolate to update file automatically
+    # after each table change
+    input$saveBtn
+    hot = isolate(input$hot)
+    if (!is.null(hot)) {
+      readr::write_csv(hot_to_r(input$hot), fname)
+
+      readr::write_lines(htmlTable(readr::read_csv(fname)), paste0("data/", fname))
+
+      print(fname)
+    }
+  })
+
+  output$hot = renderRHandsontable({
+    if (!is.null(input$hot)) {
+      DF = hot_to_r(input$hot)
+    } else {
+      DF = readr::read_csv("dataset_resolution_types.csv")
+    }
+
+    rhandsontable(DF) %>%
+      hot_table(
+        highlightCol = TRUE,
+        highlightRow = TRUE,
+        rowHeaders = FALSE) %>%
+      hot_cols(colWidths = c(50, 200, 550),
+               manualColumnResize = TRUE)
+  })
+})
+```
+

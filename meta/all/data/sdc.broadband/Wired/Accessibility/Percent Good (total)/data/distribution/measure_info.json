@@ -1,0 +1,29 @@
+{
+    "perc_total_25_3_using_devices": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Availability",
+        "layer": "",
+        "long_description": "Percent of the total population with a good internet speed, which is defined as above 25/3 MB/S and able to stream video or online games for one device. Geographies: Block group (12), Census tract (11), County (5), Health Districts (51_hd_xx)",
+        "long_name": "Percent of the Total Population with Good Internet Speed",
+        "measure_type": "percent",
+        "short_description": "",
+        "short_name": "Percent Good (total)",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Ookla",
+                "url": "https://www.ookla.com/ookla-for-good/open-data"
+            }
+        ],
+        "statement": "{value} of the total population in {features.name} has a good internet speed.",
+        "type": "percent",
+        "unit": "individual",
+        "variants": ""
+    }
+}

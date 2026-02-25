@@ -1,0 +1,29 @@
+{
+    "weighted_budget_shortfall": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "",
+        "layer": "",
+        "long_description": "",
+        "long_name": "",
+        "measure_type": "cost",
+        "short_description": "",
+        "short_name": "",
+        "sources": [
+            {
+                "date_accessed": 2022,
+                "location": "",
+                "location_url": "",
+                "name": "",
+                "url": ""
+            }
+        ],
+        "statement": "",
+        "type": "cost",
+        "unit": "",
+        "variants": ""
+    }
+}

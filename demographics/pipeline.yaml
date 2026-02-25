@@ -1,0 +1,43 @@
+name: sdc.demographics
+version: "0.1.0"
+description: "Demographics dataset pipelines for Social Data Commons"
+
+topics:
+  - name: gender
+    type: acs_ingest
+    script: gender/code/ingest.py
+
+  - name: race
+    type: acs_ingest
+    script: race/code/ingest.py
+
+  - name: language
+    type: acs_ingest
+    script: language/code/ingest.py
+
+  - name: veteran
+    type: acs_ingest
+    script: veteran/code/ingest.py
+
+  - name: age
+    type: acs_ingest
+    script: age/code/ingest.py
+
+  - name: geographic_mobility
+    type: acs_ingest_prepare
+    ingest: geographic_mobility/code/ingest.py
+    prepare: geographic_mobility/code/prepare.py
+
+  - name: population_density
+    type: acs_ingest_prepare
+    ingest: population_density/code/ingest.py
+    prepare: population_density/code/prepare.py
+
+  - name: segregation
+    type: acs_ingest_prepare
+    ingest: segregation/code/ingest.py
+    prepare: segregation/code/prepare.py
+
+  - name: cooperative_extension
+    type: custom
+    script: cooperative_extension/code/prepare.py

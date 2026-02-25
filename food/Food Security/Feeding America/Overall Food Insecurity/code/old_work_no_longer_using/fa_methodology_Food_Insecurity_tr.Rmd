@@ -1,0 +1,781 @@
+---
+title: "Food Insecurity at Tract Level 2"
+output: html_document
+---
+
+# load packages
+
+```{r}
+library(sf)
+library(tidyverse)
+library(tmap)
+library(tmaptools)
+library(tigris)
+library(tidycensus)
+library(rmapshaper)
+library(matrixStats)
+library(SpatialAcc)
+library(reticulate)
+library(dplyr)
+library(tidygeocoder)
+library(readxl)
+```
+
+# load and format Mapping Meal Gap Data
+
+```{r}
+mmg2019 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2021_2019Data_ToShare.xlsx", sheet = 2)
+mmg2019$Food_Insecurity_Rate <- mmg2019$`2019 Food Insecurity Rate`
+mmg2019$Child_Food_Insecurity_Rate <- mmg2019$`2019 Child food insecurity rate`
+# there was a methodological change in 2018, but I keep the data (not sure how they changed it and if they also changed 2019)
+mmg2018 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2020_2018Data_ToShare.xlsx", sheet = 1)
+mmg2018 <- mmg2018[2:nrow(mmg2018),]
+mmg2018$Food_Insecurity_Rate <- mmg2018$...4
+mmg2018$Child_Food_Insecurity_Rate <- mmg2018$...13
+mmg2018$FIPS <- mmg2018$`Data from MMG 2020 are NOT directly comparable to data from any prior MMG study due to methodological changes made in 2020.`
+mmg2017 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2019_2017Data_ToShare.xlsx", sheet = 1)
+mmg2017$Food_Insecurity_Rate <- mmg2017$`2017 Food Insecurity Rate`
+mmg2017$Child_Food_Insecurity_Rate <- mmg2017$`2017 Child food insecurity rate`
+mmg2016 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2018_2016Data_ToShare.xlsx", sheet = 1)
+mmg2016$Food_Insecurity_Rate <- mmg2016$`2016 Food Insecurity Rate`
+mmg2016$Child_Food_Insecurity_Rate <- mmg2016$`2016 Child food insecurity rate`
+mmg2015 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2017_2015Data_ToShare.xlsx", sheet = 1)
+mmg2015$Food_Insecurity_Rate <- mmg2015$`2015 Food Insecurity Rate`
+mmg2015$Child_Food_Insecurity_Rate <- mmg2015$`2015 Child food insecurity rate`
+mmg2014 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2016_2014Data_ToShare.xlsx", sheet = 1)
+mmg2014$Food_Insecurity_Rate <- mmg2014$`2014 Food Insecurity Rate`
+mmg2014$Child_Food_Insecurity_Rate <- mmg2014$`2014 Child food insecurity rate`
+mmg2013 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2015_2013Data_ToShare.xlsx", sheet = 2)
+mmg2013$Food_Insecurity_Rate <- mmg2013$`2013 Food Insecurity Rate`
+mmg2013$Child_Food_Insecurity_Rate <- mmg2013$`2013 Child food insecurity rate`
+mmg2012 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2014_2012Data_ToShare.xlsx", sheet = 2)
+mmg2012$Food_Insecurity_Rate <- mmg2012$`2012 Food Insecurity Rate`
+mmg2012$Child_Food_Insecurity_Rate <- mmg2012$`2012 Child food insecurity rate`
+# we dont have ACS variables needed for these years - not 100%
+mmg2011 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2013_2011Data_ToShare.xlsx", sheet = 2)
+mmg2011$Food_Insecurity_Rate <- mmg2011$`2011 Food Insecurity Rate`
+mmg2011$Child_Food_Insecurity_Rate <- mmg2011$`2011 Child Food Insecurity Rate`
+mmg2010 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2012_2010Data_ToShare.xlsx", sheet = 2)
+mmg2010$Food_Insecurity_Rate <- mmg2010$`Food Insecurity Rate`
+mmg2010$Child_Food_Insecurity_Rate <- mmg2010$`Child food insecurity rate`
+files <- list(mmg2019, mmg2018, mmg2017, mmg2016, mmg2015, mmg2014, mmg2013, mmg2012)
+
+
+mmg2011
+```
+
+```{r}
+mmg2019
+```
+
+
+# Obtain data to generate model
+
+```{r}
+census_api_key("6bc670ff42a8f6682ed80c9ca80ec8c01512088d", overwrite = TRUE)
+# start with 2019 and go backward
+year <- 2019
+all_county_fa_data <- matrix(, nrow = 0, ncol = 13)
+for (i in 1:length(files))
+{
+  my_data_2 <- files[[i]]
+    
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  disabled_variables <- c(m_under_5 = "B18101_004", m_5_17 = "B18101_007", m_18_34 = "B18101_010", m_35_64 = "B18101_013", m_65_74 = "B18101_016", m_above_75 = "B18101_019", f_under_5 = "B18101_023", f_5_17 = "B18101_026", f_18_34 =  "B18101_029", f_35_64 = "B18101_032", f_65_74 = "B18101_035", f_above_75 = "B18101_038", total_ability = "B18101_001")
+  
+  acs_variables <- get_acs(geography = "county",
+                   year = year,
+                   variables = c(in_labor_force = "B23025_002",
+                                 civilian_unemployed = "B23025_005",
+                                 total_income_pop = "B17001_001",
+                                 below_poverty_rate = "B17001_002",
+                                 undergrads_below_poverty_rate = "B14006_009",
+                                 undergrads = "B14001_009",
+                                 median_income = "B06011_001",
+                                 total_pop = "B01001_001",
+                                 hispanic_pop = "B01001I_001",
+                                 black_pop = "B01001B_001",
+                                 total_home_own = "B07013_001",
+                                 home_own = "B07013_002",
+                                 disabled_variables),
+                   survey = "acs5",
+                   output = "wide",
+                   geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  acs_variables_update2 <- acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE) %>%
+    rename(median_income = median_incomeE,
+           total_pop = total_popE) %>%
+    select(GEOID, NAME, unemp_rate, poverty_rate, median_income, hisp_perc, black_perc, own_perc, perc_disability, total_pop)
+  
+  # change fips to characters and where codes only have 4 characters, add 0 to beginning
+  my_data_2$FIPS <- as.character(my_data_2$FIPS)
+  idxs <- which(nchar(my_data_2$FIPS) == 4)
+  my_data_2$FIPS[idxs] <- paste0(0, my_data_2$FIPS[idxs])
+  
+  # merge acs data wth food insecurity data from feeding america
+  county_fa_data <- merge(st_drop_geometry(acs_variables_update2), my_data_2[, c("Food_Insecurity_Rate", "Child_Food_Insecurity_Rate", "FIPS")], by.x = "GEOID", by.y = "FIPS") %>% mutate(yr = year)
+  all_county_fa_data <- rbind(all_county_fa_data, county_fa_data)
+  
+  year <- year - 1
+}
+```
+
+# subset for virginia, run glm
+```{r}
+# I use glm but was unsure if regular lm would be pregered
+all_county_fa_data$Food_Insecurity_Rate <- as.numeric(all_county_fa_data$Food_Insecurity_Rate)
+all_county_fa_data$state <- substr(all_county_fa_data$GEOID, 1, 2)
+va_county_fa_data <- all_county_fa_data[all_county_fa_data$state == "51",]
+va_glm3 <- glm(`Food_Insecurity_Rate` ~ GEOID + factor(yr) + unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = va_county_fa_data, weights = total_pop, family = "binomial")
+
+md_county_fa_data <- all_county_fa_data[all_county_fa_data$state == "24",]
+md_glm3 <- glm(`Food_Insecurity_Rate` ~ GEOID + factor(yr) + unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = md_county_fa_data, weights = total_pop, family = "binomial")
+
+# DC only has one county, so only had like n estimates, where n is the number of years for which we have data (so it's a bit tough to go down to tract level and expect accuracy...)
+dc_county_fa_data <- all_county_fa_data[all_county_fa_data$state == "11",]
+dc_glm3 <- glm(`Food_Insecurity_Rate` ~ factor(yr) + unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = dc_county_fa_data, weights = total_pop, family = "binomial")
+
+# Kept running into issues with this
+# all_glm3 <- glm(`Food_Insecurity_Rate` ~ GEOID + factor(yr) + unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = all_county_fa_data, weights = total_pop, family = "binomial")
+```
+# get acs information at tract level
+```{r}
+all_va_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:length(files))
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  va_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 51,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  va_tract_acs_variables_update2 <- va_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  va_tract_acs_variables_update2 <- st_drop_geometry(va_tract_acs_variables_update2)
+  year <- year - 1
+  all_va_tract_acs_variables <- rbind(all_va_tract_acs_variables, va_tract_acs_variables_update2)
+}
+
+all_md_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:length(files))
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  md_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 24,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  md_tract_acs_variables_update2 <- md_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  md_tract_acs_variables_update2 <- st_drop_geometry(md_tract_acs_variables_update2)
+  year <- year - 1
+  all_md_tract_acs_variables <- rbind(all_md_tract_acs_variables, md_tract_acs_variables_update2)
+}
+
+all_dc_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:length(files))
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  dc_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 11,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  dc_tract_acs_variables_update2 <- dc_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  dc_tract_acs_variables_update2 <- st_drop_geometry(dc_tract_acs_variables_update2)
+  year <- year - 1
+  all_dc_tract_acs_variables <- rbind(all_dc_tract_acs_variables, dc_tract_acs_variables_update2)
+}
+```
+
+# make predictions for tracts in 2019
+```{r}
+# histogram to visualize food insecurity estimates
+va_predictions <- predict(va_glm3, all_va_tract_acs_variables, type = "response")
+hist(va_predictions)
+
+md_predictions <- predict(md_glm3, all_md_tract_acs_variables, type = "response")
+hist(md_predictions)
+
+dc_predictions <- predict(dc_glm3, all_dc_tract_acs_variables, type = "response")
+hist(dc_predictions)
+
+```
+
+# plot tract predictions for 2019
+```{r}
+# food insecurity plot at tract level
+
+va_predictions
+tract_acs_variables_update3 <- rbind(cbind(all_va_tract_acs_variables, predictions = va_predictions),
+                                     cbind(all_md_tract_acs_variables, predictions = md_predictions),
+                                     cbind(all_dc_tract_acs_variables, predictions = dc_predictions))
+
+tract_acs_variables_update3
+# tract_acs_variables_update3 <- tract_acs_variables_update3[!st_is_empty(tract_acs_variables_update3), ]
+tract_acs_variables_update3$perc_food_insecure <- tract_acs_variables_update3$predictions * 100
+tm_shape(tract_acs_variables_update3, unit = "mi") +
+  tm_polygons(col = "perc_food_insecure",
+              style = "fixed",
+              palette = "Reds",
+              border.alpha = 0,
+              title = "Food Insecurity (%)",
+              breaks = c(0, 5, 10, 20, 30, 65),
+              colorNA = "white",
+              textNA = "Missing",
+              showNA = TRUE) +
+  tm_shape(va.ct) +
+  tm_polygons(alpha = 0) +
+  tm_scale_bar(position = c("left", "top")) +
+  tm_layout(main.title = "2019 Food Insecurity Rate",
+            main.title.size = 0.95,
+            frame = F,
+            legend.outside = T,
+            legend.outside.position = "right")
+
+tract_acs_variables_update3$yr
+```
+
+# write tract level estimates to database
+```{r}
+tract_acs_variables_update4 <- tract_acs_variables_update3 %>%
+  rename(value = perc_food_insecure, geoid = tract, year = yr, region_name = NAME) %>%
+  select(-c(GEOID, unemp_rate, poverty_rate, median_income,hisp_perc,
+            black_perc, own_perc, perc_disability, predictions)) %>%
+  mutate(measure_type = "percent",
+         measure_units = as.character(NA),
+         region_type = "tract",
+         measure = "perc_food_insecure") %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+# con <- get_db_conn(db_pass = "")
+# dc_dbWriteTable(con, "dc_health_behavior_diet", "va_tr_sdad_2013_2019_weighted_annual_food_budget_shortfall", tract_acs_variables_update4)
+# dbDisconnect(con)
+# tract_acs_variables_update4
+```
+
+# for reference here are the county estimates in 2019
+```{r}
+my_data_1 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2021_2019Data_ToShare.xlsx", sheet = 2)
+# xlsx files
+va_fa_data <- my_data_1[my_data_1$State == "VA",]
+va_fa_data$GEOID <- as.character(va_fa_data$FIPS)
+va.co <- get_acs(geography = "county",
+                 year = 2019,
+                 variables = c(tpop = "B01003_001"),
+                 state = "VA",
+                 survey = "acs5",
+                 output = "wide",
+                 geometry = TRUE)
+va.co.utm <- st_transform(va.co, crs = "+proj=longlat +datum=WGS84")
+va_fa_data_2 <- left_join(va.co.utm, va_fa_data, by = "GEOID")
+va_fa_data_2$`2019 Food Insecurity Rate 2` <- va_fa_data_2$`2019 Food Insecurity Rate` * 100
+tm_shape(va_fa_data_2, unit = "mi") +
+  tm_polygons(col = '2019 Food Insecurity Rate 2',
+              style = 'fixed',
+              palette = 'Reds',
+              border.alpha = 0,
+              title = 'Food Insecure (%)',
+              breaks = c(0, 5, 10, 20, 30, 65)) +
+  tm_shape(co_data_2) +
+  tm_polygons(alpha = 0) +
+  tm_scale_bar(position = c('left', 'top')) +
+  tm_layout(main.title = '2019 Food Insecurity Rate',
+            main.title.size = 0.95, frame = F,
+            legend.outside = T, legend.outside.position = 'right')
+```
+
+
+
+# try limiting to just capital region
+
+# Obtain data to generate model
+
+# subset for capital region, run glm
+```{r}
+unique(cafb4$county)
+# I use glm but was unsure if regular lm would be pregered
+all_county_fa_data$Food_Insecurity_Rate <- as.numeric(all_county_fa_data$Food_Insecurity_Rate)
+all_county_fa_data$county <- as.character(substr(all_county_fa_data$GEOID, 1, 5))
+cap_county_fa_data <- all_county_fa_data[all_county_fa_data$county %in% unique(cafb4$county),]
+
+cap_glm3 <- glm(`Food_Insecurity_Rate` ~ GEOID + factor(yr) + unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = cap_county_fa_data, weights = total_pop, family = "binomial")
+```
+
+# get acs information at tract level
+```{r}
+all_va_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:length(files))
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  va_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 51,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  va_tract_acs_variables_update2 <- va_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  va_tract_acs_variables_update2 <- st_drop_geometry(va_tract_acs_variables_update2)
+  year <- year - 1
+  all_va_tract_acs_variables <- rbind(all_va_tract_acs_variables, va_tract_acs_variables_update2)
+}
+
+all_md_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:length(files))
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  md_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 24,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  md_tract_acs_variables_update2 <- md_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  md_tract_acs_variables_update2 <- st_drop_geometry(md_tract_acs_variables_update2)
+  year <- year - 1
+  all_md_tract_acs_variables <- rbind(all_md_tract_acs_variables, md_tract_acs_variables_update2)
+}
+
+all_dc_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:length(files))
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  dc_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 11,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  dc_tract_acs_variables_update2 <- dc_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  dc_tract_acs_variables_update2 <- st_drop_geometry(dc_tract_acs_variables_update2)
+  year <- year - 1
+  all_dc_tract_acs_variables <- rbind(all_dc_tract_acs_variables, dc_tract_acs_variables_update2)
+}
+```
+
+# make predictions for tracts in 2019
+
+```{r}
+# histogram to visualize food insecurity estimates
+va_cap_predictions <- predict(cap_glm3, all_va_tract_acs_variables[all_va_tract_acs_variables$GEOID %in% unique(cafb4$county),], type = "response")
+hist(va_predictions)
+hist(va_cap_predictions)
+
+md_cap_predictions <- predict(cap_glm3, all_md_tract_acs_variables[all_md_tract_acs_variables$GEOID %in% unique(cafb4$county),], type = "response")
+hist(md_cap_predictions)
+
+dc_cap_predictions <- predict(cap_glm3, all_dc_tract_acs_variables[all_dc_tract_acs_variables$GEOID %in% unique(cafb4$county),], type = "response")
+hist(dc_cap_predictions)
+```
+
+# plot tract predictions for 2019
+
+```{r}
+# food insecurity plot at tract level
+
+tract_acs_variables_update3.2 <- rbind(cbind(all_va_tract_acs_variables[all_va_tract_acs_variables$GEOID %in% unique(cafb4$county),], predictions = va_cap_predictions),
+                                       cbind(all_md_tract_acs_variables[all_md_tract_acs_variables$GEOID %in% unique(cafb4$county),], predictions = md_cap_predictions),
+                                       cbind(all_dc_tract_acs_variables[all_dc_tract_acs_variables$GEOID %in% unique(cafb4$county),], predictions = dc_cap_predictions))
+
+# tract_acs_variables_update3 <- tract_acs_variables_update3[!st_is_empty(tract_acs_variables_update3), ]
+tract_acs_variables_update3.2$perc_food_insecure <- tract_acs_variables_update3.2$predictions * 100
+tm_shape(tract_acs_variables_update3.2, unit = "mi") +
+  tm_polygons(col = "perc_food_insecure",
+              style = "fixed",
+              palette = "Reds",
+              border.alpha = 0,
+              title = "Food Insecurity (%)",
+              breaks = c(0, 5, 10, 20, 30, 65),
+              colorNA = "white",
+              textNA = "Missing",
+              showNA = TRUE) +
+  tm_shape(va.ct) +
+  tm_polygons(alpha = 0) +
+  tm_scale_bar(position = c("left", "top")) +
+  tm_layout(main.title = "2019 Food Insecurity Rate",
+            main.title.size = 0.95,
+            frame = F,
+            legend.outside = T,
+            legend.outside.position = "right")
+
+unique(tract_acs_variables_update3.2$yr)
+```
+
+# write tract level estimates to database
+
+```{r}
+tract_acs_variables_update4.2 <- tract_acs_variables_update3.2 %>%
+  rename(value = perc_food_insecure, geoid = tract, year = yr, region_name = NAME) %>%
+  select(-c(GEOID, unemp_rate, poverty_rate, median_income,hisp_perc,
+            black_perc, own_perc, perc_disability, predictions)) %>%
+  mutate(measure_type = "percent",
+         measure_units = as.character(NA),
+         region_type = "tract",
+         measure = "perc_food_insecure") %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+# con <- get_db_conn(db_pass = "")
+# dc_dbWriteTable(con, "dc_health_behavior_diet", "va_tr_sdad_2013_2019_weighted_annual_food_budget_shortfall", tract_acs_variables_update4)
+# dbDisconnect(con)
+# tract_acs_variables_update4
+
+unique(tract_acs_variables_update4$year)
+
+tract_acs_variables_update4.2
+```
+
+# for reference here are the county estimates in 2019
+
+```{r}
+my_data_1 <- read_excel("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/Map_the_Meal_Gap_Data/MMG2021_2019Data_ToShare.xlsx", sheet = 2)
+# xlsx files
+va_fa_data <- my_data_1[my_data_1$State == "VA",]
+va_fa_data$GEOID <- as.character(va_fa_data$FIPS)
+va.co <- get_acs(geography = "county",
+                 year = 2019,
+                 variables = c(tpop = "B01003_001"),
+                 state = "VA",
+                 survey = "acs5",
+                 output = "wide",
+                 geometry = TRUE)
+va.co.utm <- st_transform(va.co, crs = "+proj=longlat +datum=WGS84")
+va_fa_data_2 <- left_join(va.co.utm, va_fa_data, by = "GEOID")
+va_fa_data_2$`2019 Food Insecurity Rate 2` <- va_fa_data_2$`2019 Food Insecurity Rate` * 100
+tm_shape(va_fa_data_2, unit = "mi") +
+  tm_polygons(col = '2019 Food Insecurity Rate 2',
+              style = 'fixed',
+              palette = 'Reds',
+              border.alpha = 0,
+              title = 'Food Insecure (%)',
+              breaks = c(0, 5, 10, 20, 30, 65)) +
+  tm_shape(co_data_2) +
+  tm_polygons(alpha = 0) +
+  tm_scale_bar(position = c('left', 'top')) +
+  tm_layout(main.title = '2019 Food Insecurity Rate',
+            main.title.size = 0.95, frame = F,
+            legend.outside = T, legend.outside.position = 'right')
+```
+
+
+
+# THOUGHT - CAN WE USE CAFB AS GROUND TRUTH AND FEED IN VARIABLES AS PREDICTORS, JUST WITHOUT COUNTY AND YEAR - THEN PREDICT FOR MISSING CAPITAL REGION?
+
+```{r}
+cap_tract_data <- left_join(cafb.19.21.2, rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>% filter(yr == 2019), by = c("GEOID" = "tract"))
+
+cap_glm3 <- glm(`Food_Insecurity_Rate` ~ unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = cap_county_fa_data, weights = total_pop, family = "binomial")
+
+va_cap_predictions <- predict(cap_glm3, all_va_tract_acs_variables[all_va_tract_acs_variables$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], type = "response")
+# hist(va_predictions)
+# hist(va_cap_predictions)
+
+md_cap_predictions <- predict(cap_glm3, all_md_tract_acs_variables[all_md_tract_acs_variables$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], type = "response")
+# hist(md_cap_predictions)
+
+dc_cap_predictions <- predict(cap_glm3, all_dc_tract_acs_variables[all_dc_tract_acs_variables$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], type = "response")
+# hist(dc_cap_predictions)
+
+# food insecurity plot at tract level
+
+tract_acs_variables_update3.2 <- rbind(cbind(all_va_tract_acs_variables[all_va_tract_acs_variables$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], predictions = va_cap_predictions),
+                                       cbind(all_md_tract_acs_variables[all_md_tract_acs_variables$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], predictions = md_cap_predictions),
+                                       cbind(all_dc_tract_acs_variables[all_dc_tract_acs_variables$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], predictions = dc_cap_predictions)) %>%
+  mutate(predictions = predictions * 100)
+
+dmv.tr[substr(dmv.tr$GEOID, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),] -> bigcap
+cafb.type.extension <- left_join(bigcap, tract_acs_variables_update3.2 %>% filter(yr == 2019), by = c("GEOID" = "tract"))
+
+tm_shape(cafb.type.extension, unit = "mi") +
+  tm_polygons(col = "predictions",
+              style = "fixed",
+              palette = "Blues",
+              border.alpha = 0,
+              title = "Percent (%)",
+              breaks = c(0, 5, 10, 20, 30, 65),
+              colorNA = "grey",
+              textNA = "Missing",
+              showNA = TRUE) +
+  tm_scale_bar(position = c("left", "top")) +
+  tm_shape(dmv.ct[dmv.ct$GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]) +
+  tm_polygons(alpha = 0) +
+  tm_layout(main.title = "2019 Extended CAFB Insecurity Estimates",
+            main.title.size = 0.95,
+            frame = F,
+            legend.outside = T,
+            legend.outside.position = "right")
+```
+
+
+# check correlation between 
+```{r}
+f <- merge(cafb.type.extension[substr(cafb.type.extension$GEOID, 1, 5) %in% c("51013", "51059", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033"), c("GEOID", "predictions")], st_drop_geometry(cafb.19.21.2)[, c("FIPOP_Per_2019", "GEOID")], by = "GEOID")
+
+f
+
+cor(f$predictions, f$FIPOP_Per_2019, use = "complete.obs")
+```
+
+
+
+```{r}
+# Getting Weighted Annual Food Buget Shortfall
+mmg2019$weighted_budget_shortfall <- mmg2019$`2019 Weighted Annual Food Budget Shortfall`
+mmg2018$weighted_budget_shortfall <- mmg2018$...18
+mmg2017$weighted_budget_shortfall <- mmg2017$`2017 Weighted Annual Food Budget Shortfall`
+mmg2016$weighted_budget_shortfall <- mmg2016$`2016 Weighted Annual Food Budget Shortfall`
+mmg2015$weighted_budget_shortfall <- mmg2015$`2015 Weighted Annual Food Budget Shortfall`
+mmg2014$weighted_budget_shortfall <- mmg2014$`2014 Weighted Annual Food Budget Shortfall`
+mmg2013$weighted_budget_shortfall <- mmg2013$`2013 Weighted Annual Food Budget Shortfall`
+mmg2012$weighted_budget_shortfall <- mmg2012$`2012 Weighted Annual Food Budget Shortfall`
+mmg2011$weighted_budget_shortfall <- mmg2011$`Weighted Annual Food Budget Shortfall`
+
+mmg2019$year <- 2019
+mmg2018$year <- 2018
+mmg2017$year <- 2017
+mmg2016$year <- 2016
+mmg2015$year <- 2015
+mmg2014$year <- 2014
+mmg2013$year <- 2013
+mmg2012$year <- 2012
+mmg2011$year <- 2011
+
+mmg_data <-
+  rbind(mmg2019 %>% select(FIPS, weighted_budget_shortfall, year), mmg2018 %>% select(FIPS, weighted_budget_shortfall, year),
+        mmg2017 %>% select(FIPS, weighted_budget_shortfall, year), mmg2016 %>% select(FIPS, weighted_budget_shortfall, year),
+        mmg2015 %>% select(FIPS, weighted_budget_shortfall, year), mmg2014 %>% select(FIPS, weighted_budget_shortfall, year),
+        mmg2013 %>% select(FIPS, weighted_budget_shortfall, year), mmg2012 %>% select(FIPS, weighted_budget_shortfall, year),
+        mmg2011 %>% select(FIPS, weighted_budget_shortfall, year)) %>%
+  rename(geoid = FIPS, value = weighted_budget_shortfall) %>%
+  mutate(measure = "weighted_budget_shortfall", region_type = "county", measure_type = "count", measure_units = "dollars")
+  
+idxs <- which(nchar(mmg_data$geoid) == 4)
+mmg_data$geoid[idxs] <- paste0(0, mmg_data$geoid[idxs])
+
+us.co <- get_acs(geography = "county",
+                 year = 2019,
+                 variables = c(in_labor_force = "B23025_002"),
+                 survey = "acs5",
+                 output = "wide",
+                 geometry = F)
+
+wbs_mmg_data <- full_join(mmg_data, us.co[, c("GEOID", "NAME")], by = c("geoid" = "GEOID")) %>%
+  rename(region_name = NAME) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units") %>%
+  drop_na(year)
+
+wbs_mmg_data
+con <- get_db_conn(db_pass = "")
+dc_dbWriteTable(con, "dc_health_behavior_diet", "reg_ct_fa_2011_2019_weighted_annual_food_budget_shortfall", wbs_mmg_data)
+dbDisconnect(con)
+```
+
+
+# add subsetting of food buget shortfall
+
+```{r}
+con <- get_db_conn(db_pass = "")
+food_budget_shortfall <- st_read(con, query = "SELECT * FROM dc_health_behavior_diet.reg_ct_fa_2011_2019_weighted_annual_food_budget_shortfall")
+dbDisconnect(con)
+
+va_food_budget_shortfall <- food_budget_shortfall[substr(food_budget_shortfall$geoid, 1, 2) == "51",]
+ncr_food_budget_shortfall <- food_budget_shortfall[food_budget_shortfall$geoid %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
+
+con <- get_db_conn(db_pass = "")
+dc_dbWriteTable(con, "dc_health_behavior_diet", "va_ct_fa_2011_2019_weighted_annual_food_budget_shortfall", va_food_budget_shortfall)
+dc_dbWriteTable(con, "dc_health_behavior_diet", "ncr_ct_fa_2011_2019_weighted_annual_food_budget_shortfall", ncr_food_budget_shortfall)
+dbDisconnect(con)
+```
+
+
+
+
+
+

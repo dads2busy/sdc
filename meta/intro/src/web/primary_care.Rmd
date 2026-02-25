@@ -1,0 +1,16 @@
+---
+title: "Health Equity in the National Capital Region"
+subtitle: "Is access to primary care physicians equitable in Arlington and Fairfax County?"
+---
+
+# Issue overview
+
+# Access to primary care physicians by count
+
+# Access to primary care physicians by drive time
+
+# Access to primary care physicians by FCA
+
+# Access to primary care physicians by FCA by demographics
+
+`r htmltools::includeHTML("./footer.html")`

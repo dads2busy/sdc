@@ -1,0 +1,16 @@
+name: "Social Impact Data Commons Data Dictionary"
+output_dir: "../docs"
+exclude: ["*.nb.html", "*.csv", "*.CSV", "*.dcf", "parlog", "old", "dashboard"]
+navbar:
+  title: "Data Commons Metadata"
+  left:
+    - text: "Data Dictionary and Metadata"
+      href: index.html
+#    - text: "For Users"
+#      href: external.html
+    - text: "For Developers"
+      href: internal.html
+    - text: Living List of Abbreviations
+      href: abbreviations.html
+    - text: "About this Project"
+      href: uva-bi-sdad.github.io/sdc.intro/

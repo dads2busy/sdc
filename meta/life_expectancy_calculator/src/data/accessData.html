@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Load json file</title>
+</head>
+
+<body>
+    <script>
+        function fetchData(id, vadivisions) {
+            if (vadivisions === "counties") {
+                fetch('http://localhost:8000/dataCounties.json?id=${id}')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        const county = data.counties.find(county => county.id === id);
+                        console.log(county);
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+            }
+            else {
+                fetch('http://localhost:8000/dataCensusTracks.json?id=${id}')
+            }
+
+        }
+        fetchData(51003);
+    </script>
+</body>

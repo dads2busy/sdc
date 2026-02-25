@@ -1,0 +1,245 @@
+{
+    "entry_rate": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percent of new businesses (a new business is a company newly created or has moved to the region): \\[entry\\_rate=\\frac{new\\_businesses}{all\\_businesses}\\] Available for US businesses.",
+        "long_name": "Entry Rate",
+        "measure_type": "",
+        "short_description": "Businesses entry rate",
+        "short_name": "Entry Rate",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} percent of businesses are new in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "exit_rate": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percent of closed businesses (a closed business is a company that stoped its activities or leaving the region): \\[exit\\_rate=\\frac{closed\\_businesses}{all\\_businesses}\\] Available for US businesses.",
+        "long_name": "Exit Rate",
+        "measure_type": "",
+        "short_description": "Businesses exit rate",
+        "short_name": "Exit Rate",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} percent of businesses closed in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "new_business": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Count of all new businesses (a new business is a company newly created or has moved to the region). Available for US businesses.",
+        "long_name": "New Businesses",
+        "measure_type": "",
+        "short_description": "New businesses",
+        "short_name": "New Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} new businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "exit_business": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Count of all closed businesses (a closed business is a company that stoped its activities or leaving the region). Available for US businesses.",
+        "long_name": "Closed Businesses",
+        "measure_type": "",
+        "short_description": "Closed businesses",
+        "short_name": "Closed Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} closed businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "number_business": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Count of all businesses. Available for US businesses.",
+        "long_name": "Total Businesses",
+        "measure_type": "",
+        "short_description": "Total businesses",
+        "short_name": "Total Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "small_business": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Count of small businesses. Available for US businesses.",
+        "long_name": "Small Businesses",
+        "measure_type": "",
+        "short_description": "Small businesses",
+        "short_name": "Small Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} small businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "soloproprio_business": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Count of sole proprietor businesses. Available for US businesses.",
+        "long_name": "Sole Proprietor Businesses",
+        "measure_type": "",
+        "short_description": "Sole proprietor businesses",
+        "short_name": "Sole Proprietor Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} sole proprietor businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "perc_small": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "percent of small businesses. Available for US businesses.",
+        "long_name": "Percentage of Small Businesses",
+        "measure_type": "",
+        "short_description": "percent of small businesses",
+        "short_name": "Percentage of Small Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} percent of small businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    },
+    "perc_soloproprio": {
+        "aggregation_method": "count",
+        "categories": "",
+        "category": "Business climate",
+        "citations": "",
+        "data_type": "integer",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "percent of sole proprietor businesses. Available for US businesses.",
+        "long_name": "Percentage of Sole Proprietor Businesses",
+        "measure_type": "",
+        "short_description": "percent of sole proprietor businesses",
+        "short_name": "Percentage of Sole Proprietor Businesses",
+        "sources": [
+            {
+                "date_accessed": 2023,
+                "location": "",
+                "location_url": "",
+                "name": "Mergent Intellect",
+                "url": "https://www.ftserussell.com/mergent-intellect"
+            }
+        ],
+        "statement": "{value} percent of sole proprietor businesses in {region_name}.",
+        "type": "",
+        "unit": "business",
+        "variants": ""
+    }
+}

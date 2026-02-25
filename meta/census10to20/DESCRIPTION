@@ -1,0 +1,15 @@
+Package: sdc.census10to20
+Title: Census Data Redistribution to Updated Geographies
+Version: 0.0.0.9000
+Authors@R: 
+    person("Aaron", "Schroeder", , "ads7fg@virginia.edu", role = c("aut", "cre"))
+Description: Redistributes 2010-2019 data based on 2020 decenial census boundaries.
+License: `use_mit_license()`
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: https://uva-bi-sdad.github.io/sdc.censes10to20/

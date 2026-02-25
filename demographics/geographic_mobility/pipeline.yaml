@@ -1,0 +1,21 @@
+name: geographic_mobility
+description: "Geographic mobility (% population that moved) from ACS B07204"
+
+source:
+  type: census_acs
+  profile: VA_NCR
+  years: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+  geographies: [tract, county, block_group]
+  variables:
+    total_pop: "B07204_001"
+    pop_moving: "B07204_003"
+
+output:
+  path: data/distribution
+  filename: geographic_mobility.csv.xz
+
+prepare:
+  crosswalk: ../../geographies/VA/State Geographies/Health Districts/2020/data/distribution/va_ct_to_hd_crosswalk.csv
+  source_col: ct_geoid
+  target_col: hd_geoid
+  method: mean

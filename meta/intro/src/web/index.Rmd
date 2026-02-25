@@ -1,0 +1,39 @@
+---
+title: "The Social Impact Data Commons"
+subtitle: "Supporting local equity-informed decision-making in the National Capital Region"
+---
+
+<div style="margin: auto; width: 100%; text-align: center; border: 2px solid white;">
+<h4><strong>DATA - APPLICATIONS - TOOLS - METHODS</strong></h4>
+</div>
+
+<table>
+  <tr>
+    <td>
+    <h4>We provide <b>actionable data for local-level decision-making</b> by creating new <b>below county-level datasets and measures</b> derived from publicly collectible data sources. We aim to <b>inform equitable and sustainable growth</b> in Virginia and the National Capital Region.</h4>
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">
+    ![The Social Impact Data Commons framework developed by the University of Virginia Biocomplexity Institute, Social and Decision Analytics Division](img/index-sdc-3.png){width="600px"}
+    </td>
+  </tr>
+  <tr>
+    <td>
+    <h3>What is a Data Commons?</h3>
+    <h4>A Data Commons is an open knowledge repository that **co-locates** data from a variety of sources, builds and **curates data insights**, and provides tools designed to track issues over time and geography. A Data Commons allows governments and key stakeholders to learn continuously from their own data.</h4>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    <h3>Our Social Impact Data Commons</h3>
+<h4>
+-   provides data, indicators, indices, case studies, and training
+-   analyzes impact from social, economic, and health trends and major events
+-   enables ongoing learning from data
+-   addresses local issues of concern (food insecurity and equity, for example)
+</h4>
+</table>
+
+`r htmltools::includeHTML("./footer.html")`
+

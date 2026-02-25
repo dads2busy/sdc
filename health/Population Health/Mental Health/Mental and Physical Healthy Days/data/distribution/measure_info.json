@@ -1,0 +1,56 @@
+{
+    "perc_poor_ment_hlth_days_14_and_over": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Health",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percent of the population self-reporting poor mental health in over 14 days of the previous month. Based on the Virginia Behavioral Risk Factor Surveillance Survey. Geographies: Census tract (11), County (5)",
+        "long_name": "Percentage reporting poor mental health",
+        "measure_type": "prevalence estimate",
+        "short_description": "",
+        "short_name": "Percentage reporting poor mental health",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Virginia Behavioral Risk Factor Surveillance System",
+                "url": "https://www.vdh.virginia.gov/brfss/"
+            }
+        ],
+        "statement": "{value} of the population in {features.name} reports poor mental health.",
+        "type": "percent",
+        "unit": "",
+        "variants": ""
+    },
+    "perc_poor_phys_hlth_days_14_and_over": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Health",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percent of the population self-reporting poor physical health in over 14 days of the previous month. Based on the Virginia Behavioral Risk Factor Surveillance Survey. Geographies: Census tract (11), County (5)",
+        "long_name": "Percentage reporting poor physical health",
+        "measure_type": "prevalence estimate",
+        "short_description": "Percent of the population self-reporting poor physical health",
+        "short_name": "Percentage reporting poor physical health",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Virginia Behavioral Risk Factor Surveillance System",
+                "url": "https://www.vdh.virginia.gov/brfss/"
+            }
+        ],
+        "statement": "{value} of the population in {features.name} reports poor physical health.",
+        "type": "percent",
+        "unit": "",
+        "variants": ""
+    }
+}

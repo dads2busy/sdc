@@ -1,0 +1,223 @@
+---
+title: "Food Insecurity"
+subtitle: How do we measure food insecurity in Fairfax County?
+notes: footnotes
+---
+
+<hr />
+<div class="section_header">Issue overview</div>
+
+<div class="section_text">
+
+The current measure of food insecurity, the USDA Current Population Survey Food Security Supplement, monitors food insecurity over time at national and state levels. Our stakeholders, local governments and nonprofits, want food insecurity measures at a smaller geographic level. Such knowledge would permit local officials to better address the problem in identifiable small geographies with targeted outreach and mitigation strategies, such as nutrition education and social service referrals. 
+
+We accomplish this by modeling food insecurity as a function of household income, size, composition, and the census tract where the household resides and categorize a household as food insecure, at-risk of food insecurity, or food secure using the cost-of-living as the threshold. 
+
+</div>
+
+<div class="section_header">Calculating local cost of living</div>
+
+<div class="section_text">
+We define the cost-of-living as the amount of income necessary to pay federal and state income taxes and to meet a household’s needs to function at a modest yet adequate standard of living. We include “living” in our designation to connect this to the “living wage” and to distinguish that the cost-of-living is not set at a deprivation level. Instead, it is a budget that could be used to define a living wage. We reviewed the following calculators to build a sense of the existing solutions to tackle defining a cost-of-living. 
+
+<ul>
+<li> [The Living Wage Calculator from Massachusetts Institute of Technology](https://livingwage.mit.edu/)
+<li> [The Family Budget Calculator from Economic Policy Institute](https://www.epi.org/resources/budget/)
+<li> [The Self Sufficiency Standard from Washington University's Center for Women's Welfare](https://selfsufficiencystandard.org/).
+</ul>
+
+We found that the available cost of living calculators did not meet our need detail at the sub-county level. To construct a sub-county cost of living, we completed a data discovery to find available sources for budget categories available at a geographically granular level and replicable across the National Capital Region. The basic needs include housing, food, transportation, healthcare, childcare, broadband, and other necessities such as clothing, household supplies, personal care, nonprescription medicine, and school supplies. The household income standard estimates are a function of family size and composition and where the family resides. It assumes the total cost of each need without government subsidies (e.g., public housing, Medicaid, or childcare assistance); or nonprofit or informal assistance from family and friends (e.g., unpaid childcare by a relative, food from food banks, or shared housing). An cost-of-living budget was calculated for every household combination within a census tract.  The data sources used to construct the budget are listed in the table below.
+
+</div>
+
+```{r, include=FALSE}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(stringdist)
+library(DT)
+library(data.table)
+library(htmltools)
+```
+
+```{r, echo = FALSE}
+COL_df <- data.frame(
+  Component = c("Housing", "Food", "Transportation", "Healthcare", "Childcare", "Broadband", "Other Necessities", "Tax
+Liability"),  
+  `Data Updates` = c("Yearly", "Monthly", "Yearly", "Yearly", "Biennial", "NA", "NA", "Yearly"),  
+  `Data Source` = c(
+    '<a href="https://www.huduser.gov/portal/datasets/fmr/fmrs/FY2023_code/2023summary_sa.odn" target="_blank">Washington-Arlington-Alexandria, DC-VA-MD HUD Metro FMR Area Advisory Small Area FMRs by Unit Bedrooms</a> (includes utilities)',
+    '<a href="https://www.fns.usda.gov/cnpp/usda-food-plans-cost-food-reports-monthly-reports" target="_blank">USDA Food Plans: Cost of Food Reports (monthly reports)</a><br>Low-Cost Food Plan adjusted for Economies-of-Scale<br><a href="https://fns-prod.azureedge.us/sites/default/files/usda_food_plans_cost_of_food/FoodPlans2007AdminReport.pdf" target="_blank">(Methodology)</a>',
+    '<a href="https://htaindex.cnt.org/" target="_blank">H+T </a>(Housing + Transit Affordability Index)<br>non-profit <a href="https://cnt.org/" target="_blank">Center for Neighborhood Technology</a><br><a href="https://htaindex.cnt.org/about/method-2022.pdf" target="_blank">(Methodology)</a>',
+    'U.S. Centers for Medicare & Medicaid Services,  <a href="https://www.healthcare.gov/health-plan-information-2022/" target="_blank">Health Insurance Market Place </a> Bronze Plan;<a href=https://www.kff.org/report-section/ehbs-2021-summary-of-findings/" target="_blank">Kaiser Family Foundation 2021 Health Benefits Survey',
+    '<a href="https://www.dol.gov/agencies/wb/topics/featured-childcare" target="_blank"> Department of Labor Women’s Bureau National </a> Median Home-Based Childcare
+<a href="https://www.dol.gov/sites/dolgov/files/WB/media/NationalDatabaseofChildcarePricesTechnicalGuideFinal.pdf" target="_blank"> (Methodology)</a>',
+'Scrapped from <br><a href="https://broadbandnow.com/" target="_blank">BroadbandNow;</a><br> <a href="https://www.transportation.gov/gis/national-address-database" target="_blank">Department of Transportation, National Address Database</a>',
+'20% of the cost of housing, utilities, food',
+'National Bureau of Economic Research’s <a href="http://taxsim.nber.org/taxsim35/" target="_blank">TAXSIM </a> Version 35 R interface 
+<a href="https://cran.rstudio.com/web/packages/usincometaxes/vignettes/using-usincometaxes.html" target="_blank"> usincometaxes</a>'
+  ),
+  `Original Geographic Area` = c(
+    "ZIP code",
+    "National",
+    "Census tract",
+    '<a href="https://www.cms.gov/cciio/programs-and-initiatives/health-insurance-market-reforms/va-gra" target="_blank">State geographic rating area</a>',
+    "County",
+    "Address at the center of a Census block",
+    "NA",
+    "State"
+  ), 
+  `Geographic Area Adjustment` = c(
+    "ZIPS codes are distributed to census tracts based on demographic data",
+    "National adjusted to the county or city level using Feeding America’s Map the Meal Gap 2021 data",
+    "NA",
+    "NA",
+    "NA",
+    "NA",
+    "NA",
+    "NA"
+  ),
+  `Inflation (Time) Adjustment` = c(
+    "NA",
+    '<a href="https://www.bls.gov/regions/mid-atlantic/news-release/consumerpriceindex_washingtondc.htm#ro3xg01wbu.f.1" target="_blank">Consumer Price Index, CBSA Washington DC – March 2023;</a>(used to adjust the 2021 Feeding America’s Map the Meal Gap data)',
+    "NA",
+    "NA",
+    "DOL Women’s Bureau National Methodology used to impute the Washington, D.C. childcare costs from 2012 to 2022",
+    "NA",
+    "NA",
+    "NA"
+  ),
+  `Final Geographic Area` = c("Census tract", "County", "Census tract", "County", "County", "Census tract", "Census tract", "State"),  
+  stringsAsFactors = FALSE
+)
+
+library(DT)  
+colnames(COL_df) <- c(
+  "Component", "Data Updates", "Data Source", "Original Geographic Area",
+  "Geographic Area Adjustment", "Inflation (Time) Adjustment", "Final Geographic Area"
+)
+datatable(COL_df, escape = FALSE, options = list(pageLength = 10),  caption = "Components of the Household Living Income:  Date, Data Source, Geographic Area, and Adjustments", rownames = FALSE)
+```
+
+<div class="section_header">Approach to measuring food insecurity</div>
+
+<div class="section_text">
+
+To estimate the food insecurity at the census tract level using the cost-of-living as the threshold, we used household data at the Public Use Microdata Area (PUMA) level and aggregated household income and size data at the census tract level from the American Community Survey (ACS). Iterative proportional fitting (IPF) was used to estimate the number of households in each income by size category within a census tract (see Exhibit 2) subject to constraints from known and fixed marginal row and column totals.[^1][^2] The marginal row and column totals are household income , ACS Table S1901, and household size, ACS Table B11016, at the census tract level. For each census tract the procedure was:
+
+1.	fill the body of the table (Exhibit 2, Panel 2) with starting values (seeds) which were adjusted iteratively to match the row and column marginal totals;
+2.	the cells in each row were adjusted by multiplying each cell by the ratio of the (fixed row marginal / actual row sum);  
+3.	the cells in each column were adjusted by multiplying each cell by the ratio of the (fixed column marginal / actual column sum);  
+Iterations between (2) and (3) were performed until the stop criterion was reached, either when the difference between iterations was less than 10-11 or the number of iterations reach 1,000. The estimates for census tract 450100 as displayed in Exhibit 2, Panel 2. For example, there will be 135 two person households with an income in the range [75,000 to 99,999] for census tract 450100. For Fairfax County, 274 2-way tables were estimated each with 45 cells. All computations were done using the R-package for Multidimensional Array Fitting (mipfp).[^3]
+
+A monthly cost-of-living midpoint was calculated for each household size by income category (each cell in the census track table). The midpoint was then compared to the limits of the income category to classify all the households within a cell as secure, insecure, at-risk households. For each cell:  
+
+1.	calculate the cell threshold by summing seven components of the cost-of-living excluding food costs (transportation, healthcare, childcare, housing, broadband, other expenses, and taxes) for each household combination of a particular household size and taking the midpoint; 
+2.	estimate the food budget range for a cell as the difference between the cell threshold minus lower end and the cell threshold minus upper end of the income category;  
+3.	calculate the monthly food costs for the household size by using the USDA monthly low-cost food plan; 
+4.	compare the USDA monthly food cost to the food budget range, if the USDA monthly food cost is less than the lower end of the food budget range the household is food secure; if the USDA monthly food cost is greater than the upper end of the food budget range the household is food insecure; if the USDA monthly food cost is contained within the range the household is at risk. 
+
+
+</div>
+
+<div class="section_header">Findings</div>
+
+<div style="text-align: center">
+![](img/food-food_insecurity_combined.png){width="800px" class="story_image"}
+<figcaption style="width:600px;">Data Sources: USDA, accessed 2022 <br>
+Feeding America, accessed 2022 <br>
+U.S. Department of Housing and Urban Development, accessed 2022 <br>
+Center for Neighborhood Technology, accessed 2022 <br>
+Health Insurance Market Place, accessed 2022 <br>
+Department of Labor Women's Bureau National, accessed 2022 <br>
+BroadbandNow, accessed 2022 <br>
+National Academy of Sciences accessed 2022 <br>
+National Bureau of Economic Research's program TAXSIM Version 35, accessed 2022
+    <a href = "https://uva-bi-sdad.github.io/capital_region/?selected_county=51059&selected_variable=insecure_pc_original"> <br> Explore this measure on our dashboard </a> <br>
+</figcaption>
+</div>
+
+<div class="section_text">
+Applying our methodology, we can explore food insecurity at the census tract level in Fairfax County. We find that the estimated percentage of households facing food insecurity in Fairfax is 20 percent. This estimate is within the margin of error of the food insecurity estimate from the survey conducted by the National Opinion Research Center at the University of Chicago in 2022 for the Capital Area Food Bank. Within the county, Census tracts are at a minimum 0 percent food insecure and at a maximum 58 percent food insecure. 
+
+Census tracts with the highest percentage of the population estimated to be food insecure include southern Fairfax near Alexandria along Route 1, North Springfield, Merrifield, along Leesburg Pike near southern Arlington, western Fairfax near Dulles, and western Herndon. 
+</div>
+
+<div style="float: right">
+![](img/food-food_insecure_at_risk.png){width="400px" class="story_image"}
+<figcaption style="width:400px;">Data Sources: USDA, accessed 2022 <br>
+Feeding America, accessed 2022 <br>
+U.S. Department of Housing and Urban Development, accessed 2022 <br>
+Center for Neighborhood Technology, accessed 2022 <br>
+Health Insurance Market Place, accessed 2022 <br>
+Department of Labor Women's Bureau National, accessed 2022 <br>
+BroadbandNow, accessed 2022 <br>
+National Academy of Sciences accessed 2022 <br>
+National Bureau of Economic Research's program TAXSIM Version 35, accessed 2022 
+    <a href = "https://uva-bi-sdad.github.io/capital_region/?selected_county=51059&selected_variable=at_risk_pc_original"> <br> Explore this measure on our dashboard </a>
+</figcaption>
+</div>
+
+<div class="section_text">
+Our methodology distinguishes households that are in an ambiguous position of being food secure: they are at-risk for food insecurity. Across Fairfax overall, 26 percent of households are at-risk of facing food insecurity.
+
+</div>
+
+<div style="clear: both">
+
+<div class="section_header"> Explore the demographics of food insecure neighborhoods </div>
+
+<div style = "text-align: center;">
+![](img/food-demographics.png){width="700px" class="story_image"}
+<figcaption style="width:600px;">Data Source: American Community Survey (ACS) Table B01001, accessed 2021.
+    <a href = "https://uva-bi-sdad.github.io/capital_region/?plot_type=scatter&shape_type=county&selected_variable=demographics:perc_hispanic_or_latino&selected_year=2019&filter.time_min=2009&filter.time_max=2019&filter.county=51059"> <br> Explore these measures on our dashboard </a> <br>
+<a onclick="reveal('Fig5');"> Steps to replicate this map <br> </a>  
+<span class="hiddenText" id="Fig5">
+<ol>
+<li> Click "Filter" in the top left navigation bar to open the Filter Window
+<li> In the Filter Window under "county" select "Arlington County" and "Fairfax County"
+<li> Exit the Filter Window
+<li> In the Starting Layer Menu, Select "Tract"
+#![](img/tutorial-start_layer_tract.png)
+<li> In the Settings Menu under Summary Level select "Selected Super-Region"
+#![](img/tutorial-settings_menu_superregion.png)
+<li> Scroll down to Map Options and input "2" for Outline Weight and "3" for Background Outline Weight
+#![](img/tutorial-settings_menu_outlines.png)
+<li> Exit the Settings Menu
+<li> In the Variable Menu, select Asian American/Pacific Islander population under Demographics
+<li> In the Variable Menu, select Black population under Demographics
+<li> In the Variable Menu, select Hispanic/Latino population under Demographics
+<li> In the Variable Menu, select White population under Demographics
+<li> Click Export to open the Export Window and select Download to download the data locally
+#![](img/tutorial-export.png)
+</ol>
+</span> 
+</figcaption>
+</div>
+
+
+
+<div class="section_text">
+When we overlay patterns of food insecurity with demographics, we can see patterns in the burden of food insecurity. We see that southern Fairfax near Alexandria along Route 1, which is disproportionately food insecure, has a higher Black population as well as Hispanic/Latino population. Similarly, North Springfield, and Leesburg Pike near southern Arlington also have a higher Black population as well as Hispanic/Latino population. Merrifield, western Fairfax near Dulles, and western Herndon, which experience higher than average food insecurity, have a higher than average Asian American/Pacific Islander population. 
+
+Looking towards the at-risk population, which is concentrated in Great Falls and McLean, we see that these areas are made up of predominately White as well as Asian American/Pacific Islander populations.
+</div>
+
+<div class="section_header"> Exploring food insecurity with access to subsidies </div>
+
+<div class="section_text">
+Read more about the [Supplemental Nutrition Assistance Program (SNAP) in Fairfax County on the analysis page](https://dspg-young-scholars-program.github.io/fairfax-snap-app/background.html).
+
+When we add SNAP access to our model, the percentage of households facing food insecurity falls to 19 percent. The minimum percentage of food insecure population in a Census tract is 0 percent and the maximum is 55 percent. The percentage of at-risk households is a mean of 16.7 in Census tracts, with a minimum of 16.7 percent and a maximum of 100 percent. 
+
+</div>
+
+**Note:** If you find that the Social Impact Data Commons isn't displaying data properly, you may need to clear the dashboard settings (from the Settings Menu) or clear your browser cache. Please contact us if you have other issues.
+
+`r htmltools::includeHTML("./footer.html")`
+
+[^1]: Beckman, R. J., Baggerly, K. A., & McKay, M. D. (1996). Creating synthetic baseline populations. Transportation Research Part A: Policy and Practice, 30(6), 415-429.
+ 
+[^2]: Deming, W. E., & Stephan, F. F. (1940). On a least squares adjustment of a sampled frequency table when the expected marginal totals are known. The Annals of Mathematical Statistics, 11(4), 427-444.
+
+[^3]: Barthélemy, J. and Suesse, T. (2018). “mipfp: An R Package for Multidimensional Array Fitting and Simulating Multivariate Bernoulli Distributions.” Journal of Statistical Software, Code Snippets, 86(2), 1–20. doi:10.18637/jss.v086.c02.

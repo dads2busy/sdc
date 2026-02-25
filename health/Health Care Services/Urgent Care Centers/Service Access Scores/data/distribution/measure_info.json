@@ -1,0 +1,186 @@
+{
+    "urgent_near_10_median": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Health",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Availability",
+        "layer": {
+            "source": "https://raw.githubusercontent.com/uva-bi-sdad/sdc.health/main/Health%20Care%20Services/Urgent%20Care%20Centers/Service%20Access%20Scores/data/distribution/urgent_care_points_2022.geojson"
+        },
+        "long_description": "Median drive time in minutes to the ten closest urgent care facilities. Facility location data were collected from Google Maps. Drive times were computer using Open Source Routing Machine (looking at roads for 2021). Geographies: Block group (12), Census tract (11), County (5)",
+        "long_name": "Urgent care availability by median drive time to the ten closest facilities in minutes",
+        "measure_type": "count",
+        "short_description": "",
+        "short_name": "Urgent care availability (drive time)",
+        "sources": [
+            {
+                "date_accessed": 2022,
+                "location": "",
+                "location_url": "",
+                "name": "Google Maps",
+                "url": "https://www.google.com/maps"
+            }
+        ],
+        "statement": "The median drive time to the ten closest urgent care facilities to {features.name} is {value}.",
+        "type": "drive time",
+        "unit": "",
+        "variants": ""
+    },
+    "urgent_cnt": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Health",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Availability",
+        "layer": {
+            "source": "https://raw.githubusercontent.com/uva-bi-sdad/sdc.health/main/Health%20Care%20Services/Urgent%20Care%20Centers/Service%20Access%20Scores/data/distribution/urgent_care_points_2022.geojson"
+        },
+        "long_description": "Count of urgent care facilities based on facility locations. Location data was collected from the Google Maps. Geographies: Block group (12), Census tract (11), County (5)",
+        "long_name": "Availability of urgent care by count",
+        "measure_type": "count",
+        "short_description": "",
+        "short_name": "Urgent care availability (count)",
+        "sources": [
+            {
+                "date_accessed": 2022,
+                "location": "",
+                "location_url": "",
+                "name": "Google Maps",
+                "url": "https://hifld-geoplatform.opendata.arcgis.com/"
+            }
+        ],
+        "statement": "There are {value} urgent care facilities in {features.name}.",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    },
+    "urgent_3sfca": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Health",
+        "citations": [
+            "lou04",
+            "lou09",
+            "lou03",
+            "saxon20"
+        ],
+        "data_type": "numeric",
+        "equity_category": "Availability",
+        "layer": {
+            "source": "https://raw.githubusercontent.com/uva-bi-sdad/sdc.health/main/Health%20Care%20Services/Urgent%20Care%20Centers/Service%20Access%20Scores/data/distribution/urgent_care_points_2022.geojson"
+        },
+        "long_description": "Urgent care availability is based on 3-step floating catchment areas. This method is an aggregation of facilities per population ratios weighted by distance or travel time in each catchment area (area within which a facility is accessible). Weights are defined as the demand for facilities (in the adult population). Geographies: Block group (12), Census tract (11), County (5)",
+        "long_name": "Urgent care geographic availability (3-step floating catchment areas)",
+        "measure_type": "index",
+        "short_description": "",
+        "short_name": "Urgent care geographic availability",
+        "sources": [
+            {
+                "date_accessed": 2022,
+                "location": "",
+                "location_url": "",
+                "name": "Google Maps",
+                "url": "https://www.google.com/maps"
+            }
+        ],
+        "statement": "The urgent care availability for {features.name} is {value}.",
+        "type": "index",
+        "unit": "",
+        "variants": ""
+    },
+    "_references": {
+        "lou04": {
+            "id": "lou04",
+            "author": [
+                {
+                    "given": "Wei",
+                    "family": "Lou"
+                }
+            ],
+            "year": 2004,
+            "title": "Using a gis-based floating catchment method to assess areas with shortage of physicians",
+            "journal": "Health & Place",
+            "volume": "10",
+            "number": 1,
+            "page": "1-11",
+            "doi": "10.1016/S1353-8292(02)00067-9"
+        },
+        "lou09": {
+            "id": "lou09",
+            "author": [
+                {
+                    "given": "Wei",
+                    "family": "Lou"
+                },
+                {
+                    "given": "Yi",
+                    "family": "Qi"
+                }
+            ],
+            "year": 2009,
+            "title": "An enhanced two-step floating catchment area (e2sfca) method for measuring spatial accessibility to primary care physicians",
+            "journal": "Health & Place",
+            "volume": "15",
+            "number": 4,
+            "page": "1100-1107",
+            "doi": "10.1016/j.healthplace.2009.06.002"
+        },
+        "lou03": {
+            "id": "lou03",
+            "author": [
+                {
+                    "given": "Wei",
+                    "family": "Lou"
+                },
+                {
+                    "given": "Fahui",
+                    "family": "Wang"
+                }
+            ],
+            "year": 2003,
+            "title": "Measures of spatial accessibility to health care in a gis environment: synthesis and a case study in the Chicago region",
+            "journal": "Environment and Planning B: Planning and Design",
+            "volume": "30",
+            "number": 6,
+            "page": "865-884",
+            "doi": "10.1068/b29120"
+        },
+        "saxon20": {
+            "id": "saxon20",
+            "author": [
+                {
+                    "given": "James",
+                    "family": "Saxon"
+                },
+                {
+                    "given": "Julia",
+                    "family": "Koschinsky"
+                },
+                {
+                    "given": "Karina",
+                    "family": "Acosta"
+                },
+                {
+                    "given": "Vidal",
+                    "family": "Anguiano"
+                },
+                {
+                    "given": "Luc",
+                    "family": "Anselin"
+                },
+                {
+                    "given": "Sergio",
+                    "family": "Rey"
+                }
+            ],
+            "year": 2020,
+            "title": "An Open Software Environment to Make Spatial Access Metrics More Accessible",
+            "journal": "University of Chicago: Center for Spatial Data Science",
+            "volume": "Preprint",
+            "doi": "10.13140/RG.2.2.12396.28807"
+        }
+    }
+}

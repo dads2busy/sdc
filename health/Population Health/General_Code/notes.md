@@ -1,0 +1,1 @@
+Within this folder, the code folder contains the general code used to predict and store all of incarceration, HOI, composite indices, and the indicators for each year. The data folder contains some data that is used for predicting HOI and composite indices in the separated folders. 

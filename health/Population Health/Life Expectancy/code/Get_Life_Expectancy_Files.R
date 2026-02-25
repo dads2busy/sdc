@@ -1,0 +1,100 @@
+library(tidyverse)
+library(tidymodels)
+
+X1 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/2020_Raw_Indicators_HOI_LE.csv")
+indicators_2015 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2015.csv")
+indicators_2016 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2016.csv")
+indicators_2017 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2017.csv")
+indicators_2018 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2018.csv")
+indicators_2021 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2021.csv")
+indicators_2022 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2022.csv")
+indicators_2023 <- read.csv("/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/indicators_used_for_LE/indicators_2023.csv")
+
+
+predict_life_expectancy <- function(new_data) {
+  return ((new_data$Walkability * 0.097 ) + 
+            (new_data$Environmental * 0.096) + 
+            (new_data$`Food.Access` * 0.041) +
+            (new_data$`Employment.Access` * 0.015) +
+            (new_data$`Labor.Force.Participation` * 0.060) +
+            (new_data$`Income.Inequality` * 0.002) + 
+            (new_data$Incarceration * 0.347) +
+            (new_data$Education * 0.160) +
+            (new_data$`Spatial.Segregation` * 0.050) +
+            (new_data$`Accees.to.Care` * 0.000) +
+            (new_data$Townsend * 0.101) + 
+            (new_data$Mobility * 0.030) + 
+            (new_data$Affordability * 0.001) + 
+            (new_data$`Population.Density` * 0.000))
+  
+}
+
+LE_predicted_2015 <- predict_life_expectancy(indicators_2015)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2015)
+
+LE_data_2015 = indicators_2015 %>% select(geoid) %>% mutate(year = 2015) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2015) %>% mutate(moe = NA)
+
+
+write.csv(LE_predicted_2015, "/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/life_expectancy_predicted/life_expectancy_2015.csv")
+
+
+
+LE_predicted_2016 <- predict_life_expectancy(indicators_2016)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2016)
+
+LE_data_2016 = indicators_2016 %>% select(geoid) %>% mutate(year = 2016) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2016) %>% mutate(moe = NA)
+
+write.csv(LE_predicted_2016, "/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/life_expectancy_predicted/life_expectancy_2016.csv")
+
+
+
+LE_predicted_2017 <- predict_life_expectancy(indicators_2017)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2017)
+
+LE_data_2017 = indicators_2017 %>% select(geoid) %>% mutate(year = 2017) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2017) %>% mutate(moe = NA)
+
+
+write.csv(LE_predicted_2017, "/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/life_expectancy_predicted/life_expectancy_2017.csv")
+
+
+
+
+LE_predicted_2018 <- predict_life_expectancy(indicators_2018)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2018)
+
+LE_data_2018 = indicators_2018 %>% select(geoid) %>% mutate(year = 2018) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2018) %>% mutate(moe = NA)
+
+
+write.csv(LE_predicted_2018, "/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/life_expectancy_predicted/life_expectancy_2018.csv")
+
+
+LE_predicted_2021 <- predict_life_expectancy(indicators_2021)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2021)
+
+LE_data_2021 = indicators_2021 %>% select(geoid) %>% mutate(year = 2021) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2021) %>% mutate(moe = NA)
+write.csv(LE_predicted_2021, "/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/life_expectancy_predicted/life_expectancy_2021.csv")
+
+
+LE_predicted_2022 <- predict_life_expectancy(indicators_2022)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2022)
+
+LE_data_2022 = indicators_2022 %>% select(geoid) %>% mutate(year = 2022) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2022) %>% mutate(moe = NA)
+
+write.csv(LE_predicted_2022, "/Users/avagutshall/Desktop/folder/sdc.health_dev/Population Health/Life Expectancy/data/life_expectancy_predicted/life_expectancy_2022.csv")
+
+
+LE_predicted_2023 <- predict_life_expectancy(indicators_2023)*100
+
+cor(X1$LifeExpectancy, LE_predicted_2023)
+
+LE_data_2023 = indicators_2023 %>% select(geoid) %>% mutate(year = 2023) %>% mutate(measure = "life_expectancy_at_birth") %>% mutate(value = LE_predicted_2023) %>% mutate(moe = NA)
+
+
+
+

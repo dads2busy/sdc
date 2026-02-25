@@ -1,0 +1,56 @@
+{
+    "emp_rate": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Employment/Workforce Development",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Population, self-reported as employed, as a percentage of the total civilian workforce population. Geographies: Census Tract (11), County (5)",
+        "long_name": "Percentage civilian employed",
+        "measure_type": "",
+        "short_description": "Population, self-reported as employed, as a percentage of the total civilian workforce population. Geographies: Census Tract (11), County (5)",
+        "short_name": "Percentage employed",
+        "sources": [
+            {
+                "name": "American Community Survey",
+                "location": "5-Year estimates, table B23025, via the API",
+                "location_url": "https://www.census.gov/data/developers/data-sets/acs-5year.html",
+                "date_accessed": "2023",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            }
+        ],
+        "statement": "{value} of the population in {region_name} is employed.",
+        "type": "percent",
+        "unit": "individual",
+        "variants": ""
+    },
+    "labor_participate_rate_geo20": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Employment/Workforce Development",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "The percentage of individuals, ages 16-64, in the active labor force. The job participation rate is often used by economists as an indicator of economic development and growth. Geographies: Census Tract (11), County (5)",
+        "long_name": "Labor Force Participation Rate",
+        "measure_type": "",
+        "short_description": "The percentage of individuals, ages 16-64, in the active labor force. The job participation rate is often used by economists as an indicator of economic development and growth. Geographies: Census Tract (11), County (5)",
+        "short_name": "Labor Force Participation Rate",
+        "sources": [
+            {
+                "name": "American Community Survey",
+                "location": "5-Year estimates, table S2301_C02_001, via the API",
+                "location_url": "https://www.census.gov/data/developers/data-sets/acs-5year.html",
+                "date_accessed": "2023",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            }
+        ],
+        "statement": "{value} of the population in {region_name} is participating in the civilian job force.",
+        "type": "percent",
+        "unit": "individual",
+        "variants": ""
+    }
+}

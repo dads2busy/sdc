@@ -1,0 +1,9 @@
+- There is are two folders for each year ranging 2015-2019 and 2021. 
+- Each folder named after the year contains 13 raw HOI indicators
+  - Does not include raw predicted incarceration
+- Each folder named year_normalized contains normalized versions of the 14 indicators used to predict HOI
+  - Does include normalized predicted incarceration
+  - **NOTE: The normalized indicators [,8:14] have all been inverted due to their negative correlation with HOI.**
+    - These include **Income Inequality, Affordability, Environmental, Food Access, Townsend, Mobility, and Incarceration**
+    - As a result, *high normalized scores for these indicators correspond to low raw values*, and vice versa
+- Missing values from these indicators have been imputed and each file contains 2168 rows

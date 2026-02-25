@@ -1,0 +1,29 @@
+{
+    "earnings_per_job": {
+        "aggregation_method": "arithmetic mean",
+        "categories": "",
+        "category": "Employment/Workforce Development",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Earnings per job are calculated based on the GDP and Personal Income table for the Bureau of Economic Analysis (BEA). Earnings per job is the total earnings divided by total number of jobs. Total earnings is the sum of wages and salaries, supplements to wages and salaries, and proprietor’s income. Wages and salaries refer to the monetary remuneration of employees; it includes compensation of corporate officers; commissions, tips, and bonuses, compensation plans, such as a 401(k) plans; and receipts in kind, or pay-in0kind, that represent income to the recipient. Supplements to wages and salaries consist of employer contributions for employee pension and insurance funds and employer contributions for government social insurance. The proprietor’s income is the current-production income (including the income in kind) of sole proprietorships and partnerships and of tax-exempt cooperatives. Geographies: County(5), Health Districts (51_hd)",
+        "long_name": "Earnings per job",
+        "measure_type": "",
+        "short_description": "Earnings per job are calculated based on the GDP and Personal Income table for the Bureau of Economic Analysis (BEA). Earnings per job is the total earnings divided by total number of jobs. Total earnings is the sum of wages and salaries, supplements to wages and salaries, and proprietor’s income. Wages and salaries refer to the monetary remuneration of employees; it includes compensation of corporate officers; commissions, tips, and bonuses, compensation plans, such as a 401(k) plans; and receipts in kind, or pay-in0kind, that represent income to the recipient. Supplements to wages and salaries consist of employer contributions for employee pension and insurance funds and employer contributions for government social insurance. The proprietor’s income is the current-production income (including the income in kind) of sole proprietorships and partnerships and of tax-exempt cooperatives. Geographies: County(5), Health Districts (51_hd)",
+        "short_name": "Earnings per job",
+        "sources": [
+            {
+                "date_accessed": "2021",
+                "location": "",
+                "location_url": "",
+                "name": "Bureau of Economic Analysis",
+                "url": "https://apps.bea.gov/iTable/iTable.cfm?reqid=70&step=1&acrdn=6"
+            }
+        ],
+        "statement": "Earnings per job in {region_name} is {value}.",
+        "type": "",
+        "unit": "dollar",
+        "variants": ""
+    }
+}

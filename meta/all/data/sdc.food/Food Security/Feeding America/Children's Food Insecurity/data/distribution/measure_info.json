@@ -1,0 +1,56 @@
+{
+    "Child_Food_Insecurity_Rate": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Nutrition and Food Security",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "The percentage of food insecure children. Food insecurity refers to the US Department of Agriculture’s (USDA) measure of lack of access, at times, to enough food for an active, healthy life for all household members and limited or uncertain availability of nutritionally adequate foods. Food insecure children are those children living in households that are not necessarily food insecure all the time. Food insecurity may reflect a household’s need to make trade-offs between important basic needs, such as housing or medical bills, and purchasing nutritionally adequate foods. Geographies: County (5)",
+        "long_name": "Percentage of food insecure children",
+        "measure_type": "percent",
+        "short_description": "",
+        "short_name": "Percentage of food insecure children",
+        "sources": [
+            {
+                "date_accessed": "2021",
+                "location": "",
+                "location_url": "",
+                "name": "Feeding America",
+                "url": "https://www.feedingamerica.org/"
+            }
+        ],
+        "statement": "{value} of the population of children in {features.name} are food insecure.",
+        "type": "percent",
+        "unit": "",
+        "variants": ""
+    },
+    "Num_Child_Food_Insecure": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Nutrition and Food Security",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "The number of food insecure children. Food insecurity refers to the US Department of Agriculture’s (USDA) measure of lack of access, at times, to enough food for an active, healthy life for all household members and limited or uncertain availability of nutritionally adequate foods. Food insecure children are those children living in households that are not necessarily food insecure all the time. Food insecurity may reflect a household’s need to make trade-offs between important basic needs, such as housing or medical bills, and purchasing nutritionally adequate foods. Geographies: County (5)",
+        "long_name": "Count of food insecure children",
+        "measure_type": "count",
+        "short_description": "",
+        "short_name": "Food insecure children (count)",
+        "sources": [
+            {
+                "date_accessed": "2021",
+                "location": "",
+                "location_url": "",
+                "name": "Feeding America",
+                "url": "https://www.feedingamerica.org/"
+            }
+        ],
+        "statement": "The population of food insecure children in {features.name} is {value}.",
+        "type": "count",
+        "unit": "",
+        "variants": ""
+    }
+}

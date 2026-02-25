@@ -1,0 +1,137 @@
+"PUMA","age","rank","grouped_OCCP_label_female","grouped_OCCP_label_male","n_female","n_male","n_se_female","n_se_male"
+"59301","16 to 29",1,"Sales and Related","Construction and Extraction",1339,1351,231.872270873427,290.666561544323
+"59301","16 to 29",2,"Office and Administrative Support","Food Preparation and Serving Related",1300,1234,272.455409195707,267.386517984733
+"59301","16 to 29",3,"Food Preparation and Serving Related","Transportation and Material Moving",1193,1035,210.294674207408,219.766125688196
+"59301","16 to 29",4,"Building and Grounds Cleaning and Maintenance","Sales and Related",619,982,149.332012642969,218.280782479814
+"59301","16 to 29",5,"Educational Instruction and Library","Computer and Mathematical",562,936,129.566392247373,199.66634668867
+"59301","30 to 49",1,"Management","Construction and Extraction",2452,3863,316.128217658595,448.472797391324
+"59301","30 to 49",2,"Building and Grounds Cleaning and Maintenance","Management",1781,2981,268.059694844264,341.52459647879
+"59301","30 to 49",3,"Office and Administrative Support","Computer and Mathematical",1526,2305,309.094807462047,248.563875090489
+"59301","30 to 49",4,"Educational Instruction and Library","Transportation and Material Moving",1471,1597,261.946273117218,267.56672065113
+"59301","30 to 49",5,"Sales and Related","Business Operations",1364,1511,230.495986949882,253.563897272463
+"59301","over 50",1,"Office and Administrative Support","Management",2270,2626,231.00389607104,307.085900034502
+"59301","over 50",2,"Management","Construction and Extraction",1533,2223,158.565759229412,328.958128034557
+"59301","over 50",3,"Educational Instruction and Library","Transportation and Material Moving",1502,1639,174.412442216718,226.118000168054
+"59301","over 50",4,"Sales and Related","Computer and Mathematical",1223,1217,151.219046419424,157.8949017543
+"59301","over 50",5,"Building and Grounds Cleaning and Maintenance","Office and Administrative Support",1162,1040,202.503703669834,144.061618760862
+"59302","16 to 29",1,"Food Preparation and Serving Related","Sales and Related",1438,1118,237.588299375201,234.944887154413
+"59302","16 to 29",2,"Sales and Related","Transportation and Material Moving",1218,803,202.484320380616,195.504603526362
+"59302","16 to 29",3,"Office and Administrative Support","Construction and Extraction",1202,781,217.209000734316,169.277582685954
+"59302","16 to 29",4,"Personal Care and Service","Food Preparation and Serving Related",657,674,146.766140509315,198.541179607657
+"59302","16 to 29",5,"Educational Instruction and Library","Building and Grounds Cleaning and Maintenance",470,579,96.0015624872846,150.985760918042
+"59302","16 to 29",6,NA,"Office and Administrative Support",NA,579,NA,164.481457921554
+"59302","30 to 49",1,"Management","Management",2471,2787,199.930612963598,311.522711852603
+"59302","30 to 49",2,"Business Operations","Computer and Mathematical",1604,2404,208.06140920411,223.20483865723
+"59302","30 to 49",3,"Educational Instruction and Library","Construction and Extraction",1562,1586,179.85424654425,280.31598241984
+"59302","30 to 49",4,"Office and Administrative Support","Transportation and Material Moving",1507,1240,200.225373017507,224.375689413983
+"59302","30 to 49",5,"Sales and Related","Sales and Related",1404,1192,210.079746762985,203.789965405562
+"59302","over 50",1,"Management","Management",2028,3158,164.61652407945,284.338794398513
+"59302","over 50",2,"Office and Administrative Support","Construction and Extraction",1916,1471,219.299908800711,223.379833467572
+"59302","over 50",3,"Educational Instruction and Library","Transportation and Material Moving",1376,1419,167.577295598181,248.396256010432
+"59302","over 50",4,"Building and Grounds Cleaning and Maintenance","Computer and Mathematical",1186,1162,243.829961243486,143.132456137663
+"59302","over 50",5,"Sales and Related","Business Operations",1079,1033,169.24331596846,182.1356637235
+"59303","16 to 29",1,"Sales and Related","Food Preparation and Serving Related",2081,2096,225.350726646266,253.845622377066
+"59303","16 to 29",2,"Office and Administrative Support","Sales and Related",1744,1775,233.08292515755,245.58674638506
+"59303","16 to 29",3,"Food Preparation and Serving Related","Computer and Mathematical",1541,1101,207.533611735545,180.088450490308
+"59303","16 to 29",4,"Personal Care and Service","Office and Administrative Support",1442,1006,216.23528851693,155.266061971057
+"59303","16 to 29",5,"Educational Instruction and Library","Management",1208,908,209.760816169274,247.234099589842
+"59303","30 to 49",1,"Management","Computer and Mathematical",2858,3382,273.257753778369,267.00121722569
+"59303","30 to 49",2,"Educational Instruction and Library","Management",2714,3103,237.593350075291,250.965336251842
+"59303","30 to 49",3,"Office and Administrative Support","Business Operations",1824,1860,202.98682223238,243.775716592117
+"59303","30 to 49",4,"Healthcare Practioners and Technical","Transportation and Material Moving",1576,1298,176.37516832026,265.839143092209
+"59303","30 to 49",5,"Business Operations","Sales and Related",1416,1287,162.743049006709,245.442763185228
+"59303","over 50",1,"Educational Instruction and Library","Management",2971,4149,230.960169726297,240.57420892523
+"59303","over 50",2,"Management","Computer and Mathematical",2845,2349,238.710284654851,220.174249175511
+"59303","over 50",3,"Office and Administrative Support","Business Operations",2615,1560,254.550093301888,154.595278065017
+"59303","over 50",4,"Healthcare Practioners and Technical","Sales and Related",1408,1380,129.015309169106,169.660396085828
+"59303","over 50",5,"Sales and Related","Architecture and Engineering",1245,1071,204.242747729265,139.665135234245
+"59304","16 to 29",1,"Sales and Related","Sales and Related",1210,960,229.229361121127,207.941578333916
+"59304","16 to 29",2,"Food Preparation and Serving Related","Transportation and Material Moving",1081,721,216.236560276009,143.902050020144
+"59304","16 to 29",3,"Office and Administrative Support","Food Preparation and Serving Related",1016,635,215.015697101398,135.4154717896
+"59304","16 to 29",4,"Educational Instruction and Library","Computer and Mathematical",536,622,117.370141006987,146.346848274912
+"59304","16 to 29",5,"Healthcare Practioners and Technical","Office and Administrative Support",525,484,148.913397651118,103.85229896348
+"59304","30 to 49",1,"Management","Computer and Mathematical",1640,2219,223.499440715184,256.281485870517
+"59304","30 to 49",2,"Educational Instruction and Library","Management",1539,2053,175.626307824312,237.069082758592
+"59304","30 to 49",3,"Healthcare Practioners and Technical","Sales and Related",1300,1221,193.742096612997,259.351595329583
+"59304","30 to 49",4,"Office and Administrative Support","Military",1230,1133,180.360472387938,243.846468090067
+"59304","30 to 49",5,"Business Operations","Protective Service",998,993,199.936489916173,183.610593376308
+"59304","over 50",1,"Office and Administrative Support","Management",1909,3624,257.030834726108,282.9998233215
+"59304","over 50",2,"Management","Computer and Mathematical",1553,1375,214.142592680672,151.767585471997
+"59304","over 50",3,"Educational Instruction and Library","Business Operations",1278,1038,164.466561951054,152.777125251132
+"59304","over 50",4,"Healthcare Practioners and Technical","Sales and Related",1064,972,137.393049314731,159.606704119846
+"59304","over 50",5,"Financial Operations","Transportation and Material Moving",900,733,248.983935224745,140.451771081749
+"59305","16 to 29",1,"Office and Administrative Support","Computer and Mathematical",965,1587,201.808448782503,307.683522470736
+"59305","16 to 29",2,"Sales and Related","Food Preparation and Serving Related",908,1209,178.301710591907,235.029253498368
+"59305","16 to 29",3,"Computer and Mathematical","Sales and Related",881,975,209.08024775191,205.776213396981
+"59305","16 to 29",4,"Educational Instruction and Library","Transportation and Material Moving",743,622,149.36950826725,141.576834263237
+"59305","16 to 29",5,"Food Preparation and Serving Related","Office and Administrative Support",697,621,166.986376689837,122.96910181017
+"59305","30 to 49",1,"Management","Computer and Mathematical",3378,3862,292.609381257676,351.803993723778
+"59305","30 to 49",2,"Business Operations","Management",1555,3528,233.562732472456,310.553216051613
+"59305","30 to 49",3,"Educational Instruction and Library","Business Operations",1535,1217,134.947952930009,173.854536897948
+"59305","30 to 49",4,"Computer and Mathematical","Financial Operations",1458,818,188.173722926449,125.117145108095
+"59305","30 to 49",5,"Healthcare Practioners and Technical","Legal",1349,818,178.720731869585,122.910129769682
+"59305","over 50",1,"Management","Management",1979,4174,174.630610146102,272.07002775021
+"59305","over 50",2,"Educational Instruction and Library","Computer and Mathematical",1958,1784,247.956246140322,246.377454325675
+"59305","over 50",3,"Office and Administrative Support","Legal",1340,1239,178.422392092473,190.401549363444
+"59305","over 50",4,"Business Operations","Business Operations",1012,1225,127.517645837743,149.636559703837
+"59305","over 50",5,"Sales and Related","Sales and Related",1002,959,142.900489852205,125.636380081567
+"59306","16 to 29",1,"Sales and Related","Food Preparation and Serving Related",991,915,204.201738484274,173.417127181833
+"59306","16 to 29",2,"Office and Administrative Support","Computer and Mathematical",943,744,173.652526615653,194.697714419045
+"59306","16 to 29",3,"Computer and Mathematical","Sales and Related",518,706,134.064350220333,154.12835560013
+"59306","16 to 29",4,"Educational Instruction and Library","Transportation and Material Moving",480,633,104.349413031411,153.717923483243
+"59306","16 to 29",5,"Personal Care and Service","Office and Administrative Support",455,597,101.2390734845,120.753053791612
+"59306","30 to 49",1,"Management","Computer and Mathematical",1956,2640,210.099024271889,278.842876903822
+"59306","30 to 49",2,"Office and Administrative Support","Management",1521,2081,194.205175008289,253.54358599657
+"59306","30 to 49",3,"Educational Instruction and Library","Construction and Extraction",1437,1024,206.044412688139,200.447624081704
+"59306","30 to 49",4,"Business Operations","Office and Administrative Support",1102,831,148.175402817067,139.281908372911
+"59306","30 to 49",5,"Computer and Mathematical","Military",1081,810,160.86112022487,147.873256540863
+"59306","over 50",1,"Office and Administrative Support","Management",1870,2729,257.926830709796,268.447294640866
+"59306","over 50",2,"Management","Computer and Mathematical",1502,1838,198.933405942793,287.87054382135
+"59306","over 50",3,"Educational Instruction and Library","Transportation and Material Moving",1280,1285,153.54331636382,189.409081091694
+"59306","over 50",4,"Healthcare Practioners and Technical","Sales and Related",868,1052,158.87054478411,190.152175901303
+"59306","over 50",5,"Financial Operations","Business Operations",835,927,219.122226166129,144.363430272351
+"59307","16 to 29",1,"Office and Administrative Support","Computer and Mathematical",1684,2429,283.207167988383,361.361660943714
+"59307","16 to 29",2,"Sales and Related","Sales and Related",1572,1780,221.38902411818,248.995682693496
+"59307","16 to 29",3,"Food Preparation and Serving Related","Food Preparation and Serving Related",1133,1412,228.139540632482,193.483332615499
+"59307","16 to 29",4,"Computer and Mathematical","Office and Administrative Support",1051,985,136.617897802594,154.835073546015
+"59307","16 to 29",5,"Educational Instruction and Library","Transportation and Material Moving",1026,939,171.322794747226,263.553410146786
+"59307","30 to 49",1,"Management","Computer and Mathematical",3948,6632,266.72176514113,431.004002301603
+"59307","30 to 49",2,"Computer and Mathematical","Management",2729,4354,300.958053555641,321.160707434767
+"59307","30 to 49",3,"Office and Administrative Support","Business Operations",2268,1548,252.322511877161,189.562654549888
+"59307","30 to 49",4,"Educational Instruction and Library","Office and Administrative Support",2248,1333,234.388459613523,219.382314692867
+"59307","30 to 49",5,"Business Operations","Sales and Related",1520,1206,204.566981695483,144.016318519812
+"59307","over 50",1,"Management","Management",3100,4804,251.892139615352,310.558529105224
+"59307","over 50",2,"Office and Administrative Support","Computer and Mathematical",2938,3550,248.280889316919,260.593936997774
+"59307","over 50",3,"Educational Instruction and Library","Business Operations",2665,1635,309.844073688686,281.353247715394
+"59307","over 50",4,"Computer and Mathematical","Sales and Related",1526,1407,203.197440928768,138.60284989855
+"59307","over 50",5,"Business Operations","Transportation and Material Moving",1499,1318,266.684176508469,199.085157658727
+"59308","16 to 29",1,"Computer and Mathematical","Computer and Mathematical",869,1452,162.490307403242,172.915586342007
+"59308","16 to 29",2,"Office and Administrative Support","Sales and Related",725,757,145.506872689918,125.418698765375
+"59308","16 to 29",3,"Food Preparation and Serving Related","Management",689,686,150.188881079792,120.766924279788
+"59308","16 to 29",4,"Educational Instruction and Library","Food Preparation and Serving Related",659,530,165.48292963324,120.014374139101
+"59308","16 to 29",5,"Sales and Related","Office and Administrative Support",619,522,120.807698430191,135.850653292504
+"59308","30 to 49",1,"Management","Management",2933,3419,241.090232070899,298.684616276098
+"59308","30 to 49",2,"Educational Instruction and Library","Computer and Mathematical",1474,2821,202.924246949447,226.080516630691
+"59308","30 to 49",3,"Business Operations","Business Operations",1361,1084,165.988252596381,209.822782366453
+"59308","30 to 49",4,"Healthcare Practioners and Technical","Legal",1300,1038,180.22374982227,123.916504146946
+"59308","30 to 49",5,"Computer and Mathematical","Sales and Related",1288,730,171.424910675199,134.486988218192
+"59308","over 50",1,"Management","Management",2565,4438,236.777004795652,312.488239778716
+"59308","over 50",2,"Office and Administrative Support","Business Operations",1714,1581,192.722987731096,227.696179151078
+"59308","over 50",3,"Educational Instruction and Library","Computer and Mathematical",1449,1533,197.835032287004,172.861216008681
+"59308","over 50",4,"Business Operations","Sales and Related",1190,1422,174.163572540299,222.308119509837
+"59308","over 50",5,"Sales and Related","Legal",830,1357,124.630854927662,170.822276064921
+"59309","16 to 29",1,"Sales and Related","Sales and Related",1602,1496,311.854212734092,245.337216907668
+"59309","16 to 29",2,"Office and Administrative Support","Computer and Mathematical",1460,1349,274.738512043725,227.161506422193
+"59309","16 to 29",3,"Educational Instruction and Library","Food Preparation and Serving Related",870,1059,141.573479154819,203.353264050519
+"59309","16 to 29",4,"Food Preparation and Serving Related","Transportation and Material Moving",849,782,145.934403072065,155.0640190373
+"59309","16 to 29",5,"Healthcare Practioners and Technical","Office and Administrative Support",741,677,178.27128203948,148.45420169197
+"59309","30 to 49",1,"Office and Administrative Support","Computer and Mathematical",1774,3490,227.288803067815,325.68282116194
+"59309","30 to 49",2,"Management","Management",1697,3101,221.653445721017,377.281393657307
+"59309","30 to 49",3,"Business Operations","Business Operations",1603,1544,223.399306176183,289.270461679031
+"59309","30 to 49",4,"Educational Instruction and Library","Sales and Related",1389,1159,190.626073767468,179.81712932866
+"59309","30 to 49",5,"Healthcare Practioners and Technical","Construction and Extraction",1266,1061,179.98166573293,238.796566139465
+"59309","over 50",1,"Office and Administrative Support","Management",1953,2786,216.072094449977,202.810625954362
+"59309","over 50",2,"Management","Computer and Mathematical",1797,1881,218.949651746697,272.158226037722
+"59309","over 50",3,"Educational Instruction and Library","Transportation and Material Moving",1288,1038,145.528175966031,176.740487721405
+"59309","over 50",4,"Sales and Related","Sales and Related",1187,1022,211.634827001607,151.233098229191
+"59309","over 50",5,"Healthcare Practioners and Technical","Office and Administrative Support",821,802,147.875116229878,154.836688158847

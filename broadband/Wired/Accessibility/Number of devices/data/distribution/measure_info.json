@@ -1,0 +1,29 @@
+{
+    "devices": {
+        "aggregation_method": "arithmetic mean",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Accessibility",
+        "layer": "",
+        "long_description": "Average download speed weighted by the number of devices. Geographies: Block group (12), Census tract (11), County (5), Health Districts (51_hd)",
+        "long_name": "Number of devices",
+        "measure_type": "count",
+        "short_description": "Average download speed weighted by the number of devices. Geographies: Block group (12), Census tract (11), County (5), Health Districts (51_hd)",
+        "short_name": "Number of devices",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Ookla",
+                "url": "https://www.ookla.com/ookla-for-good/open-data"
+            }
+        ],
+        "statement": "There are {value} unique devices in {features.name} accessing Ookla Internet speed tests.",
+        "type": "count",
+        "unit": "devices",
+        "variants": ""
+    }
+}

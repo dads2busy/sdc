@@ -1,0 +1,343 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+### GET CAFB tract estimates for entire NCR (originally missing 3 counties and a few random tracts)
+
+# imports
+
+```{r}
+library(sf)
+library(tidyverse)
+library(tmap)
+library(tmaptools)
+library(tigris)
+library(tidycensus)
+library(rmapshaper)
+library(matrixStats)
+library(SpatialAcc)
+library(reticulate)
+library(dplyr)
+
+library(tidygeocoder)
+library(readxl)
+library(data.table)
+```
+
+
+
+```{r}
+dmv.tr <- get_acs(geography = "tract",
+              year = 2019,
+              variables = c(tpop = "B01003_001"),
+              state = c("VA", "MD", "DC"),
+              survey = "acs5",
+              output = "wide",
+              geometry = TRUE)
+
+# Reproject
+dmv.tr.utm <- st_transform(dmv.tr, crs = "+proj=longlat +datum=WGS84")
+
+cafb <- read.csv("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_health_behavior_diet/FarmersMarkets_FoodPantries/Capital_Area_Food_Bank_Hunger_Estimates.csv")
+cafb2 <- cafb %>% mutate(GEOID10 = as.character(GEOID10)) %>% merge(dmv.tr.utm, by.x = "GEOID10", by.y = "GEOID")
+cafb3 <- st_as_sf(cafb2) %>%
+  select(GEOID10, F15_FI_RATE, F15_FI_POP, F15_LB_NEED, F15_LB_UNME, F15_DISTRIB,
+         F15_PPIN, F14_FI_RATE, F14_LB_UNME, F14_DISTRIB, F14_PPIN, NAME) %>% # THEY ALSO HAVE FISCAL YEAR CALCULATIONS?
+  rename(GEOID = GEOID10)
+
+cafb_tr_data <- st_drop_geometry(cafb3) %>% mutate(F15_FI_RATE = F15_FI_RATE * 100) %>%
+  gather(measure, value, c(F15_FI_RATE, F15_FI_POP, F15_LB_NEED, F15_LB_UNME,
+                           F15_DISTRIB, F14_FI_RATE, F14_LB_UNME, F14_DISTRIB)) %>% # what is PPIN???
+  rename(geoid = GEOID, region_name = NAME) %>%
+  select(-c(F15_PPIN, F14_PPIN)) %>%
+  mutate(measure_type = case_when(measure %in% c("F15_FI_RATE", "F14_FI_RATE") ~ "percent",
+                                  measure %in% c("F15_FI_POP") ~ "population",
+                                  TRUE ~ "weight"),
+         measure_units = ifelse(measure %in% c("F15_FI_RATE", "F14_FI_RATE", "F15_FI_POP"), as.character(NA), "lbs"),
+         year = ifelse(measure %in% c("F14_FI_RATE", "F14_LB_UNME", "F14_DISTRIB"), "2014", "2015"),
+         region_type = "tract") %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+# con <- get_db_conn(db_pass = "")
+# dc_dbWriteTable(con, "dc_health_behavior_diet", "reg_tr_cafb_2014_2015_capital_area_food_bank_hunger_estimates", cafb_tr_data)
+# dbDisconnect(con)
+
+cafb4 <- cafb3[!st_is_empty(cafb3), drop = FALSE]
+cafb4$county <- substr(cafb4$GEOID, 1, 5)
+```
+
+# read in 2019 to 2021 data
+
+```{r}
+X <- read.csv("/project/biocomplexity/sdad/projects_data/mc/data_commons/Feeding_America/CAFB_Data/cafb_19_21_estimates.csv")
+X2 <- X %>%
+  rename(geoid = GEOID10) %>%
+  mutate(geoid = as.character(geoid)) %>%
+  select(geoid, FIPOP_2019, FIPOP_Per_2019, FIPOP_2020, FIPOP_Per_2020, FIPOP_2021, FIPOP_Per_2021, F2021_FI_Pop_Percentile) %>%
+  merge(dmv.tr.utm[, c("NAME", "GEOID")], by.x = "geoid", by.y = "GEOID")
+cafb.19.21 <- X2
+
+cafb.19.21 <- merge(cafb4[, c("GEOID", "NAME")], X2, by.x = "GEOID", by.y = "geoid")
+
+cafb.19.21.2 <- left_join(dmv.tr[substr(dmv.tr$GEOID, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),], st_drop_geometry(cafb.19.21), by = "GEOID")
+```
+
+# get acs information at tract level
+
+```{r}
+disabled_variables <- c(m_under_5 = "B18101_004", m_5_17 = "B18101_007", m_18_34 = "B18101_010", m_35_64 = "B18101_013", m_65_74 = "B18101_016", m_above_75 = "B18101_019", f_under_5 = "B18101_023", f_5_17 = "B18101_026", f_18_34 =  "B18101_029", f_35_64 = "B18101_032", f_65_74 = "B18101_035", f_above_75 = "B18101_038", total_ability = "B18101_001")
+
+all_va_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:2)
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  va_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 51,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  va_tract_acs_variables_update2 <- va_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  va_tract_acs_variables_update2 <- st_drop_geometry(va_tract_acs_variables_update2)
+  year <- year - 1
+  all_va_tract_acs_variables <- rbind(all_va_tract_acs_variables, va_tract_acs_variables_update2)
+}
+
+all_md_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:2)
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  md_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 24,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  md_tract_acs_variables_update2 <- md_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  md_tract_acs_variables_update2 <- st_drop_geometry(md_tract_acs_variables_update2)
+  year <- year - 1
+  all_md_tract_acs_variables <- rbind(all_md_tract_acs_variables, md_tract_acs_variables_update2)
+}
+
+all_dc_tract_acs_variables<- matrix(, nrow = 0, ncol = 12)
+year <- 2019
+for (i in 1:2)
+{
+  # unemployed, non-undergraduate poverty rate, median income, hispanic, black,  HOME OWNERSHIP, disabled
+  dc_tract_acs_variables <- get_acs(geography = "tract",
+                                 state = 11,
+                                 year = year,
+                                 variables = c(in_labor_force = "B23025_002",
+                                               civilian_unemployed = "B23025_005",
+                                               total_income_pop = "B17001_001",
+                                               below_poverty_rate = "B17001_002",
+                                               undergrads_below_poverty_rate = "B14006_009",
+                                               undergrads = "B14001_009",
+                                               median_income = "B06011_001",
+                                               total_pop = "B01001_001",
+                                               hispanic_pop = "B01001I_001",
+                                               black_pop = "B01001B_001",
+                                               total_home_own = "B07013_001",
+                                               home_own = "B07013_002",
+                                               disabled_variables),
+                                 survey = "acs5",
+                                 output = "wide",
+                                 geometry = TRUE)
+  
+  # update acs variables above so that they are in correct format
+  dc_tract_acs_variables_update2 <- dc_tract_acs_variables %>%
+    mutate(unemp_rate = civilian_unemployedE / in_labor_forceE,
+           poverty_rate = (below_poverty_rateE - undergrads_below_poverty_rateE) / (total_income_popE - undergradsE),
+           hisp_perc = hispanic_popE / total_popE,
+           black_perc = black_popE / total_popE,
+           own_perc = home_ownE / total_home_ownE,
+           perc_disability = (m_under_5E + m_5_17E + m_18_34E + m_35_64E + m_65_74E + m_above_75E + f_under_5E + f_5_17E + f_18_34E + f_35_64E + f_65_74E + f_above_75E) / total_abilityE,
+           county = substr(GEOID, 1, 5),
+           yr = year) %>%
+    rename(median_income = median_incomeE,
+           tract = GEOID,
+           GEOID = county) %>%
+    select(tract, GEOID, NAME, unemp_rate, poverty_rate, median_income,
+           hisp_perc, black_perc, own_perc, perc_disability, yr)
+  
+  dc_tract_acs_variables_update2 <- st_drop_geometry(dc_tract_acs_variables_update2)
+  year <- year - 1
+  all_dc_tract_acs_variables <- rbind(all_dc_tract_acs_variables, dc_tract_acs_variables_update2)
+}
+```
+
+# get tracts in DMV wiht missing
+
+```{r}
+dmv.tr <- get_acs(geography = "tract",
+              year = 2019,
+              variables = c(tpop = "B01003_001"),
+              state = c("VA", "MD", "DC"),
+              survey = "acs5",
+              output = "wide",
+              geometry = TRUE)
+
+#
+ncr_tract_variables <- rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>% filter(GEOID %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"))
+cafb.19.21_dropnas <- X2 %>% drop_na(FIPOP_Per_2021)
+missing_tracts <- setdiff(ncr_tract_variables$tract, cafb.19.21_dropnas$geoid)
+present_tracts <- cafb.19.21_dropnas$geoid
+```
+
+
+```{r}
+cap_tract_data <- left_join(X2, rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>% filter(yr == 2019), by = c("geoid" = "tract")) %>%
+  rename(county = GEOID) %>%
+  drop_na(FIPOP_2019) %>%
+  merge(dmv.tr[, c("GEOID", "tpopE")], by.x = "geoid", by.y = "GEOID")
+
+cap_glm3_2019 <- glm(`FIPOP_Per_2019`/100 ~ unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = cap_tract_data, weights = tpopE, family = "binomial")
+
+all_tract_acs_variables <- rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>%
+  rename(county = GEOID)
+missing_cap_predictions <- predict(cap_glm3_2019, all_tract_acs_variables[all_tract_acs_variables$tract %in% missing_tracts,] %>% filter(yr == "2019"), type = "response")
+
+subset1 <- all_tract_acs_variables[all_tract_acs_variables$tract %in% missing_tracts,] %>%
+  filter(yr == "2019") %>%
+  mutate(perc_food_insecure = missing_cap_predictions, perc_food_insecure = perc_food_insecure*100, measure = "perc_food_insecure") %>%
+  select(geoid = tract, region_name = NAME, value = perc_food_insecure, measure, year = yr) %>%
+  mutate(measure_type = "percent", measure_units = as.character(NA), , region_type = "tract") %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+subset2 <- cap_tract_data %>%
+  select(geoid, region_name = NAME, value = FIPOP_Per_2019) %>%
+  mutate(year = 2019, measure = "perc_food_insecure", region_type = "tract", measure_type = "percent", measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+dat.2019 <- rbind(subset1, subset2)
+```
+
+
+
+```{r}
+cap_tract_data <- left_join(X2, rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>% filter(yr == 2019), by = c("geoid" = "tract")) %>%
+  rename(county = GEOID) %>%
+  drop_na(FIPOP_2020) %>%
+  merge(dmv.tr[, c("GEOID", "tpopE")], by.x = "geoid", by.y = "GEOID")
+
+cap_glm3_2020 <- glm(`FIPOP_Per_2020`/100 ~ unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = cap_tract_data, weights = tpopE, family = "binomial")
+
+all_tract_acs_variables <- rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>%
+  rename(county = GEOID)
+missing_cap_predictions <- predict(cap_glm3_2020, all_tract_acs_variables[all_tract_acs_variables$tract %in% missing_tracts,] %>% filter(yr == "2019"), type = "response")
+
+subset1 <- all_tract_acs_variables[all_tract_acs_variables$tract %in% missing_tracts,] %>%
+  filter(yr == "2019") %>%
+  mutate(perc_food_insecure = missing_cap_predictions, perc_food_insecure = perc_food_insecure*100, measure = "perc_food_insecure") %>%
+  select(geoid = tract, region_name = NAME, value = perc_food_insecure, measure) %>%
+  mutate(measure_type = "percent", measure_units = as.character(NA), , region_type = "tract", year = 2020) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+subset2 <- cap_tract_data %>%
+  select(geoid, region_name = NAME, value = FIPOP_Per_2020) %>%
+  mutate(year = 2020, measure = "perc_food_insecure", region_type = "tract", measure_type = "percent", measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+dat.2020 <- rbind(subset1, subset2)
+```
+
+
+
+```{r}
+cap_tract_data <- left_join(X2, rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>% filter(yr == 2019), by = c("geoid" = "tract")) %>%
+  rename(county = GEOID) %>%
+  drop_na(FIPOP_2020) %>%
+  merge(dmv.tr[, c("GEOID", "tpopE")], by.x = "geoid", by.y = "GEOID")
+
+cap_glm3_2021 <- glm(`FIPOP_Per_2021`/100 ~ unemp_rate + median_income + hisp_perc + black_perc + own_perc + perc_disability, data = cap_tract_data, weights = tpopE, family = "binomial")
+
+all_tract_acs_variables <- rbind(all_va_tract_acs_variables, all_dc_tract_acs_variables, all_md_tract_acs_variables) %>%
+  rename(county = GEOID)
+missing_cap_predictions <- predict(cap_glm3_2021, all_tract_acs_variables[all_tract_acs_variables$tract %in% missing_tracts,] %>% filter(yr == "2019"), type = "response")
+
+subset1 <- all_tract_acs_variables[all_tract_acs_variables$tract %in% missing_tracts,] %>%
+  filter(yr == "2019") %>%
+  mutate(perc_food_insecure = missing_cap_predictions, perc_food_insecure = perc_food_insecure*100, measure = "perc_food_insecure") %>%
+  select(geoid = tract, region_name = NAME, value = perc_food_insecure, measure) %>%
+  mutate(measure_type = "percent", measure_units = as.character(NA), , region_type = "tract", year = 2021) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+subset2 <- cap_tract_data %>%
+  select(geoid, region_name = NAME, value = FIPOP_Per_2020) %>%
+  mutate(year = 2021, measure = "perc_food_insecure", region_type = "tract", measure_type = "percent", measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+dat.2021 <- rbind(subset1, subset2)
+all.dat <- rbind(dat.2019, dat.2021, dat.2021)
+```
+
+# send to db
+
+```{r}
+con <- get_db_conn(db_pass = "")
+dc_dbWriteTable(con, "dc_health_behavior_diet", "ncr_tr_cafb_2019_2021_food_insecurity_estimates", all.dat)
+dbDisconnect(con)
+```
+
+

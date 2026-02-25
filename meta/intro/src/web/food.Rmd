@@ -1,0 +1,20 @@
+---
+title: "Measuring Food Security and Stability of Access to Staple Foods"
+---
+
+## Measuring food security
+
+### Updated approach
+
+## Measuring access to staple foods
+
+### Building a database of food availability
+
+* Relative access to individual food items using a gravity index
+* Items can be combined to create culture-specific food baskets
+* Relative access using travel times and a gravity index
+* Two measures of Food Insecurity: Feeding America and Capital Area Food Bank
+* New approach for measuring
+
+`r htmltools::includeHTML("./footer.html")`
+

@@ -1,0 +1,105 @@
+{
+  "{category.name}_{variant.name}": {
+    "category": "Business climate",
+    "data_type": "{variant}",
+    "unit": "business",
+    "equity_category": "Status",
+    "aggregation_method": "{variant}",
+    "short_name": "{category.default}-owned {variant}",
+    "long_name": "{category}-owned {variant}",
+    "short_description": "{variant} as {category}-owned",
+    "long_description": "{variant} owned by {category.default} {category}",
+    "statement": "{variant}",
+    "sources": [
+      {
+        "name": "Mergent Intellect",
+        "date_accessed": 2023,
+        "url": "https://www.ftserussell.com/mergent-intellect"
+      }
+    ],
+    "categories": {
+      "minority_owned": {
+        "default": "minority",
+        "long_description": "A minority-owned business is a U.S. business that is at least 51% owned by, and whose management and daily business operations are controlled by, one or more members of a socially and economically disadvantaged minority group, namely U.S. citizens who are African Americans (Black), Hispanic Americans, Native Americans, Asian-Pacific Americans and Sub-Continent Asian Americans."
+      },
+      "non_minority_owned": {
+        "default": "non-minority",
+        "long_description": "A non-minority-owned business is a U.S. business that is at least 51% owned by, and whose management and daily business operations are controlled by, one or more members not of a socially and economically disadvantaged minority group, namely U.S. citizens who are African Americans (Black), Hispanic Americans, Native Americans, Asian-Pacific Americans and Sub-Continent Asian Americans."
+      }
+    },
+    "variants": {
+      "entry_rate": {
+        "default": "Entry Rate",
+        "data_type": "decimal",
+        "aggregation_method": "percent",
+        "short_description": "Entry rate",
+        "long_description": "Percent of new businesses (a new business is a company newly created or has moved to the region): \\[entry\\_rate=\\frac{new\\_businesses}{all\\_businesses}\\]",
+        "statement": "{value} percent of businesses are new in {region_name}."
+      },
+      "exit_rate": {
+        "default": "Exit Rate",
+        "data_type": "decimal",
+        "aggregation_method": "percent",
+        "short_description": "Exit rate",
+        "long_description": "Percent of closed businesses (a closed business is a company that stoped its activities or leaving the region): \\[exit\\_rate=\\frac{closed\\_businesses}{all\\_businesses}\\]",
+        "statement": "{value} percent of businesses closed in {region_name}."
+      },
+      "new_business": {
+        "default": "New Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "New businesses",
+        "long_description": "Count of all new businesses (a new business is a company newly created or has moved to the region)",
+        "statement": "{value} new businesses in {region_name}."
+      },
+      "exit_business": {
+        "default": "Closed Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "Closed businesses",
+        "long_description": "Count of all closed businesses (a closed business is a company that stoped its activities or leaving the region)",
+        "statement": "{value} closed businesses in {region_name}."
+      },
+      "number_business": {
+        "default": "Total Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "Total businesses",
+        "long_description": "Count of all businesses",
+        "statement": "{value} businesses in {region_name}."
+      },
+      "small_business": {
+        "default": "Small Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "Small businesses",
+        "long_description": "Count of small businesses.",
+        "statement": "{value} small businesses in {region_name}."
+      },
+      "soloproprio_business": {
+        "default": "Sole Proprietor Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "Sole proprietor businesses",
+        "long_description": "Count of sole proprietor businesses.",
+        "statement": "{value} sole proprietor businesses in {region_name}."
+      },
+      "perc_small": {
+        "default": "Percentage of Small Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "percent of small businesses",
+        "long_description": "percent of small businesses.",
+        "statement": "{value} percent of small businesses in {region_name}."
+      },
+      "perc_soloproprio": {
+        "default": "Percentage of Sole Proprietor Businesses",
+        "data_type": "integer",
+        "aggregation_method": "count",
+        "short_description": "percent of sole proprietor businesses",
+        "long_description": "percent of sole proprietor businesses.",
+        "statement": "{value} percent of sole proprietor businesses in {region_name}."
+      }
+    }
+  }
+}

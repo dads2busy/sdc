@@ -1,0 +1,553 @@
+```{r}
+options(scipen=999)
+library(tidycensus)
+library(tidyr)
+library(dplyr)
+library(tigris)
+library(khroma)
+library(tmap)
+library(srvyr)
+census_api_key(Sys.getenv('census_api_key'))
+
+View(pums_variables)
+```
+
+```{r}
+fx_pums <- c("59301", "59302", "59303", "59304", "59305", "59306", "59307", "59308", "59309")
+fx_vars <- c("HHL",
+             "NATIVITY", # nativity 
+             "HHLDRHISP", # detailed hispanic origin
+             "HICOV",    # health insurance coverage
+             "AGEP",     # householders age
+             "SEX",      # sex
+             "RAC1P",    # race
+             "HISP",    # hispanic origin
+             "HINS1",    # Insurance through a current or former employer or 
+                         # union
+             "HINS2",    # Insurance purchased directly from an insurance company
+             "HINS3",    # Medicare, for people 65 and older, or people with certain disabilities
+             "HINS4",    # Medicaid, Medical Assistance, or any kind of 
+                         # government-assistance plan for those with low incomes or a disability
+             "HINS5",    # TRICARE or other military health care
+             "HINS6",    # VA (including those who have ever used or enrolled for VA health care)
+             "HINS7",    # Indian Health Service
+             "HHT2"
+             )      # household type
+
+pums_orig <- 
+  get_pums(
+    variables = fx_vars,
+    state = "VA",
+    puma = fx_pums,
+    year = 2021,
+    survey = "acs5",
+    return_vacant = FALSE,
+    recode = FALSE,
+    #rep_weights = "person"
+  ) #%>% to_survey()
+```
+
+```{r}
+# recode race/ethnicity, age, sex variables
+fx_pums_df <- pums_orig %>% mutate(SEX=ifelse(SEX==1, 'Male', 'Female'), 
+                                    race_eth=case_when(
+                                      RAC1P=="1" ~ "White",
+                                      RAC1P=="2" ~ "Black",
+                                      RAC1P=="6" ~ "Asian",
+                                      RAC1P=="9" ~ "Two or More",
+                                      RAC1P=="8" ~ "Other",
+                                      TRUE ~ "Native"
+                                    ),
+                                    age_group=case_when(
+                                      AGEP<18 ~ "Children \n(under 18)",
+                                      AGEP<65 ~ "Adults (18-64)",
+                                      TRUE ~ "Adults (65+)"
+                                    ))
+fx_pums_df2 <- pums_orig %>% mutate(SEX=ifelse(SEX==1, 'Male', 'Female'), 
+                                    race_eth=case_when(
+                                      HISP !="01" ~ "Hispanic",
+                                      TRUE ~ "Not Hispanic"
+                                    ),
+                                    age_group=case_when(
+                                      AGEP<18 ~ "Children \n(under 18)",
+                                      AGEP<65 ~ "Adults (18-64)",
+                                      TRUE ~ "Adults (65+)"
+                                    ))
+fx_pums_df <- fx_pums_df %>% bind_rows(fx_pums_df2)                                     
+
+# recode coverage
+fx_pums_df <- fx_pums_df %>% 
+  mutate(HICOV=ifelse(HICOV==1, 1, 0)) %>%
+  mutate(NATIVITY=ifelse(NATIVITY==1, 1, 0)) 
+
+#readr::write_csv(fx_pums_df, xzfile("../data/ffx_pums_hicov_full_2021.csv.xz", compression=9))
+#fx_pums_df <- read_csv("../data/ffx_pums_hicov_full_2021.csv.xz")
+# tables -----------------------------------------------------------------------
+# household languages of other race women
+hhls <- fx_pums_df %>% filter(SEX=='Female', age_group=='Adults (18-64)', race_eth=="Other") %>%
+  group_by(HHL) %>%
+   summarise(pop=sum(PWGTP), num_cov=sum(HICOV*PWGTP), pct_cov=(num_cov/pop)*100, 
+            num_uncov=pop-num_cov, pct_uncov=100-pct_cov, 
+            pct_frg_born=100-(sum(NATIVITY*PWGTP)/pop*100))
+
+# household languages of uncovered women and girls
+hhls2 <- fx_pums_df %>% filter(SEX=='Female', HICOV==1) %>%
+  group_by(HHL) %>%
+   summarise(count=sum(PWGTP))
+```
+
+```{r}
+# filter by sex, age
+fx_girls <- fx_pums_df %>% filter(SEX=='Female', age_group=='Children \n(under 18)', race_eth != "Hispanic", race_eth != "Not Hispanic")
+
+total_pop <- sum(fx_girls$PWGTP)
+with_cov <- sum((fx_girls%>%filter(HICOV==1))$PWGTP)
+without_cov <- sum((fx_girls%>%filter(HICOV==0))$PWGTP)
+
+cat('\n\nEstimated Girls With Coverage:',
+    with_cov, '\nEstimated Number of Girls Without Coverage:',
+    without_cov, '\nEstimated Percent of Girls Without Coverage:',
+    without_cov/total_pop*100)
+
+# filter by sex, age
+fx_wm <- fx_pums_df%>% filter(SEX=='Female', age_group=='Adults (18-64)', race_eth != "Hispanic", race_eth != "Not Hispanic")
+
+total_pop <- sum(fx_wm$PWGTP)
+with_cov <- sum((fx_wm%>%filter(HICOV==1))$PWGTP)
+without_cov <- sum((fx_wm%>%filter(HICOV==0))$PWGTP)
+
+cat('\n\nEstimated Women (19-64) With Coverage:',
+    with_cov, '\nEstimated Number of Women 18-64 Without Coverage:',
+    without_cov, '\nEstimated Percent of Women 18-64 Without Coverage:',
+    without_cov/total_pop*100)
+
+# filter by sex, age
+fx_wm_65_plus <- fx_pums_df %>% filter(SEX=='Female', age_group=='Adults (65+)', race_eth != "Hispanic", race_eth != "Not Hispanic")
+
+total_pop <- sum(fx_wm_65_plus$PWGTP)
+with_cov <- sum((fx_wm_65_plus%>%filter(HICOV==1))$PWGTP)
+without_cov <- sum((fx_wm_65_plus%>%filter(HICOV==0))$PWGTP)
+
+cat('\n\nEstimated Women (65+) With Coverage:',
+    with_cov, '\nEstimated Number of Women 65+ Without Coverage:',
+    without_cov, '\nEstimated Percent of Women 65+ Without Coverage:',
+    without_cov/total_pop*100)
+
+#fx_pums_df %>% group_by(SEX, age_group, HICOV) %>% summarise(prop = survey_prop())
+```
+
+
+```{r}
+# calculate insured/uninsured rates
+fx_by_race_sex <- fx_pums_df %>% mutate(HICOV=as.numeric(HICOV)) %>%
+  group_by(PUMA, race_eth, SEX) %>% 
+  summarise(total_pop=sum(PWGTP),
+            num_cov=sum(HICOV*PWGTP),
+            pct_cov=(sum(HICOV*PWGTP)/total_pop*100)) %>%
+  mutate(geoid=paste0('51', PUMA), num_not_cov=total_pop-num_cov, pct_not_cov=(num_not_cov/total_pop)*100,
+         pct_not_cov_rd = paste0(round(pct_not_cov, 0), '%'))
+
+readr::write_csv(fx_by_race_sex, xzfile("../data/ffx_pums_hicov_grouped.csv.xz", compression=9))
+
+# boxplot
+ggplot((fx_by_race_sex%>%filter(age_group=="Adults (19-64)")), aes(x=race_eth, y=pct_cov, fill=SEX)) +
+  geom_boxplot() +
+  labs(title="Percent of Health Insurance Covered Adults (19-64) \nby Race/Ethnicity by Sex", 
+       subtitle = "Each data point represents a PUMA", x="Race/Ethnicity", y="Percent", fill="Sex") +
+  scale_x_discrete(labels=c("White (Non-Hispanic)"="White \n(Non-Hispanic)", 
+                            "Hispanic (All Races)"="Hispanic \n(All Races)",
+                            "Native and Other"="Native and \nOther",
+                            "Two or More"="Two or \nMore")) +  
+  theme(text = element_text(size = 14)) 
+
+puma_map <- sf::read_sf("~/git/sdc.health_dev/Health care cost/data/Original/dc_md_va_geo_2020_pumas.geojson")
+ffx_map <- st_as_sf(merge(fx_by_race_sex, puma_map, by.x='PUMA', by.y='PUMACE10'))
+
+# maps of uninsured women
+
+tmap_mode("plot")  # static view - not interactive
+
+tm_shape((ffx_map%>%filter(SEX=='Female', age_group=='Adults (19-64)'))) +
+    tm_polygons(col = "num_not_cov", 
+                palette = "YlOrBr",
+                title = 'Count',
+                style = 'cont') +
+    tm_facets(by = c('race_eth')) +
+    tm_layout(main.title = "Women (19-64) in Fairfax County without \nHealth Insurance Coverage by Race: \n2021 PUMAs",
+              # title="*Labels represent approximate \npercent of population not covered \n(rounded to the nearest whole number)",
+              title.position=c("left", "BOTTOM"))+
+    tm_text("pct_not_cov_rd") 
+
+tm_shape((ffx_map%>%filter(SEX=='Female', age_group=='Children \n(under 19)'))) +
+    tm_polygons(col = "num_not_cov", 
+                palette = "YlOrBr",
+                title = 'Count',
+                style = 'cont') +
+    tm_facets(by = c('race_eth')) +
+    tm_layout(main.title = "Number of Girls (under 19) without \nHealth Insurance Coverage by Race: \n2021 PUMAs",
+              # title="*Labels represent approximate \npercent of population not covered \n(rounded to the nearest whole number)",
+              title.position=c('left', 'BOTTOM')) +
+    tm_text("pct_not_cov_rd") 
+
+tm_shape((ffx_map%>%filter(SEX=='Female', age_group=='Adults (65+)'))) +
+    tm_polygons(col = "num_not_cov", 
+                palette = "YlOrBr",
+                title = 'Count',
+                style = 'cont') +
+    tm_facets(by = c('race_eth')) +
+    tm_layout(main.title = "Number of Women (65+) without \nHealth Insurance Coverage by Race: \n2021 PUMAs",
+              # title="*Labels represent approximate \npercent of population not covered \n(rounded to the nearest whole number)",
+              title.position=c('left', 'BOTTOM'))+
+    tm_text("pct_not_cov_rd") 
+
+# percent plots ----------------------------------------------------------------
+# tm_shape((ffx_map%>%filter(SEX=='Female', age_group=='Adults (18-65)'))) +
+#     tm_polygons(col = "pct_not_cov", 
+#                 palette = "YlOrBr",
+#                 title = 'Percent',
+#                 style = 'cont') +
+#     tm_facets(by = c('race_eth')) +
+#     tm_layout(main.title = "Percent of Women (18-65) without \nHealth Insurance Coverage by Race: \n2021 PUMAs")
+
+# tm_shape((ffx_map%>%filter(SEX=='Female', age_group=='Children (under 18)'))) +
+#     tm_polygons(col = "pct_not_cov", 
+#                 palette = "YlOrBr",
+#                 title = 'Percent',
+#                 style = 'cont') +
+#     tm_facets(by = c('race_eth')) +
+#     tm_layout(main.title = "Percent of Girls (under 18) without \nHealth Insurance Coverage by Race: \n2021 PUMAs")
+
+# tm_shape((ffx_map%>%filter(SEX=='Female', age_group=='Adults (65+)'))) +
+#     tm_polygons(col = "pct_not_cov", 
+#                 palette = "YlOrBr",
+#                 title = 'Percent',
+#                 style = 'cont') +
+#     tm_facets(by = c('race_eth')) +
+#     tm_layout(main.title = "Percent of Women (65+) without \nHealth Insurance Coverage by Race: \n2021 PUMAs")
+# ------------------------------------------------------------------------------
+
+# comparative maps
+fx_by_sex <- fx_pums_df %>% mutate(HICOV=as.numeric(HICOV)) %>%
+  group_by(PUMA, SEX, age_group) %>% 
+  summarise(total_pop=sum(PWGTP),
+            num_cov=sum(HICOV*PWGTP),
+            pct_cov=(sum(HICOV*PWGTP)/total_pop*100)) %>%
+  mutate(geoid=paste0('51', PUMA), num_not_cov=total_pop-num_cov, pct_not_cov=(num_not_cov/total_pop)*100) 
+
+ffx_map <- st_as_sf(merge(fx_by_sex, puma_map, by.x='PUMA', by.y='PUMACE10'))
+
+tm_shape(ffx_map) +
+    tm_polygons(col = "pct_not_cov", 
+                palette = "YlOrBr",
+                title = 'Percent',
+                style = 'cont') +
+    tm_facets(by = c("SEX", "age_group")) +
+    tm_layout(main.title = "Percent of People without Health \nInsurance Coverage by Sex and Age:\n2021 PUMAs")
+
+tm_shape(ffx_map) +
+    tm_polygons(col = "num_not_cov", 
+                palette = "YlOrBr",
+                title = 'Count',
+                style = 'cont') +
+    tm_facets(by = c("SEX", "age_group")) +
+    tm_layout(main.title = "Number of People without Health \nInsurance Coverage by Sex and Age:\n2021 PUMAs") 
+
+```
+```{r}
+# Plots on nativity status by PUMA ---------------------------------------------
+
+# distance of point from origin
+euclid_dist_origin <- function(x, y) {
+  return ((x**2 + y**2)**0.5)
+}
+
+# map by native vs foreign born
+by_nativity <- fx_pums_df %>% filter(SEX=='Female') %>% 
+  group_by(PUMA, NATIVITY, age_group) %>% 
+  summarise(total_pop=sum(PWGTP),
+            num_cov=sum(HICOV*PWGTP),
+            pct_cov=(sum(HICOV*PWGTP)/total_pop*100)) %>%
+  mutate(num_not_cov=total_pop-num_cov, pct_not_cov=(num_not_cov/total_pop)*100,
+         pct_not_cov_rd = paste0(round(pct_not_cov, 0), '%'),
+         NATIVITY=ifelse(NATIVITY==1, 'Native', 'Foreign born'))
+
+# graph by age
+for (age in unique(by_nativity$age_group)) {
+  plot <- by_nativity %>% filter(age_group==age)
+  max_num <- max(plot$num_not_cov)
+  max_pct <- max(plot$pct_not_cov)
+  
+  # label points that stand out
+  plot <- plot %>% mutate(to_label=ifelse(num_not_cov >(max_num*0.5) & 
+                                         pct_not_cov > (max_pct*0.5), PUMA, as.character(NA)))
+  
+  ax = ggplot(plot, aes(x=pct_not_cov, y=num_not_cov, color=NATIVITY)) +
+    geom_point() +
+    scale_color_manual(values=c("#882255", "#999933")) +
+    geom_text(label=plot$to_label, nudge_x = 1.5,
+    nudge_y = 3, size=2.5) +
+    ggtitle(paste("Women", regmatches(age, gregexpr("(?=\\().*?(?<=\\))", age, perl=T))[[1]], #get current age group
+                   "in Fairfax County \nwithout Health Insurance Coverage: \n2021 PUMAs")) +
+    xlab("Percent") + ylab("Count")
+  
+  print(ax)
+
+}
+
+# graph all ages
+by_nativity <- by_nativity %>% mutate(to_label=ifelse(num_not_cov >(max_num*0.5) & 
+                                         pct_not_cov > (max_pct*0.5), PUMA, as.character(NA)))
+ggplot(by_nativity, aes(x=pct_not_cov, y=num_not_cov, color=NATIVITY, shape=age_group)) +
+    geom_point() +
+    scale_color_manual(values=c("#882255", "#999933")) +
+    geom_text(label=by_nativity$to_label, nudge_x = 1.5,
+    nudge_y = 3, size=2.5) +
+    ggtitle("Women in Fairfax County \nwithout Health Insurance Coverage: \n2021 PUMAs") +
+    xlab("Percent") + ylab("Count")
+
+# plot geographies
+ffx_map <- st_as_sf(merge(by_nativity, puma_map, by.x='PUMA', by.y='PUMACE10'))
+
+tm_shape(ffx_map) +
+    tm_polygons(col = "num_not_cov", 
+                palette = "YlOrBr",
+                title = 'Count',
+                style = 'cont') +
+    tm_facets(by = c('age_group','NATIVITY')) +
+    tm_layout(main.title = "Number of Women (65+) without \nHealth Insurance Coverage by Race: \n2021 PUMAs",
+              # title="*Labels represent approximate \npercent of population not covered \n(rounded to the nearest whole number)",
+              title.position=c('left', 'BOTTOM'))+
+    tm_text("pct_not_cov_rd") 
+
+```
+```{r}
+# coverage versus nativity for all of ffx women and girls
+
+cov_nativ <- fx_pums_df %>% filter(SEX == "Female") %>% mutate(NATIVITY=ifelse(NATIVITY==1, 1, 0), HHL=ifelse(HHL==1, 1, 0)) %>%
+  group_by(HICOV, NATIVITY) %>% 
+  summarise(count=sum(PWGTP), pct_eng=sum(HHL*PWGTP)/count*100, pct_noneng=100-pct_eng) %>%
+  mutate(NATIVITY=ifelse(NATIVITY==1, 'Native', 'Foreign Born'),    # recode
+         HICOV=ifelse(HICOV==1, 'Covered', 'Not Covered')) %>%
+  rename(Nativity=NATIVITY)
+
+ggplot(cov_nativ, aes(x=HICOV, y=count, fill=Nativity)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_manual(values=c("#882255", "#CC6677")) +
+  geom_text(label=prettyNum(cov_nativ$count, big.mark=","), position = position_dodge(0.9), vjust=-0.3, size=3) +
+  xlab('Coverage') + ylab('Count') +
+  ggtitle("Health Insurance Coverage Status by Nativity \nFairfax County, VA - Women and Girls")
+
+# coverage by HHL
+
+cov_hhl <- fx_pums_df %>% mutate(HHL=ifelse(HHL==1, 1, 0)) %>%
+  group_by(HICOV, HHL) %>% 
+  summarise(count=sum(PWGTP)) %>%
+  mutate(HICOV=ifelse(HICOV==1, 'Covered', 'Not Covered'),
+         HHL=ifelse(HHL==1, "English Speaking", "Non-English Speaking"))
+
+ggplot(cov_hhl, aes(x=HICOV, y=count, fill=HHL)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_manual(values=c("#CC6677", "#882255")) +
+  geom_text(label=prettyNum(cov_hhl$count, big.mark=","), position = position_dodge(0.9), vjust=-0.3, size=3) +
+  xlab('Coverage') + ylab('Count') +
+  ggtitle("Health Insurance Coverage Status by Household Language \nFairfax County, VA - Women and Girls")
+
+    
+```
+
+```{r}
+# plots on distribution of different health insurance sources ------------------
+
+fx_cov_types <- fx_pums_df %>% filter(HICOV=='1') %>% 
+  mutate(type_cov=case_when(
+           as.numeric(HINS1)+as.numeric(HINS2)+as.numeric(HINS3)+
+             as.numeric(HINS4)+as.numeric(HINS5)+as.numeric(HINS6)+
+             as.numeric(HINS7)<=12 ~ "Two or More Providers",
+           HINS1=="1" ~ "Through Employer or Union",
+           HINS2=="1" ~ "Direct Purchase",
+           HINS3=="1" ~ "Medicare",
+           HINS4=="1" ~ "Government-assistance plan\nfor those with low-income \nor disability (such as Medicaid)",
+           HINS5=="1" ~ "TRICARE or military provider",
+           HINS6=="1" ~ "VA (including those who \nhave ever used or enrolled \nfor VA health care)",
+           HINS7=="1" ~ "Indian Health Service",
+         )) %>% arrange(type_cov)
+
+df <- fx_cov_types %>% mutate(HICOV=as.numeric(HICOV)) %>%
+  group_by(race_eth, SEX, age_group) %>% 
+  mutate(total_pop=sum(PWGTP)) %>%
+  ungroup() %>%
+  group_by(race_eth, SEX, age_group, type_cov) %>%
+  mutate(pct_type=(sum(PWGTP)/total_pop)*100)
+
+df <- df %>% group_by(race_eth, SEX, age_group, type_cov) %>%
+  summarise(pct_type=first(pct_type))
+
+wm <- (df%>%filter(SEX=="Female"))
+men <- (df %>% filter(SEX=="Male"))
+
+# women
+ggplot(wm, aes(x=race_eth, y=pct_type, fill=type_cov)) + 
+  geom_bar(stat="identity") + 
+  facet_grid('age_group') + 
+  coord_flip() +
+  ylab('Percent of Population') + xlab("Race/Ethnicity") +
+  scale_fill_manual(name = "Source",
+                      values=c("#CC6677", "#88CCEE", "#DDCC77", "#332288", "#999933", "#882255", "#117733")) +
+  theme(legend.key.size = unit(1, "cm")) +
+  ggtitle("Women with Healthcare Coverage: \nHealth Insurance Sources")
+
+# men
+ggplot(men, aes(x=race_eth, y=pct_type, fill=type_cov)) + 
+  geom_bar(stat="identity") + 
+  facet_grid('age_group') + 
+  coord_flip() +
+  ylab('Percent of Population') + xlab("Race/Ethnicity") +
+  scale_fill_manual(name = "Source",
+                      values=c("#CC6677", "#88CCEE", "#DDCC77", "#332288", "#999933", "#882255", "#117733")) +
+  theme(legend.key.size = unit(1, "cm")) +
+  ggtitle("Men with Healthcare Coverage: \nHealth Insurance Sources")
+
+# both women and men
+df %>% filter(!is.na(race_eth), race_eth != "Not Hispanic") %>%
+ggplot(aes(x= factor(race_eth, levels = c("Asian", "Black", "Native", "Other", "Two or More", "White", "Hispanic")), y=pct_type, fill=type_cov)) + 
+  geom_bar(stat="identity") + 
+  facet_grid(age_group~SEX) + 
+  coord_flip() +
+  xlab('Race and Ethnicity') + ylab("Percent of Population") +
+  scale_fill_manual(name = "Source",
+                      values=c("#CC6677", "#88CCEE", "#DDCC77", "#332288", "#999933","#882255", "#117733")) +
+  theme(legend.key.size = unit(1, "cm")) +
+  ggtitle("Population with Healthcare Coverage: \nHealth Insurance Sources")
+  
+```
+```{r}
+# combinations of insurance for seniors with two or more sources ---------------
+
+two_or_more <- fx_cov_types %>% filter(age_group=='Adults (65+)', type_cov=='Two or More Providers') %>%
+  pivot_longer(c("HINS1", "HINS2", "HINS3", "HINS4", "HINS5", "HINS6", "HINS7"), 
+               names_to="type_code", values_to="covered") %>% 
+  filter(covered==1) %>%
+  mutate(type_cov=case_when(
+           type_code=="HINS1" ~ "Through Employer or Union",
+           type_code=="HINS2" ~ "Direct Purchase",
+           type_code=="HINS3" ~ "Medicare",
+           type_code=="HINS4" ~ "Government-assistance plan\nfor those with low-income \nor disability (such as Medicaid)",
+           type_code=="HINS5" ~ "TRICARE or military provider",
+           type_code=="HINS6" ~ "VA (including those who \nhave ever used or enrolled \nfor VA health care)",
+           type_code=="HINS7" ~ "Indian Health Service",
+         )) 
+
+df <- two_or_more %>%
+  group_by(race_eth, SEX) %>%
+  mutate(total_pop=sum(PWGTP)) %>%
+  ungroup() %>%
+  group_by(race_eth, SEX, type_cov) %>%
+  mutate(pct_type=(sum(PWGTP)/total_pop)*100) %>%
+  group_by(race_eth, SEX, type_cov) %>%
+  summarise(pct_type=first(pct_type))
+
+wm <- (df%>%filter(SEX=="Female"))
+men <- (df %>% filter(SEX=="Male"))
+
+ggplot(wm, aes(x=race_eth, y=pct_type, fill=type_cov)) + 
+  geom_bar(position="dodge", stat="identity") + 
+  coord_flip() +
+  ylab('Percent of Population') + xlab("Race/Ethnicity") +
+  scale_fill_manual(name = "Source",
+                      values=c("#CC6677", "#88CCEE", "#AA4499", "#DDCC77", 
+                               "#332288", "#999933", "#117733")) +
+  theme(legend.key.size = unit(1, "cm")) +
+  ggtitle("Women 65+ with Two or More Providers: \nHealth Insurance Sources")
+
+ggplot(men, aes(x=race_eth, y=pct_type, fill=type_cov)) + 
+  geom_bar(position="dodge", stat="identity") + 
+  coord_flip() +
+  ylab('Percent of Population') + xlab("Race/Ethnicity") +
+  scale_fill_manual(name = "Source", 
+                      values=c("#CC6677", "#88CCEE", "#AA4499", "#DDCC77", 
+                               "#332288", "#999933", "#117733")) +
+  theme(legend.key.size = unit(1, "cm")) +
+  ggtitle("Men 65+ with Two or More Providers: \nHealth Insurance Sources")
+
+df %>% filter(!is.na(race_eth), race_eth != "Not Hispanic") %>%
+ggplot(aes(x= factor(race_eth, levels = c("Asian", "Black", "Native", "Other", "Two or More", "White", "Hispanic")), y=pct_type, fill=type_cov)) + 
+  geom_bar(position="dodge", stat="identity") + 
+  facet_grid('SEX') + 
+  coord_flip() +
+  ylab('Percent of Population') + xlab("Race and Ethnicity") +
+  scale_fill_manual(name = "Source", 
+                      values=c("#CC6677", "#88CCEE", "#AA4499", "#DDCC77", 
+                               "#332288", "#999933", "#117733")) +
+  theme(legend.key.size = unit(1, "cm")) +
+  ggtitle("Population 65+ with Two or More Providers: \nHealth Insurance Sources")
+```
+
+```{r}
+# combinations of insurance for seniors with two or more sources ---------------
+
+library(circlize)
+
+wm <- fx_pums_df %>% 
+  filter(SEX=='Female', age_group=='Adults (65+)', HICOV==1) %>%
+  mutate(key=paste0(SERIALNO, SPORDER),
+         HINS1=if_else(HINS1==1, 1, 0),
+         HINS2=if_else(HINS2==1, 1, 0),
+         HINS3=if_else(HINS3==1, 1, 0),
+         HINS4=if_else(HINS4==1, 1, 0),
+         HINS5=if_else(HINS5==1, 1, 0),
+         HINS6=if_else(HINS6==1, 1, 0),
+         HINS7=if_else(HINS7==1, 1, 0)) %>%
+  select(-c(SERIALNO, SPORDER, WGTP, AGEP, PUMA, ST, SEX, HICOV, RAC1P, FHISP, age_group))
+
+# create plot for each race/ethnicity
+for(var in unique(wm$race_eth)) {
+  curr <- wm %>% filter(race_eth==var)
+  
+  edge_list <- NULL
+  codes_checked <- c()
+  for (source_code in 1:6) {
+    source <- paste0("HINS", source_code)
+    temp <- curr[curr[[source]]=='1',]
+    temp <- temp[, !(names(temp) %in% codes_checked)]
+    
+    # map combinations of providers
+    temp <- temp %>% select("PWGTP", starts_with("HINS")) %>% 
+      pivot_longer(-c(source, PWGTP), names_to = 'destination') %>%
+      mutate(origin = source) %>%
+      select(origin, destination, PWGTP)
+    
+    # add weights
+    temp <- temp[rep(seq_len(nrow(temp)), temp$PWGTP),]
+    temp <- temp %>% select(-c(PWGTP))
+    
+    edge_list <- rbind(edge_list, temp)
+    codes_checked <- append(codes_checked, source)
+  }
+  
+  # Transform input data in a adjacency matrix
+  adjacencyData <- with(edge_list, table(origin, destination))
+  
+  # Make the circular plot
+  chordDiagram(adjacencyData, transparency = 0.5)
+
+}
+```
+```{r}
+# overlay supervisor districts and pumas
+
+sup_dist <- sf::read_sf('https://raw.githubusercontent.com/uva-bi-sdad/sdc.geographies/main/VA/Local%20Geographies/Fairfax%20County/Supervisor%20Districts/2022/data/distribution/va059_geo_ffxct_gis_2022_supervisor_districts.geojson') 
+
+sup_dist <- sup_dist %>% mutate(region_name=ifelse(region_name=='LEE', 'FRANCONIA', region_name))
+
+tm_shape(sup_dist) +
+  tm_polygons(alpha=0.8, col='region_name', border.alpha = 0, title='Region',
+              palette=c("#CC6677", "#88CCEE", "#AA4499", "#DDCC77", 
+                               "#332288", "#999933", "#117733", "#882255", "#44AA99")) +
+tm_shape(ffx_map) +
+  tm_polygons(alpha=0.05, col='white') +
+  tm_text('PUMA', size=0.8)
+```
+
+
+
+

@@ -1,0 +1,29 @@
+{
+    "avg_up_using_devices": {
+        "aggregation_method": "weighted arithmetic mean",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Availability",
+        "layer": "",
+        "long_description": "Average upload speed weighted by the number of devices.",
+        "long_name": "Average Upload Speed",
+        "measure_type": "speed",
+        "short_description": "Average upload speed weighted by the number of devices.",
+        "short_name": "Average Upload Speed",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Ookla",
+                "url": "https://www.ookla.com/ookla-for-good/open-data"
+            }
+        ],
+        "statement": "The average upload speed is {value} in {features.name}.",
+        "type": "internet speed",
+        "unit": "Mb/s",
+        "variants": ""
+    }
+}

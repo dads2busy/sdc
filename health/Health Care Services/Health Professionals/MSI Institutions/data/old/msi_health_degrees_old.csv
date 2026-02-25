@@ -1,0 +1,90 @@
+Institution,Degree,degree_type,Program Name,CIP Code
+Norfolk State University,CERT,Short-term Certificates  ,Health Services Management,51.0701
+Norfolk State University,BS,Four-Year Bachelor's Degree ,Health Services Management,51.0701
+Norfolk State University,BS,Four-Year Bachelor's Degree ,Nursing,51.3801
+Norfolk State University,BSW,Four-Year Bachelor's Degree ,Social Work,44.0701
+Norfolk State University,MHA,Master's Degree ,Healthcare Administration,51.0701
+Norfolk State University,MSW,Master's Degree ,Social Work,44.0701
+Norfolk State University,PHD,Doctor's Degree ,Clinical Psychology  (w/ODU and EVMS),42.2801
+Norfolk State University,PHD,Doctor's Degree ,Social Work,44.0701
+Hampton University,CERT,Longer-term Certificates ,Nurse Practitioner,51.3901
+Hampton University,BA,Four-Year Bachelor's Degree ,Sociology and Social Work,44.0701
+Hampton University,BS,Four-Year Bachelor's Degree ,Communicative Sciences & Disorders,51.0203
+Hampton University,BS,Four-Year Bachelor's Degree ,Emergency Medical Systems Mgmt,51.0999
+Hampton University,BS,Four-Year Bachelor's Degree ,Health Sciences,51.0001
+Hampton University,BS,Four-Year Bachelor's Degree ,Nursing,51.3801
+Hampton University,BS,Four-Year Bachelor's Degree ,Pharmaceutical Sciences,51.201
+Hampton University,BS,Four-Year Bachelor's Degree ,Physical Education,13.1314
+Hampton University,BS,Four-Year Bachelor's Degree ,Physical Therapy,51.2308
+Hampton University,BS,Four-Year Bachelor's Degree ,Pre Professional Nursing,51.3899
+Hampton University,PHARMD,Bach's Lvl Student In Contin grad f/p pgm ,Pharmacy,51.2001
+Hampton University,CERT,Post-Baccalaureate Certificate ,Primary Care Fam Nurse Practitioner,51.3805
+Hampton University,PHARMD,First Professional Degree ,Pharmacy,51.2001
+Hampton University,MA,Master's Degree ,Physical Education,13.1314
+Hampton University,MA,Master's Degree ,Physical Therapy,51.2308
+Hampton University,MA/MS,Master's Degree ,Communicative Sciences & Disorders,51.0203
+Hampton University,MS,Master's Degree ,Nursing,51.3801
+Hampton University,MS,Master's Degree ,Nursing,51.381100000000004
+Hampton University,MS,Master's Degree ,Nursing,51.3803
+Hampton University,MS,Master's Degree ,Nutrition,19.0501
+Hampton University,MS,Master's Degree ,Nutrition,51.3101
+Hampton University,MS/PB,Master's Degree ,Master of Science in Medical Science/Post Bac,51.1102
+Hampton University,CAGS,Post-Master's Certificate ,Primary Care Family Nurse Practitioner(FNP),51.3901
+Hampton University,DPT,Doctor's Degree ,Doctor of Physical Therapy,51.2308
+Hampton University,PHD,Doctor's Degree ,Doctor of Philosophy in Nursing,51.3801
+Northern Virginia Community College,CERT,Short-term Certificates  ,"Mental Health Services, Other",51.1599
+Northern Virginia Community College,CSC,Short-term Certificates  ,Health Info Coding Special,51.0799
+Northern Virginia Community College,CSC,Short-term Certificates  ,Health Information Technol,51.0707
+Northern Virginia Community College,CSC,Short-term Certificates  ,Health Sciences,51.0999
+Northern Virginia Community College,CSC,Short-term Certificates  ,Massotherapy,51.3501
+Northern Virginia Community College,CSC,Short-term Certificates  ,Medical Laboratory Technol,51.1004
+Northern Virginia Community College,CSC,Short-term Certificates  ,Opticianry,51.1801
+Northern Virginia Community College,CSC,Short-term Certificates  ,Radiography,51.0911
+Northern Virginia Community College,CSC,Short-term Certificates  ,Respiratory Therapy,51.0908
+Northern Virginia Community College,CERT,Longer-term Certificates ,Dental Assisting,51.0602
+Northern Virginia Community College,CERT,Longer-term Certificates ,Dental Assisting,51.0601
+Northern Virginia Community College,CERT,Longer-term Certificates ,Dietician Assistant,51.3104
+Northern Virginia Community College,CERT,Longer-term Certificates ,Emergency Medical Tech/Technician,51.0904
+Northern Virginia Community College,CERT,Longer-term Certificates ,"Mental Health Services, Other",51.1599
+Northern Virginia Community College,CERT,Longer-term Certificates ,Patient Care Technician,51.0899
+Northern Virginia Community College,CERT,Longer-term Certificates ,Respiratory Therapy Technician,51.0908
+Northern Virginia Community College,CERT,Longer-term Certificates ,Substance Abuse/Addiction Counseling,51.1501
+Northern Virginia Community College,CERT,Longer-term Certificates ,Surgical/Operating Room Technician,51.0909
+Northern Virginia Community College,AAAS,Associate's Degree (Occ/Tech Credit) ,Occupational Therapy Assistant,51.0803
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Dental Hygiene,51.0602
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Diagnostic Medical Sonography,51.091
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Emergency Medical Services,51.0904
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Health Information Tech,51.0707
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Medical Laboratory Technician,51.1004
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,"Mental Health Services, Other",51.1599
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Nursing,51.3801
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Physical Therapist Assistant,51.0806
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Radiologic Technology,51.0911
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Respiratory Care Therapy,51.0908
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Substance Abuse Rehabilitation,51.1501
+Northern Virginia Community College,AAS,Associate's Degree (Occ/Tech Credit) ,Veterinary Technology,1.8301
+Virginia State University,CERT,Short-term Certificates  ,Nutrition and Dietetics,19.0501
+Virginia State University,BS,Four-Year Bachelor's Degree ,Health & Physical Education,13.1314
+Virginia State University,BSN,Four-Year Bachelor's Degree ,Nursing,51.3801
+Virginia State University,BSW,Four-Year Bachelor's Degree ,Social Work,44.0701
+Virginia State University,GRAD CERT,Post-Baccalaureate Certificate ,Food and Nutrition Science,51.3101
+Virginia State University,MSW,Master's Degree ,Social Work,44.0701
+Virginia State University,PHD,Doctor's Degree ,Health Psychology,42.281
+Virginia Union University,BA,Four-Year Bachelor's Degree ,Social Work,44.0701
+Virginia Union University,BS,Four-Year Bachelor's Degree ,Pre-Health Professional,51.9999
+Virginia Union University,MPH,Master's Degree ,Masters of Public Health,51.2202
+Virginia Union University,MSW,Master's Degree ,Social Work,44.0701
+Virginia Tech,BS,Four-Year Bachelor's Degree ,"Human Nutrition, Foods & Exercise",19.0501
+Virginia Tech,BS,Four-Year Bachelor's Degree ,Public Health,51.2201
+Virginia Tech,GRAD CERT,Post-Baccalaureate Certificate ,Gerontology,30.1101
+Virginia Tech,GRAD CERT,Post-Baccalaureate Certificate ,Interdisciplinary Water and Health Science,51.2299
+Virginia Tech,GRAD CERT,Post-Baccalaureate Certificate ,Public Health,51.2201
+Virginia Tech,GRAD CERT,Post-Baccalaureate Certificate ,Research in Translational Medicine,51.1199
+Virginia Tech,DVM,First Professional Degree ,Veterinary Medicine,1.8001
+Virginia Tech,MD,First Professional Degree ,Medicine,51.1201
+Virginia Tech,MPH,Master's Degree ,Public Health,51.2201
+Virginia Tech,MS,Master's Degree ,Biomedical and Veterinary Sciences,1.8101
+Virginia Tech,MS,Master's Degree ,"Human Nutrition, Foods & Exercise",19.0501
+Virginia Tech,MS,Master's Degree ,Nutrition and Dietetics,51.3101
+Virginia Tech,PHD,Doctor's Degree ,Biomedical and Veterinary  Sciences,1.8101
+Virginia Tech,PHD,Doctor's Degree ,"Human Nutrition, Foods & Exercise",19.0501

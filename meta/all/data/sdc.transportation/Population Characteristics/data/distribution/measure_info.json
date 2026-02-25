@@ -1,0 +1,83 @@
+{
+    "commute_time": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Transportation",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Self-reported mean travel time to work. Based on American Community Survey Table S0801 ACS 5-year estimates.",
+        "long_name": "Mean commute time",
+        "measure_type": "float",
+        "short_description": "Mean commute time.",
+        "short_name": "Commute time",
+        "sources": [
+            {
+                "date_accessed": "2022",
+                "location": "Table S0801",
+                "location_url": "",
+                "name": "American Community Survey",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            }
+        ],
+        "statement": "The mean commute time in {features.name} is {value}.",
+        "type": "drive time",
+        "unit": "",
+        "variants": ""
+    },
+    "perc_carpool": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Transportation",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percentage of population self-reported to carpool to work. Based on American Community Survey Table S0801 ACS 5-year estimates.",
+        "long_name": "Percentage carpool to work",
+        "measure_type": "float",
+        "short_description": "Population self-reported to carpool to work.",
+        "short_name": "Carpool to work",
+        "sources": [
+            {
+                "date_accessed": "2022",
+                "location": "Table S0801",
+                "location_url": "",
+                "name": "American Community Survey",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            }
+        ],
+        "statement": "{value} of the population in {features.name} carpools to work.",
+        "type": "percent",
+        "unit": "",
+        "variants": ""
+    },
+    "perc_no_vehicle": {
+        "aggregation_method": "",
+        "categories": "",
+        "category": "Transportation",
+        "citations": "",
+        "data_type": "numeric",
+        "equity_category": "Status",
+        "layer": "",
+        "long_description": "Percentage of households self-reported to not have a vehicle available at home. Based on American Community Survey Table S2504 ACS 5-year estimates.",
+        "long_name": "Percentage of households without vehicle available",
+        "measure_type": "float",
+        "short_description": "Households self-reported to not have a vehicle available at home.",
+        "short_name": "Without vehicle",
+        "sources": [
+            {
+                "date_accessed": "2023",
+                "location": "Table S2504",
+                "location_url": "",
+                "name": "American Community Survey",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            }
+        ],
+        "statement": "{value} of households in {features.name} do not have a vehicle available at home.",
+        "type": "percent",
+        "unit": "percent",
+        "variants": ""
+    }
+}

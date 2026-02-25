@@ -1,0 +1,16 @@
+"age","rank","grouped_OCCP_label_female","grouped_OCCP_label_male","n_female","n_male","n_se_female","n_se_male"
+"16 to 29",1,"Sales and Related","Computer and Mathematical",11540,10779,574.146235727449,614.808100141825
+"16 to 29",2,"Office and Administrative Support","Sales and Related",11039,10549,726.404329557582,626.61128301364
+"16 to 29",3,"Food Preparation and Serving Related","Food Preparation and Serving Related",9075,9764,494.632237121682,658.024277667625
+"16 to 29",4,"Educational Instruction and Library","Transportation and Material Moving",6554,6865,460.017825741568,528.266977957169
+"16 to 29",5,"Personal Care and Service","Office and Administrative Support",6035,6228,371.93205024574,490.459886229241
+"30 to 49",1,"Management","Computer and Mathematical",23333,29755,710.795610566075,849.876226282392
+"30 to 49",2,"Educational Instruction and Library","Management",15369,27407,560.79287620297,827.683333165529
+"30 to 49",3,"Office and Administrative Support","Business Operations",13675,11262,584.032918592779,621.793012183315
+"30 to 49",4,"Business Operations","Construction and Extraction",12410,10931,613.271758684517,742.796742049937
+"30 to 49",5,"Healthcare Practioners and Technical","Sales and Related",11817,9240,565.843617972316,590.232454207662
+"over 50",1,"Management","Management",18902,32488,607.668865419317,769.929120114313
+"over 50",2,"Office and Administrative Support","Computer and Mathematical",18525,16689,676.688813266482,594.68823765062
+"over 50",3,"Educational Instruction and Library","Business Operations",15767,10726,569.192102896729,512.837206138556
+"over 50",4,"Sales and Related","Sales and Related",9673,10167,450.504883436351,507.659285347959
+"over 50",5,"Business Operations","Transportation and Material Moving",8645,9522,491.400345950224,500.550047447805

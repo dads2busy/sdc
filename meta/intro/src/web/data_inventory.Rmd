@@ -1,0 +1,11 @@
+---
+title: "Data Inventory"
+subtitle: "Report of Collected Data"
+output:
+  html_document
+---
+
+## Data
+
+`r htmltools::includeHTML("./data_inventory_table.html")`
+`r htmltools::includeHTML("./footer.html")`

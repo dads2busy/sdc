@@ -1,0 +1,54 @@
+---
+title: "Untitled"
+author: "cm"
+date: "12/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(dplyr)
+```
+
+
+Data
+```{r}
+#Estimates SDAD
+fi_fairfax <- read.csv("Food Security Estimates Fairfax County/data/Distribution/fairfax_tr_mult_2022_food_security_est.csv" )
+#Estimates Feeding America
+fi_feeding <- read_excel("Food Insecurity Feeding America/US_tract_2020.xlsx")
+fi_feeding <- fi_feeding %>% filter(fips==51059)
+
+#write.csv(fi_feeding, "fairfax_tr_feedamerica_2020_food_insecurity.csv" )
+```
+Join info
+```{r}
+fi_fairfax_feedam <- fi_fairfax %>% left_join(fi_feeding, by = c("geoid"="TractID"))
+```
+
+#scatter plot Food Insecurity - Median Income
+```{r}
+library(plotly)
+library(ggplot2)
+
+p <- ggplot(fi_fairfax_feedam, aes(insecure_pc, percent_food_insecure_2020,  text = name))
+p <-  p + geom_point() + labs(title = 'Food Insecurity Estimates SDAD and Feeding America by Census Tracts', subtitle = "Fairfax County, VA", x="Estimate SDAD", y="Estimate Feeding America") + scale_colour_viridis_d() +
+   theme(legend.text=element_text(size=15))
+
+###
+# library(viridis)
+# p <- ggplot(food_sec_tract_num_plot)
+# p <-  p + geom_point(aes(estimate, insecure_pc, colour = pumas, text = NAME), shape=21,size=2) + labs(title = 'Food Insecurity and Mean Income by Census Tracts', subtitle = "Fairfax County, VA", x="Mean Income", y="Proportion of households facing Food Insecurity") + scale_fill_viridis(discrete=TRUE, option="viridis") +
+#    theme(legend.text=element_text(size=15))
+
+
+ggplotly(p)
+```
+
+
+ 
+

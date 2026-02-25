@@ -1,0 +1,16 @@
+---
+title: "Health Equity in the National Capital Region"
+subtitle: "Is access to hospitals equitable in Arlington and Fairfax County?"
+---
+
+# Issue overview
+
+# Access to hospitals by count
+
+# Access to hospitals by drive time
+
+# Access to hospitals by FCA
+
+# Access to hospitals by FCA by demographics
+
+`r htmltools::includeHTML("./footer.html")`

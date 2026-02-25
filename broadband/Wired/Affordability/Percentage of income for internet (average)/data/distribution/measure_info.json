@@ -1,0 +1,36 @@
+{
+    "perc_income_avg_nat_package": {
+        "aggregation_method": "percent",
+        "categories": "",
+        "category": "Broadband",
+        "citations": "",
+        "data_type": "decimal",
+        "equity_category": "Affordability",
+        "layer": "",
+        "long_description": "The national average price for internet, which is $64, as a percentage of median household income. Geographies: Block group (12), Census Tract (11), County (5)",
+        "long_name": "The national average price for internet as a percentage of average income",
+        "measure_type": "percent",
+        "short_description": "The national average price for internet, which is $64, as a percentage of median household income. Geographies: Block group (12), Census Tract (11), County (5)",
+        "short_name": "Percentage of income for internet (average)",
+        "sources": [
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "American Community Survey",
+                "url": "https://www.census.gov/programs-surveys/acs.html"
+            },
+            {
+                "date_accessed": 2021,
+                "location": "",
+                "location_url": "",
+                "name": "Broadband Now",
+                "url": "https://broadbandnow.com/"
+            }
+        ],
+        "statement": "The national average internet package costs {value} of the median household income in {features.name}.",
+        "type": "percent",
+        "unit": "dollar",
+        "variants": ""
+    }
+}

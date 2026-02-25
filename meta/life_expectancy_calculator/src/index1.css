@@ -1,0 +1,184 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+:root {
+  margin-left: 16px;
+  --main-color: rgb(104, 117, 217);
+  --main-color-hover: rgb(104, 117, 217, 0.2);
+  --track-color: #ddd;
+  --mark-color: #aaaaaa;
+}
+
+.textbox {
+  width: 40%;
+  padding: 10px;
+  margin: 0 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+
+.feature_Name {
+  margin-bottom: 10px;
+  /* Add space below the feature name */
+  /* Align text to the right */
+  width: 100%;
+  /* Ensure it takes the full width */
+}
+
+.container2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  /* Align items to the right */
+  padding: 20px;
+  max-width: 70%;
+  /* Adjust this as needed */
+  /* margin-left: auto;  */
+  /* Align to the right side */
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  /* Ensure it takes the full width */
+  justify-content: flex-end;
+}
+
+.customSlider {
+
+  width: 100%;
+  margin: auto;
+  /* margin-right: 0; */
+}
+
+.customSlider-track {
+  /* Top value to align your track to the center of your thumb */
+  top: 4px;
+  /* thickness of the track */
+  height: 2px;
+  /* default color of your track */
+  background: var(--track-color);
+}
+
+.customSlider-track.customSlider-track-0 {
+  /* color of the track before the thumb */
+  background: var(--main-color);
+}
+
+.customSlider-thumb {
+  cursor: pointer;
+  /*color for the thumb */
+  background: var(--main-color);
+  /* shape of the thumb: circle */
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  /* remove default outline when selected */
+  outline: none;
+}
+
+.customSlider-thumb:hover {
+  box-shadow: 0 0 0 8px var(--main-color-hover);
+}
+
+.customSlider-mark {
+  cursor: pointer;
+  top: 6px;
+  width: 1.5px;
+  height: 8px;
+  background-color: var(--mark-color);
+}
+
+.customSlider-mark.customSlider-mark-before {
+  background-color: var(--main-color);
+}
+
+.customSlider-mark.customSlider-mark-active {
+  display: none;
+}
+
+
+
+/* .navigation {
+  display: flex;
+  flex-flow: column wrap;
+  /* justify-content: flex-end; */
+
+/* list-style: none; */
+/* margin: 0;  */
+/* background: deepskyblue; } */
+/* .cl {
+  text-align: right; /* Right align all text and inline elements */
+
+.feature_Name:hover {
+  color: var(--main-color);
+}
+
+.grid-container {
+  display: grid;
+  /* grid-template-columns: repeat(auto-fit, minmax(300px, 0fr)); */
+  grid-template-columns: 300px 300px 300px ;
+  /* grid-auto-flow: column;
+  grid-auto-columns: 1fr; */
+  /* gap: 0px;
+  padding: 1px; */
+}
+
+
+/* CSS */
+.button-27 {
+  appearance: none;
+  background-color: #000000;
+  border: 2px solid #1A1A1A;
+  border-radius: 15px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+  min-height: 60px;
+  min-width: 0;
+  outline: none;
+  padding: 16px 24px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: 50%;
+  will-change: transform;
+}
+
+.button-27:disabled {
+  pointer-events: none;
+}
+
+.button-27:hover {
+  box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+  transform: translateY(-2px);
+}
+
+.button-27:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
