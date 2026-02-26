@@ -483,11 +483,15 @@ name = "sdc"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "geopandas" },
     { name = "sdc-core" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "sdc-core", editable = "packages/sdc-core" }]
+requires-dist = [
+    { name = "geopandas", specifier = ">=1.1.2" },
+    { name = "sdc-core", editable = "packages/sdc-core" },
+]
 
 [[package]]
 name = "sdc-core"
